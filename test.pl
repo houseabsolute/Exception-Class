@@ -78,10 +78,10 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "SubTestException was thrown in class ", ref $@, "\n" );
 
     result( $@->isa( 'TestException' ),
-	    "SubTestException should be a subclass of TestException\n" );
+	    "SubTestException should be a subclass of TestException (triggers ->isa bug.  See README.)\n" );
 
     result( $@->isa( 'Exception::Class::Base' ),
-	    "SubTestException should be a subclass of Exception::Class::Base\n" );
+	    "SubTestException should be a subclass of Exception::Class::Base (triggers ->isa bug.  See README.)\n" );
 
     result( $@->description eq 'blah blah',
 	    "Description should be 'blah blah' but it's '", $@->description, "'\n" );
@@ -89,7 +89,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     eval { YAE->throw( error => 'err' ); };
 
     result( $@->isa( 'SubTestException' ),
-	    "YAE should be a subclass of SubTestException\n" );
+	    "YAE should be a subclass of SubTestException (triggers ->isa bug.  See README.)\n" );
 
     eval { BlahBlah->throw( error => 'yadda yadda' ); };
     result( $@->isa('FooException'),
