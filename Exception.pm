@@ -230,9 +230,9 @@ sub as_string
     my Exception $self = shift;
 
     my $str = $self->{error};
-    if ($self->{trace})
+    if ($self->trace)
     {
-	$str .= "\n", $self->{trace}->as_string;
+	$str .= "\n" . $self->trace->as_string;
     }
 
     return $str;
