@@ -1,3 +1,10 @@
+1.06
+
+- Use File::Spec when testing file method so that test 7 passes on all
+platforms.  Reported by Ron Savage.
+
+- Use Test::More for test suite.
+
 1.05 Aug 23, 2002 (from Taiwan)
 
 - Add NoObjectRefs class method to prevent Devel::StackTrace from
