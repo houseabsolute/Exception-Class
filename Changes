@@ -5,6 +5,10 @@ platforms.  Reported by Ron Savage.
 
 - Use Test::More for test suite.
 
+- Change NoObjectRefs method to NoRefs, to match change in
+Devel::StackTrace 1.01.  The old method is deprecated, but will
+continue to work.  However, it now _means_ the same thing as NoRefs.
+
 1.05 Aug 23, 2002 (from Taiwan)
 
 - Add NoObjectRefs class method to prevent Devel::StackTrace from
