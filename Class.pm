@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '0.6';
+$VERSION = '0.7';
 
 sub import
 {
@@ -198,8 +198,8 @@ sub _initialize
     my Exception::Class::Base $self = shift;
     my %p = @_;
 
-    # Try to get something useful in there (I hope).
-    $self->{error} = $p{error} || $!;
+    # Try to get something useful in there (I hope).  Or just give up.
+    $self->{error} = $p{error} || $! || '';
 
     $self->{time} = CORE::time; # without CORE:: sometimes makes a warning (why?)
     $self->{pid}  = $$;
