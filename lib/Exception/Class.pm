@@ -269,9 +269,22 @@ sub _initialize
     $self->{gid}  = $(;
     $self->{egid} = $);
 
+    my @ignore_class   = (__PACKAGE__);
+    my @ignore_package = 'Exception::Class';
+
+    if ( my $i = delete $p{ignore_class} )
+    {
+        push @ignore_class, ( ref($i) eq 'ARRAY' ? @$i : $i );
+    }
+
+    if ( my $i = delete $p{ignore_package} )
+    {
+        push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
+    }
+
     $self->{trace} =
-        Devel::StackTrace->new( ignore_class     => __PACKAGE__,
-                                ignore_package   => 'Exception::Class',
+        Devel::StackTrace->new( ignore_class     => \@ignore_class,
+                                ignore_package   => \@ignore_package,
                                 no_refs          => $self->NoRefs,
                                 respect_overload => $self->RespectOverload,
                               );
@@ -574,6 +587,10 @@ This method also takes a C<show_trace> parameter which indicates
 whether or not the particular exception object being created should
 show a stacktrace when its C<as_string()> method is called.  This
 overrides the value of C<Trace()> for this class if it is given.
+
+The frames included in the trace can be controlled by the C<ignore_class>
+and C<ignore_package> parameters. These are passed directly to
+Devel::Stacktrace's constructor. See C<Devel::Stacktrace> for more details.
 
 If only a single value is given to the constructor it is assumed to be
 the message parameter.
