@@ -538,7 +538,7 @@ this method provides a way to tell C<Devel::StackTrace> not to store
 these references.  Instead, C<Devel::StackTrace> replaces references
 with their stringified representation.
 
-This method defaults to false.  As with C<Trace>, it is inherited by
+This method defaults to true.  As with C<Trace>, it is inherited by
 subclasses but setting it in a subclass makes it independent
 thereafter.
 
