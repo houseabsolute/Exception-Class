@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.04';
+$VERSION = '1.05';
 
 sub import
 {
@@ -154,11 +154,16 @@ use Devel::StackTrace;
 
 use base qw(Class::Data::Inheritable);
 
-__PACKAGE__->mk_classdata('Trace');
-__PACKAGE__->mk_classdata('Fields');
-*do_trace = \&Trace;
+BEGIN
+{
+    __PACKAGE__->mk_classdata('Trace');
+    __PACKAGE__->mk_classdata('Fields');
+    __PACKAGE__->mk_classdata('NoObjectRefs');
+    *do_trace = \&Trace;
 
-__PACKAGE__->Fields([]);
+    __PACKAGE__->Fields([]);
+    __PACKAGE__->NoObjectRefs(0);
+}
 
 use overload
     # an exception is always true
@@ -239,7 +244,10 @@ sub _initialize
 
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
-    $self->{trace} = Devel::StackTrace->new( ignore_class => __PACKAGE__ );
+    $self->{trace} =
+        Devel::StackTrace->new( ignore_class   => __PACKAGE__,
+                                no_object_refs => $self->NoObjectRefs,
+                              );
 
     my %fields = map { $_ => 1 } $self->Fields;
     while ( my ($key, $value) = each %p )
@@ -444,7 +452,7 @@ Foo and never declare Foo.
 
 =over 4
 
-=item * Trace($true_or_false)
+=item * Trace($boolean)
 
 Each C<Exception::Class::Base> subclass can be set individually to
 include a a stracktrace when the C<as_string> method is called.  The
@@ -457,6 +465,23 @@ set for a subclass, it will thereafter be independent of the value in
 C<Exception::Class::Base>.
 
 This is a class method, not an object method.
+
+=item * NoObjectRefs($boolean)
+
+When a C<Devel::StackTrace> is created, it walks through the stack and
+stores the arguments which were passed to each subroutine on the
+stack.  If any of these arguments are objects, then that means that
+the C<Devel::StackTrace> ends up increasing the refcount of these
+objects, delaying their destruction.
+
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
+this method provides a way to tell C<Devel::StackTrace> not to store
+these references.  Instead, C<Devel::StackTrace> replace objects with
+a string describing the object.
+
+This method defaults to false.  As with C<Trace>, it is inherited by
+subclasses but setting it in a subclass makes it independent
+thereafter.
 
 =item * throw( $message )
 
