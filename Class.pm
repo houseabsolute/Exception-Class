@@ -221,7 +221,7 @@ sub _initialize
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
-    $self->{time} = CORE::time; # without CORE:: sometimes makes a warning (why?)
+    $self->{time} = time();
     $self->{pid}  = $$;
     $self->{uid}  = $<;
     $self->{euid} = $>;
