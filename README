@@ -16,8 +16,8 @@ BUGS
 Under Perl 5.6.0, there may be problems with stack traces.  I have
 made the test suite pass under 5.6.0 because most of the module's
 functionality works under 5.6.0.  Please don't email me asking why
-your stack traces are screwed up, though.  If it doesn't work with
-5.6.1 when that comes out then please let me know.
+your stack traces are screwed up, though.  Upgrade Perl or deal with
+it.
 
 ** The ->isa method and Class::Fields' base.pm
 
@@ -46,6 +46,5 @@ sub _my_isa
     }
 }
 
-The fixes for all the Perl bugs mentioned are already checked into the
-Perl CVS (thanks to whoever fixed them :) and will be in the 5.6.1
-release.
+The fixes for all the Perl bugs are already present in 5.6.1 and newer
+releases.

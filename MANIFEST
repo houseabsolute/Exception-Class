@@ -2,5 +2,6 @@ README
 Class.pm
 MANIFEST
 LICENSE
+Changes
 Makefile.PL
 t/basic.t
