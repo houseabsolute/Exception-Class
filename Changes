@@ -1,3 +1,9 @@
+1.13 Jun 21, 2003
+
+- Documented the Exception::Class::Base->Fields method, which can be
+called on subclasses to determine what extra fields they have defined.
+Suggested by Chris Winters.
+
 1.12 Apr 03, 2003
 
 - Added the Exception::Class::Base->Classes method.  Patch by David
