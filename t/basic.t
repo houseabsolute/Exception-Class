@@ -25,7 +25,7 @@ BEGIN
 }
 
 use Exception::Class
-  ( 'YAE' => { isa => 'SubTestException' },
+  (  'YAE' => { isa => 'SubTestException', alias => 'yae' },
 
     'SubTestException' => { isa => 'TestException',
                             description => 'blah blah' },
