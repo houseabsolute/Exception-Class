@@ -375,7 +375,7 @@ Exception::Class - A module that allows you to declare real exception classes in
       );
 
   # try
-  eval { MyException->throw( error => 'I feel funny.'; };
+  eval { MyException->throw( error => 'I feel funny.' ) };
 
   # catch
   if ( UNIVERSAL::isa( $@, 'MyException' ) )
