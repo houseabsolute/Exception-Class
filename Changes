@@ -6,6 +6,9 @@ function, as they incorrectly implied that it would return all
 subclasses, instead of just subclasses which were created when loading
 Exception::Class.
 
+- Added a Build.PL file, and releases are now signed with
+Module::Signature.
+
 
 1.19 Mar 10, 2004
 
