@@ -308,30 +308,42 @@ Exception::Class - A module that allows you to declare real exception classes in
 
 =head1 SYNOPSIS
 
-  use Exception::Class (
-                  'MyException',
-                  'AnotherException' => { isa => 'MyException' },
-                  'YetAnotherException' => { isa => 'AnotherException',
-                                             description => 'These exceptions are related to IPC' }                                  );
+  use Exception::Class
+      ( 'MyException',
 
+        'AnotherException' =>
+        { isa => 'MyException' },
+
+        'YetAnotherException' =>
+        { isa => 'AnotherException',
+          description => 'These exceptions are related to IPC' },
+
+        'ExceptionWithFields' =>
+        { isa => 'YetAnotherException',
+          fields => [ 'grandiosity', 'quixotic' ] },
+      );
+
+  # try
   eval { MyException->throw( error => 'I feel funny.'; };
 
-  print $@->error, "\n";
-
-  MyException->Trace(1);
-  eval { MyException->throw( error => 'I feel funnier.'; };
-
-  print $@->error, "\n", $@->trace->as_string, "\n";
-  print join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
-
   # catch
-  if ($@->isa('MyException'))
+  if ( $@->isa('MyException') )
   {
-     do_something();
+     warn $@->error, "\n, $@->trace->as_string, "\n";
+     warn join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
+
+     exit;
   }
-  elsif ($@->isa('FooException'))
+  elsif ( $@->isa('ExceptionWithFields') )
   {
-     go_foo_yourself();
+     if ( $@->quixotic )
+     {
+         do_something_wacky();
+     }
+     else
+     {
+         do_something_sane();
+     }
   }
   else
   {
@@ -340,50 +352,50 @@ Exception::Class - A module that allows you to declare real exception classes in
 
 =head1 DESCRIPTION
 
-Exception::Class allows you to declare exceptions in your modules in a
-manner similar to how exceptions are declared in Java.
+Exception::Class allows you to declare exception hierarchies in your
+modules in a "Java-esque" manner.
 
 It features a simple interface allowing programmers to 'declare'
 exception classes at compile time.  It also has a base exception
-class, Exception::Class::Base, that can be used for classes stored in
-files (aka modules ;) ) that are subclasses.
+class, Exception::Class::Base, that can be easily extended.
 
 It is designed to make structured exception handling simpler and
 better by encouraging people to use hierarchies of exceptions in their
-applications.
+applications, as opposed to a single catch-all exception class.
 
-NOTE: This module does not implement any try/catch syntax.  Please see
-the L<OTHER EXCEPTION MODULES (try/catch syntax)|OTHER EXCEPTION
-MODULES (try/catch syntax)> section for more information on how to get
-this syntax.
+This module does not implement any try/catch syntax.  Please see the
+"OTHER EXCEPTION MODULES (try/catch syntax)" section for more
+information on how to get this syntax.
 
 =head1 DECLARING EXCEPTION CLASSES
 
-The 'use Exception::Class' syntax lets you automagically create the
-relevant Exception::Class::Base subclasses.  You can also create
-subclasses via the traditional means of external modules loaded via
-'use'.  These two methods may be combined.
+Importing C<Exception::Class> allows you to automagically create
+C<Exception::Class::Base> subclasses.  You can also create subclasses
+via the traditional means of defining your own subclass with C<@ISA>.
+These two methods may be easily combined, so that you could subclass
+an exception class defined via the automagic import, if you desired
+this.
 
 The syntax for the magic declarations is as follows:
 
 'MANDATORY CLASS NAME' => \%optional_hashref
 
-The hashref may contain two options:
+The hashref may contain the following options:
 
 =over 4
 
 =item * isa
 
 This is the class's parent class.  If this isn't provided then the
-class name is $Exception::Class::BASE_EXC_CLASS is assumed to be the
-parent (see below).
+class name in C<$Exception::Class::BASE_EXC_CLASS> is assumed to be
+the parent (see below).
 
 This parameter lets you create arbitrarily deep class hierarchies.
-This can be any other Exception::Class::Base subclass in your
-declaration _or_ a subclass loaded from a module.
+This can be any other C<Exception::Class::Base> subclass in your
+declaration I<or> a subclass loaded from a module.
 
 To change the default exception class you will need to change the
-value of $Exception::Class::BASE_EXC_CLASS _before_ calling C<import>.
+value of C<$Exception::Class::BASE_EXC_CLASS> I<before> calling C<import>.
 To do this simply do something like this:
 
 BEGIN { $Exception::Class::BASE_EXC_CLASS = 'SomeExceptionClass'; }
@@ -392,20 +404,17 @@ If anyone can come up with a more elegant way to do this please let me
 know.
 
 CAVEAT: If you want to automagically subclass an
-Exception::Class::Base subclass loaded from a file, then you _must_
-compile the class (via use or require or some other magic) _before_
-you do 'use Exception::Class' or you'll get a compile time error.
-
-This may change if I decide to use Perl 5.6's CHECK blocks, which
-could allow even more crazy automagicalness (which may or may not be a
-good thing).
+C<Exception::Class::Base> subclass loaded from a file, then you
+I<must> compile the class (via use or require or some other magic)
+I<before> you import C<Exception::Class> or you'll get a compile time
+error.
 
 =item * fields
 
 This allows you to define additional attributes for your exception
-class.  Any field you define can be passed to the C<throw> method as
-an additional parameter for the constructor.  In addition, your
-exception object will have an accessor method for the fields you
+class.  Any field you define can be passed to the C<throw> or C<new>
+methods as additional parameters for the constructor.  In addition,
+your exception object will have an accessor method for the fields you
 define.
 
 This parameter can be either a scalar (for a single field) or an array
@@ -416,18 +425,18 @@ Fields will be inherited by subclasses.
 =item * description
 
 Each exception class has a description method that returns a fixed
-string.  This should describe the exception _class_ (as opposed to the
-particular exception being thrown).  This is useful for debugging if
+string.  This should describe the exception I<class> (as opposed to
+any particular exception object).  This may be useful for debugging if
 you start catching exceptions you weren't expecting (particularly if
 someone forgot to document them) and you don't understand the error
 messages.
 
 =back
 
-The Exception::Class magic attempts to detect circular class
+The C<Exception::Class> magic attempts to detect circular class
 hierarchies and will die if it finds one.  It also detects missing
-links in a chain so if you declare Bar to be a subclass of Foo and
-never declare Foo then it will also die.
+links in a chain, for example if you declare Bar to be a subclass of
+Foo and never declare Foo.
 
 =head1 Exception::Class::Base CLASS METHODS
 
@@ -435,15 +444,15 @@ never declare Foo then it will also die.
 
 =item * Trace($true_or_false)
 
-Each Exception::Class::Base subclass can be set individually to
-include a a stracktrace when the C<as_string> method is called..  The
+Each C<Exception::Class::Base> subclass can be set individually to
+include a a stracktrace when the C<as_string> method is called.  The
 default is to not include a stacktrace.  Calling this method with a
 value changes this behavior.  It always returns the current value
 (after any change is applied).
 
 This value is inherited by any subclasses.  However, if this value is
 set for a subclass, it will thereafter be independent of the value in
-Exception::Class::Base.
+C<Exception::Class::Base>.
 
 This is a class method, not an object method.
 
@@ -453,9 +462,9 @@ This is a class method, not an object method.
 
 =item * throw( error => $error )
 
-This method creates a new Exception::Class::Base object with the given
-error message.  If no error message is given, $! is used.  It then
-die's with this object as its argument.
+This method creates a new C<Exception::Class::Base> object with the
+given error message.  If no error message is given, C<$!> is used.  It
+then die's with this object as its argument.
 
 This method also takes a C<show_trace> parameter which indicates
 whether or not the particular exception object being created should
@@ -470,21 +479,15 @@ exception subclass will also be accepted.
 
 =item * new
 
-This method takes the same parameters as C<throw>.
-
-Returns a new Exception::Class::Base object with the given error
-message.  If no message is given, $! is used instead.
-
-This method also takes a C<show_trace> parameter which indicates
-whether or not the particular exception object being created should
-show a stacktrace when its C<as_string> method is called.  This
-overrides the value of C<Trace> for this class if it is given.
+This method takes the same parameters as C<throw>, but instead of
+dying simply returns a new exception object.
 
 =item * description
 
-Returns the description for the given Exception::Class::Base subclass.
-The Exception::Class::Base class's description is 'Generic exception'
-(this may change in the future).  This is also an object method.
+Returns the description for the given C<Exception::Class::Base>
+subclass.  The C<Exception::Class::Base> class's description is
+"Generic exception" (this may change in the future).  This is also an
+object method.
 
 =back
 
@@ -497,18 +500,17 @@ The Exception::Class::Base class's description is 'Generic exception'
 Simply dies with the object as its sole argument.  It's just syntactic
 sugar.  This does not change any of the object's attribute values.
 However, it will cause C<caller> to report the die as coming from
-within the Exception::Class::Base class rather than where rethrow was
-called.
+within the C<Exception::Class::Base> class rather than where rethrow
+was called.
+
+Of course, you always have access to the original stacktrace for the
+exception object.
 
 =item * message
 
-Returns the message associated with the exception.  This is synonymous
-with the C<error> method.
-
 =item * error
 
-Returns the error message associated with the exception.  This is
-synonymous with the C<message> method.
+Returns the error/message associated with the exception.
 
 =item * pid
 
@@ -555,7 +557,8 @@ Returns the trace object associated with the object.
 
 Returns a string form of the error message (something like what you'd
 expect from die).  If the class or object is set to show traces then
-then it also includes this in string form (like Carp::confess).
+then the full trace is also included.  The result looks like
+C<Carp::confess>.
 
 =item * full_message
 
@@ -567,7 +570,7 @@ overridden by a subclass.  See below for details.
 
 =head1 OVERLOADING
 
-The Exception::Class::Base object is overloaded so that
+The C<Exception::Class::Base> object is overloaded so that
 stringification produces a normal error message.  It just calls the
 as_string method described above.  This means that you can just
 C<print $@> after an eval and not worry about whether or not its an
@@ -581,7 +584,9 @@ expecting a different type of exception object from C<die>).
 =head1 OVERRIDING THE as_string METHOD
 
 By default, the C<as_string> method simply returns the value
-C<message> or C<error> param plus a stack trace, if one exists.
+C<message> or C<error> param plus a stack trace, if the class's
+C<Trace> method returns a true value or C<show_trace> was set when
+creating the exception.
 
 However, once you add new fields to a subclass, you may want to
 include those fields in the stringified error.
@@ -604,15 +609,12 @@ can be easily overridden.  For example:
 =head1 USAGE RECOMMENDATION
 
 If you're creating a complex system that throws lots of different
-types of exceptions consider putting all the exception declarations in
-one place.  For an app called Foo you might make a Foo::Exceptions
-module and use that in all your code.  This module could just contain
-the code to make Exception::Class do its automagic class creation.
-This allows you to more easily see what exceptions you have and makes
-it easier to keep track of them all (as opposed to looking at the top
-of 10-20 different files).  It's also ever so slightly faster as the
-Class::Exception->import method doesn't get called over and over again
-(though a given class is only ever made once).
+types of exceptions, consider putting all the exception declarations
+in one place.  For an app called Foo you might make a
+C<Foo::Exceptions> module and use that in all your code.  This module
+could just contain the code to make C<Exception::Class> do its
+automagic class creation.  Doing this allows you to more easily see
+what exceptions you have, and makes it easier to keep track of them.
 
 This might look something like this:
 
@@ -624,7 +626,7 @@ This might look something like this:
                          Foo::Bar::Exception::Smell =>
                          { isa => 'Foo::Bar::Exception::Senses',
                            fields => 'odor',
-                            description => 'stinky!' },
+                           description => 'stinky!' },
 
                          Foo::Bar::Exception::Taste =>
                          { isa => 'Foo::Bar::Exception::Senses',
@@ -634,18 +636,17 @@ This might look something like this:
                          ... );
 
 You may want to create a real module to subclass
-Exception::Class::Base as well, particularly if you want your
-exceptions to have more methods.  Read the L<DECLARING EXCEPTION
-CLASSES> for more details.
+C<Exception::Class::Base> as well, particularly if you want your
+exceptions to have more methods.
 
 =head1 OTHER EXCEPTION MODULES (try/catch syntax)
 
 If you are interested in adding try/catch/finally syntactic sugar to
-your code then I recommend you check out Graham Barr's Error module,
-which implements this syntax.  It also includes its own base exception
-class, Error::Simple.
+your code then I recommend you check out Graham Barr's C<Error.pm>
+module, which implements this syntax.  It also includes its own base
+exception class, C<Error::Simple>.
 
-If you would prefer to use the Exception::Class::Base included with
+If you would prefer to use the C<Exception::Class::Base> included with
 this module, you'll have to add this to your code somewhere:
 
   push @Exception::Class::Base::ISA, 'Error';
@@ -658,6 +659,6 @@ Dave Rolsky, <autarch@urth.org>
 
 =head1 SEE ALSO
 
-Devel::StackTrace
+Devel::StackTrace, Eror.pm
 
 =cut
