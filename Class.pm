@@ -146,6 +146,9 @@ EOPERL
 
     if ( my $alias = $def->{alias} )
     {
+        die "Cannot make alias without caller"
+            unless defined $Exception::Class::Caller;
+
         no strict 'refs';
         *{"$Exception::Class::Caller\::$alias"} = sub { $subclass->throw(@_) };
     }
