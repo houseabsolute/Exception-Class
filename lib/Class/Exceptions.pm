@@ -3,7 +3,9 @@ package Class::Exceptions;
 use 5.005;
 
 use strict;
-use vars qw($VERSION $DO_TRACE %CLASSES);
+use vars qw($VERSION $BASE_EXC_CLASS $DO_TRACE %CLASSES);
+
+BEGIN { $BASE_EXC_CLASS ||= 'BaseException'; }
 
 sub import
 {
@@ -95,7 +97,7 @@ sub _make_subclass
     {
 	$isa = ref $def->{isa} ? join ' ', @{ $def->{isa} } : $def->{isa};
     }
-    $isa ||= $class;
+    $isa ||= $BASE_EXC_CLASS;
 
     my $code = <<"EOPERL";
 package $subclass;
@@ -253,10 +255,11 @@ classes in Perl
 
 =head1 SYNOPSIS
 
-  use Exception ( 'MyException',
+  use Class::Exceptions (
+                  'MyException',
                   'AnotherException' => { isa => 'MyException' },
                   'YetAnotherException' => { isa => 'AnotherException',
-                                             description => 'These exceptions are related to IPC' } );
+                                             description => 'These exceptions are related to IPC' }                        );
 
   eval { MyException->throw( error => 'I feel funny.'; };
 
@@ -284,16 +287,16 @@ classes in Perl
 
 =head1 DESCRIPTION
 
-Class::Exceptions allows you to declare exceptions in your modules via
-similar to how exceptions are declared in Java.
+Class::Exceptions allows you to declare exceptions in your modules in
+a manner similar to how exceptions are declared in Java.
 
 It features a simple interface allowing programmers to 'declare'
 exception classes at compile time.  It also has a base exception
 class, BaseException, that can be used for classes stored in files
 (aka modules ;) ) that are subclasses.
 
-It is designed to make structured exception handling simpler by
-encouraging people to use hierarchies of exceptions in their
+It is designed to make structured exception handling simpler and
+better by encouraging people to use hierarchies of exceptions in their
 applications.
 
 =head1 DECLARING EXCEPTION CLASSES
@@ -313,28 +316,29 @@ The hashref may contain two options:
 
 =item * isa
 
-This is the class's parent class.  If this isn't provided the class
-which was "use'd" is assumed to be the parent (see below).  This lets
-you create arbitrarily deep class hierarchies.  This can be any other
-BaseException subclass in your declaration _or_ a subclass loaded from
-a module.
+This is the class's parent class.  If this isn't provided then the
+class name is $Class::Exceptions::BASE_EXC_CLASS is assumed to be the
+parent (see below).
 
-If you create a BaseException class in a file (let's call this class
-FooInaFileException) and then 'use' this class like you would 'use'
-Exception, as in:
+This parameter lets you create arbitrarily deep class hierarchies.
+This can be any other BaseException subclass in your declaration _or_
+a subclass loaded from a module.
 
-  use FooInaFileException ( 'BarException',
-                            'BazException' => { isa => 'BarException' } );
+To change the default exception class you will need to change the
+value of $Class::Exceptions::BASE_EXC_CLASS _before_ calling
+C<import>.  To do this simply do something like this:
 
-then the default base class will become FooInaFileException, _not_
-BaseException.
+BEGIN { $Class::Exceptions::BASE_EXC_CLASS = 'SomeExceptionClass'; }
+
+If anyone can come up with a more elegant way to do this please let me
+know.
 
 CAVEAT: If you want to automagically subclass a BaseException class
 loaded from a file, then you _must_ compile the class (via use or
-require or some other magic) _before_ you do 'use Exception' or you'll
-get a compile time error.  This may change with the advent of Perl
-5.6's CHECK blocks, which could allow even more crazy automagicalness
-(which may or may not be a good thing).
+require or some other magic) _before_ you do 'use Class::Exceptions'
+or you'll get a compile time error.  This may change with the advent
+of Perl 5.6's CHECK blocks, which could allow even more crazy
+automagicalness (which may or may not be a good thing).
 
 =item * description
 
@@ -426,8 +430,8 @@ was thrown.
 
 =item * trace
 
-Returns the trace object associated with the Exception if do_trace was
-true at the time it was created or undef.
+Returns the trace object associated with the BaseException if do_trace
+was true at the time it was created or undef.
 
 =item * as_string
 
