@@ -93,7 +93,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
     eval { BlahBlah->throw( error => 'yadda yadda' ); };
     result( $@->isa('FooException'),
-	    "The BlahBlah class should be a subclass of FooException\n" );
+	    "BlahBlah should be a subclass of FooException\n" );
     result( $@->isa('Exception::Class::Base'),
 	    "The BlahBlah class should be a subclass of Exception::Class::Base\n" );
 }
@@ -130,7 +130,18 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
     Exception::Class::Base->do_trace(1);
     eval { Exception::Class::Base->throw( error => 'overloaded again' ); };
-    my $x = "$@" =~ /overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s;
+
+    my $re;
+    if ($] == 5.006)
+    {
+	$re = qr/overloaded again.+eval {...}\('error', 'overloaded again'\)/s;
+    }
+    else
+    {
+	$re = qr/overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s
+    }
+
+    my $x = "$@" =~ /$re/;
     result( $x, "Overloaded stringification did not include the expected stack trace\n" );
 }
 
