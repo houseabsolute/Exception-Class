@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..37\n"; }
+BEGIN { $| = 1; print "1..38\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -223,6 +223,23 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 	    "Exception should have foo = 5 but it's ", $@->foo );
 }
 
+sub FieldsException::full_message
+{
+    return join ' ', $_[0]->message, "foo = " . $_[0]->foo;
+}
+
+# 38 - fields + full_message
+
+{
+    eval { FieldsException->throw (error => 'error', foo => 5) };
+
+    my $result = ("$@" =~ /error foo = 5/);
+    warn "$@\n";
+    result( $result,
+	    "FieldsException should stringify to include the value of foo" );
+}
+
+
 sub argh
 {
     Exception::Class::Base->throw( error => 'ARGH' );
@@ -234,5 +251,5 @@ sub result
     use vars qw($TESTNUM);
     $TESTNUM++;
     print "not "x!$ok, "ok $TESTNUM\n";
-    print @_ if !$ok;
+    print "@_\n" if !$ok;
 }
