@@ -175,15 +175,12 @@ $^W = 1;
     Exception::Class::Base->Trace(1);
     eval { Exception::Class::Base->throw( error => 'overloaded again' ); };
 
-    my $re;
-    if ($] == 5.006)
+ SKIP:
     {
-	$re = qr/overloaded again.+eval {...}\((?:'Exception::Class::Base', )?'error', 'overloaded again'\)/s;
+        skip( "Perl 5.6.0 is broken, 1" ) if $] == 5.006;
     }
-    else
-    {
-	$re = qr/overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s
-    }
+
+    my $re = qr/overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s;
 
     my $x = "$@";
     like( $x, $re,
