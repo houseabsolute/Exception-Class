@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 sub import
 {
@@ -159,6 +159,8 @@ __PACKAGE__->mk_classdata('Fields');
 __PACKAGE__->Fields([]);
 
 use overload
+    # an exception is always true
+    bool => sub { 1 },
     '""' => sub { $_[0]->as_string },
     fallback => 1;
 
