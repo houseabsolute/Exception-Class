@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..1\n"; }
+BEGIN { $| = 1; print "1..18\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # Used to test the Exception class's import method.
@@ -110,13 +110,17 @@ result( $main::loaded, "Unable to load Exception module\n" );
 	    "Trace contains frames from Exception package\n" );
 }
 
-# 17 : overloading
+# 17-18 : overloading
 {
     Exception->do_trace(0);
     eval { Exception->throw( error => 'overloaded' ); };
 
-    my $e = "$@";
-    result( $e eq 'overloaded', 'overloading is not working' );
+    result( "$@" eq 'overloaded', "Overloading is not working\n" );
+
+    Exception->do_trace(1);
+    eval { Exception->throw( error => 'overloaded' ); };
+    my $x = "$@" =~ /overloaded.+\(eval\)/s;
+    result( $x, "Overloaded stringification did not include the expected stack trace\n" );
 }
 
 sub argh
