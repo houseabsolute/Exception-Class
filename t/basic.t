@@ -2,7 +2,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 46;
+use Test::More tests => 52;
 
 use_ok('Exception::Class');
 
@@ -35,13 +35,18 @@ use Exception::Class
     'FooBarException' => { isa => 'FooException' },
 
     'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
-    'MoreFieldsException' => { isa => 'FieldsException', fields => [qw(yip)]},
+    'MoreFieldsException' => { isa => 'FieldsException', fields => [ 'yip' ] },
 
     'Exc::AsString',
 
     'Bool' => { fields => [ 'something' ] },
 
     'ObjectRefs',
+    'ObjectRefs2',
+
+    'SubAndFields' => { fields => 'thing',
+                        alias  => 'throw_saf',
+                      },
   );
 
 
@@ -74,8 +79,8 @@ $^W = 1;
     is( $@->file, $expect,
         "File should be '$expect'" );
 
-    is( $@->line, 57,
-        "Line should be 57" );
+    is( $@->line, 62,
+        "Line should be 62" );
 
     is( $@->pid, $$,
         "PID should be $$" );
@@ -284,7 +289,20 @@ sub FieldsException::full_message
         "Single arg constructor should just set error/message" );
 }
 
-# 45 - no object refs
+# 45 - no refs
+{
+    ObjectRefs2->NoRefs(1);
+
+    eval { Foo->new->bork2 };
+    my $exc = $@;
+
+    my @args = ($exc->trace->frames)[1]->args;
+
+    ok( ! ref $args[0],
+        "No references should be saved in the stack trace" );
+}
+
+# 46 - no object refs (deprecated)
 {
     ObjectRefs->NoObjectRefs(1);
 
@@ -295,6 +313,22 @@ sub FieldsException::full_message
 
     ok( ! ref $args[0],
         "No references should be saved in the stack trace" );
+}
+
+# 47-52 - aliases
+{
+    eval { throw_saf( 'an error' ) };
+    my $e = $@;
+
+    ok( $e, "Throw exception via convenience sub (one param)" );
+    is( $e->error, 'an error' );
+
+    eval { throw_saf( error => 'another error', thing => 10 ) };
+    my $e = $@;
+
+    ok( $e, "Throw exception via convenience sub (named params)" );
+    is( $e->error, 'another error' );
+    is( $e->thing, 10 );
 }
 
 sub argh
@@ -314,4 +348,11 @@ sub bork
     my $self = shift;
 
     ObjectRefs->throw( 'kaboom' );
+}
+
+sub bork2
+{
+    my $self = shift;
+
+    ObjectRefs2->throw( 'kaboom' );
 }
