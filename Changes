@@ -1,6 +1,12 @@
+1.00
+
+- Added a full_message method intended to be overridden when you
+create a subclass that uses fields that you want included in the
+stringification of the object.  Suggested by Jon Swartz.
+
 0.99
 
-- The much-request "arbitrary attributes" feature has been added.
+- The much-requested "arbitrary attributes" feature has been added.
 Thanks to Jon Swartz for the patch.  You can now do this:
 
   use Exception::Class ( 'My::Exception' => { fields => [ 'bar', 'baz' ] } );
