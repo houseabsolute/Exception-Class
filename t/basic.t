@@ -28,7 +28,7 @@ use Exception::Class
   (  'YAE' => { isa => 'SubTestException', alias => 'yae' },
 
     'SubTestException' => { isa => 'TestException',
-                            description => 'blah blah' },
+                            description => q|blah'\\blah| },
 
     'TestException',
 
@@ -118,8 +118,8 @@ $^W = 1;
 
     isa_ok( $@, 'Exception::Class::Base' );
 
-    is( $@->description, 'blah blah',
-        "Description should be 'blah blah'" );
+    is( $@->description, q|blah'\\blah|,
+        q|Description should be "blah'\\blah"| );
 
     eval { YAE->throw( error => 'err' ); };
 
