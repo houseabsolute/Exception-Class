@@ -2,8 +2,8 @@
 
 - David Wheeler's patch exposed a bug in Devel::StackTrace which could
 cause exceptions to not have any value set for package, file, or line.
-This is fixed by depending on Devel::StackTrace 1.04.  Reported by
-Steve Hay.
+This is fixed by depending on Devel::StackTrace 1.04.  This release is
+otherwise identical to 1.15.  Reported by Steve Hay.
 
 1.15 Sep 17, 2003
 
