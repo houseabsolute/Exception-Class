@@ -1,3 +1,8 @@
+1.03 Aug 21, 2002 (from Taiwan)
+
+- Some versions of Perl may give an error about "Ambiguous call
+resolved as CORE::time()".  This should be fixed now.
+
 1.02 Aug 20, 2002 (from Taiwan)
 
 - Fields set in a parent class were not actually being inherited by
