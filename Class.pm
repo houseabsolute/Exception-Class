@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '0.95';
+$VERSION = '0.96';
 
 sub import
 {
@@ -291,8 +291,9 @@ better by encouraging people to use hierarchies of exceptions in their
 applications.
 
 NOTE: This module does not implement any try/catch syntax.  Please see
-the L<OTHER EXCEPTION MODULES (try/catch syntax)> for more information
-on how to get this syntax.
+the L<OTHER EXCEPTION MODULES (try/catch syntax)|OTHER EXCEPTION
+MODULES (try/catch syntax)> section for more information on how to get
+this syntax.
 
 =head1 DECLARING EXCEPTION CLASSES
 
@@ -328,12 +329,14 @@ BEGIN { $Exception::Class::BASE_EXC_CLASS = 'SomeExceptionClass'; }
 If anyone can come up with a more elegant way to do this please let me
 know.
 
-CAVEAT: If you want to automagically subclass a Exception::Class::Base
-class loaded from a file, then you _must_ compile the class (via use
-or require or some other magic) _before_ you do 'use Exception::Class'
-or you'll get a compile time error.  This may change with the advent
-of Perl 5.6's CHECK blocks, which could allow even more crazy
-automagicalness (which may or may not be a good thing).
+CAVEAT: If you want to automagically subclass an
+Exception::Class::Base subclass loaded from a file, then you _must_
+compile the class (via use or require or some other magic) _before_
+you do 'use Exception::Class' or you'll get a compile time error.
+
+This may change if I decide to use Perl 5.6's CHECK blocks, which
+could allow even more crazy automagicalness (which may or may not be a
+good thing).
 
 =item * description
 
@@ -349,9 +352,7 @@ messages.
 The Exception::Class magic attempts to detect circular class
 hierarchies and will die if it finds one.  It also detects missing
 links in a chain so if you declare Bar to be a subclass of Foo and
-never declare Foo then it will also die.  My tests indicate that this
-is functioning properly but this functionality is still somewhat
-experimental.
+never declare Foo then it will also die.
 
 =head1 Exception::Class::Base CLASS METHODS
 
