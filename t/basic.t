@@ -2,7 +2,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 55;
+use Test::More tests => 56;
 
 use_ok('Exception::Class');
 
@@ -354,6 +354,12 @@ sub FieldsException::full_message
     $e = $@;
 
     like( $e->as_string, qr/\boverloaded\b/, 'overloading is now respected' );
+}
+
+{
+    my %classes = map { $_ => 1 } Exception::Class::Classes();
+
+    ok( $classes{TestException}, 'TestException should be in the return from Classes()' );
 }
 
 sub argh

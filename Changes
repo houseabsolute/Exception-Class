@@ -1,3 +1,12 @@
+1.20
+
+- Moved the Classes() method to Exception::Class, now as a function,
+which is where it really belongs.  Also corrected the docs for this
+function, as they incorrectly implied that it would return all
+subclasses, instead of just subclasses which were created when loading
+Exception::Class.
+
+
 1.19 Mar 10, 2004
 
 - Identical to 1.18 except that it requires Devel::StackTrace 1.10,
