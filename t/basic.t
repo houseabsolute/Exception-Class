@@ -2,7 +2,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 52;
+use Test::More tests => 53;
 
 use_ok('Exception::Class');
 
@@ -43,10 +43,6 @@ use Exception::Class
 
     'ObjectRefs',
     'ObjectRefs2',
-
-    'SubAndFields' => { fields => 'thing',
-                        alias  => 'throw_saf',
-                      },
   );
 
 
@@ -79,8 +75,8 @@ $^W = 1;
     is( $@->file, $expect,
         "File should be '$expect'" );
 
-    is( $@->line, 62,
-        "Line should be 62" );
+    is( $@->line, 58,
+        "Line should be 58" );
 
     is( $@->pid, $$,
         "PID should be $$" );
@@ -311,20 +307,29 @@ sub FieldsException::full_message
         "References should be saved in the stack trace" );
 }
 
-# 47-52 - aliases
+# 47-53 - aliases
 {
+    package FooBar;
+
+    use Exception::Class
+	( 'SubAndFields' => { fields => 'thing',
+			      alias => 'throw_saf',
+			    } );
+
     eval { throw_saf 'an error' };
     my $e = $@;
 
-    ok( $e, "Throw exception via convenience sub (one param)" );
-    is( $e->error, 'an error', 'check error message' );
+    ::ok( $e, "Throw exception via convenience sub (one param)" );
+    ::is( $e->error, 'an error', 'check error message' );
 
     eval { throw_saf error => 'another error', thing => 10 };
     $e = $@;
 
-    ok( $e, "Throw exception via convenience sub (named params)" );
-    is( $e->error, 'another error', 'check error message' );
-    is( $e->thing, 10, 'check "thing" field' );
+    ::ok( $e, "Throw exception via convenience sub (named params)" );
+    ::is( $e->error, 'another error', 'check error message' );
+    ::is( $e->thing, 10, 'check "thing" field' );
+
+    ::is( $e->package, __PACKAGE__, 'package matches current package' );
 }
 
 sub argh
