@@ -4,4 +4,5 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
 	      'NAME'	=> 'Exception::Class',
 	      'VERSION_FROM' => 'Class.pm', # finds $VERSION
+	      PREREQ_PM => { Devel::StackTrace => 0.75 }
 	     );
