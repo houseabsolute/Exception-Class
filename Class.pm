@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.07';
+$VERSION = '1.08';
 
 sub import
 {
@@ -37,7 +37,9 @@ sub import
 	}
 
 	$class->_make_subclass( subclass => $subclass,
-				def => $def || {} );
+				def => $def || {},
+                                caller => scalar caller(),
+                              );
     }
 
     foreach my $subclass (keys %needs_parent)
@@ -126,9 +128,10 @@ sub description
 EOPERL
     }
 
+    my @fields;
     if ( my $fields = $def->{fields} )
     {
-	my @fields = UNIVERSAL::isa($fields, 'ARRAY') ? @$fields : $fields;
+	@fields = UNIVERSAL::isa($fields, 'ARRAY') ? @$fields : $fields;
 
 	$code .=
             "sub Fields { return (\$_[0]->SUPER::Fields, " .
@@ -138,6 +141,12 @@ EOPERL
 	{
 	    $code .= sprintf("sub %s { \$_[0]->{%s} }\n", $field, $field);
 	}
+    }
+
+    if ( my $alias = $def->{alias} )
+    {
+        no strict 'refs';
+        *{"${p{caller}}::$alias"} = sub { $subclass->throw(@_) };
     }
 
     eval $code;
@@ -158,12 +167,12 @@ BEGIN
 {
     __PACKAGE__->mk_classdata('Trace');
     *do_trace = \&Trace;
-    __PACKAGE__->mk_classdata('Fields');
     __PACKAGE__->mk_classdata('NoRefs');
     *NoObjectRefs = \&NoRefs;
 
-    __PACKAGE__->Fields([]);
     __PACKAGE__->NoRefs(0);
+
+    sub Fields {}
 }
 
 use overload
@@ -331,14 +340,15 @@ Exception::Class - A module that allows you to declare real exception classes in
 
         'ExceptionWithFields' =>
         { isa => 'YetAnotherException',
-          fields => [ 'grandiosity', 'quixotic' ] },
+          fields => [ 'grandiosity', 'quixotic' ],
+          alias => 'throw_fields',
       );
 
   # try
   eval { MyException->throw( error => 'I feel funny.'; };
 
   # catch
-  if ( $@->isa('MyException') )
+  if ( $@ && ref $@ && $@->isa('MyException') )
   {
      warn $@->error, "\n, $@->trace->as_string, "\n";
      warn join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
@@ -347,19 +357,16 @@ Exception::Class - A module that allows you to declare real exception classes in
   }
   elsif ( $@->isa('ExceptionWithFields') )
   {
-     if ( $@->quixotic )
-     {
-         do_something_wacky();
-     }
-     else
-     {
-         do_something_sane();
-     }
+     $@->quixotic ? do_something_wacky() : do_something_sane();
   }
   else
   {
      $@->rethrow;
   }
+
+  # use an alias - without parens subroutine name is checked at
+  # compile time
+  throw_fields error => "No strawberry", grandiosity => "quite a bit";
 
 =head1 DESCRIPTION
 
@@ -433,6 +440,21 @@ reference if you need to define multiple fields.
 
 Fields will be inherited by subclasses.
 
+=item * alias
+
+Specifying an alias causes this class to create a subroutine of the
+specified name in the I<caller's> namespace.  Calling this subroutine
+is equivalent to calling C<< <class>->throw(@_) >> for the given
+exception class.
+
+Besides convenience, using aliases also allows for additional compile
+time checking.  If the alias is called I<without parentheses>, as in
+C<throw_fields "an error occurred">, then Perl checks for the
+existence of the C<throw_fields()> subroutine at compile time.  If
+instead you do C<< ExceptionWithFields->throw(...) >>, then Perl
+checks the class name at runtime, meaning that typos may sneak
+through.
+
 =item * description
 
 Each exception class has a description method that returns a fixed
@@ -502,7 +524,7 @@ overrides the value of C<Trace> for this class if it is given.
 If only a single value is given to the constructor it is assumed to be
 the message parameter.
 
-Additional keys corresponding to any fields defined for the particular
+Additional keys corresponding to the fields defined for the particular
 exception subclass will also be accepted.
 
 =item * new
