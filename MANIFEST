@@ -1,5 +1,5 @@
 README
-Exception.pm
+lib/Class/Exceptions.pm
 MANIFEST
 Makefile.PL
 test.pl
