@@ -234,7 +234,6 @@ sub FieldsException::full_message
     eval { FieldsException->throw (error => 'error', foo => 5) };
 
     my $result = ("$@" =~ /error foo = 5/);
-    warn "$@\n";
     result( $result,
 	    "FieldsException should stringify to include the value of foo" );
 }
