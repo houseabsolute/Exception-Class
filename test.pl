@@ -57,7 +57,7 @@ result( $main::loaded, "Unable to load Exception module\n" );
 	    "Exception object has a stacktrace but it shouldn't\n" );
 }
 
-# 6- : Test subclass creation
+# 6-12 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -88,7 +88,7 @@ result( $main::loaded, "Unable to load Exception module\n" );
 }
 
 
-#  - : Trace related tests
+# 13-16 : Trace related tests
 {
     result( Exception->do_trace == 0,
 	    "Exception class 'do_trace' method should return false\n" );
@@ -108,6 +108,15 @@ result( $main::loaded, "Unable to load Exception module\n" );
 
     result( ( ! grep { $_->package eq 'Exception' } @f ),
 	    "Trace contains frames from Exception package\n" );
+}
+
+# 17 : overloading
+{
+    Exception->do_trace(0);
+    eval { Exception->throw( error => 'overloaded' ); };
+
+    my $e = "$@";
+    result( $e eq 'overloaded', 'overloading is not working' );
 }
 
 sub argh
