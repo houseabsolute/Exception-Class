@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.05';
+$VERSION = '1.06';
 
 sub import
 {
@@ -157,12 +157,13 @@ use base qw(Class::Data::Inheritable);
 BEGIN
 {
     __PACKAGE__->mk_classdata('Trace');
-    __PACKAGE__->mk_classdata('Fields');
-    __PACKAGE__->mk_classdata('NoObjectRefs');
     *do_trace = \&Trace;
+    __PACKAGE__->mk_classdata('Fields');
+    __PACKAGE__->mk_classdata('NoRefs');
+    *NoObjectRefs = \&NoRefs;
 
     __PACKAGE__->Fields([]);
-    __PACKAGE__->NoObjectRefs(0);
+    __PACKAGE__->NoRefs(0);
 }
 
 use overload
@@ -245,8 +246,8 @@ sub _initialize
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
     $self->{trace} =
-        Devel::StackTrace->new( ignore_class   => __PACKAGE__,
-                                no_object_refs => $self->NoObjectRefs,
+        Devel::StackTrace->new( ignore_class => __PACKAGE__,
+                                no_refs => $self->NoRefs,
                               );
 
     my %fields = map { $_ => 1 } $self->Fields;
@@ -466,18 +467,18 @@ C<Exception::Class::Base>.
 
 This is a class method, not an object method.
 
-=item * NoObjectRefs($boolean)
+=item * NoRefs($boolean)
 
 When a C<Devel::StackTrace> is created, it walks through the stack and
 stores the arguments which were passed to each subroutine on the
-stack.  If any of these arguments are objects, then that means that
+stack.  If any of these arguments are references, then that means that
 the C<Devel::StackTrace> ends up increasing the refcount of these
-objects, delaying their destruction.
+references, delaying their destruction.
 
 Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
 this method provides a way to tell C<Devel::StackTrace> not to store
-these references.  Instead, C<Devel::StackTrace> replace objects with
-a string describing the object.
+these references.  Instead, C<Devel::StackTrace> replaces references
+with their stringified representation.
 
 This method defaults to false.  As with C<Trace>, it is inherited by
 subclasses but setting it in a subclass makes it independent
