@@ -1,7 +1,8 @@
-1.08
+1.08 Jan 21, 2003
 
 - Added "alias" feature, which allows you to create a subroutine that
-throws a specified exception.
+throws a specified exception.  This is based on code created by Ken
+Williams for Mason.
 
 1.07 Sep 9, 2002
 
