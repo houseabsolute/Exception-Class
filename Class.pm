@@ -223,7 +223,9 @@ sub _initialize
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
-    $self->{time} = time();
+    # CORE::time is important to fix an error with some versions of
+    # Perl
+    $self->{time} = CORE::time();
     $self->{pid}  = $$;
     $self->{uid}  = $<;
     $self->{euid} = $>;
