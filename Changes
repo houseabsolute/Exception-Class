@@ -1,3 +1,11 @@
+0.96
+
+- Changes wasn't in MANIFEST.  Oops.
+
+- Doc tweaks and cleanup of README.
+
+- Make do_trace a synonym to Trace for backwards compatibility.
+
 0.95
 
 ** INCOMPATIBLE CHANGES IN THIS RELEASE **

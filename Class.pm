@@ -140,6 +140,7 @@ use Devel::StackTrace;
 use base qw(Class::Data::Inheritable);
 
 __PACKAGE__->mk_classdata('Trace');
+*do_trace = \&Trace;
 
 use overload
     '""' => \&as_string,
