@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..35\n"; }
+BEGIN { $| = 1; print "1..37\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -24,6 +24,8 @@ use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
 					       description => 'blah blah' },
 		       'TestException',
 		       'FooBarException' => { isa => 'FooException' },
+
+		       'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
 
 		       'Exc::AsString',
 		     );
@@ -61,8 +63,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->file eq 't/basic.t',
 	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 44,
-	    "Line should be '44' but it's '", $@->line, "'\n" );
+    result( $@->line == 46,
+	    "Line should be '46' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -208,6 +210,17 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
     eval { Exc::AsString->throw( error => 'upper case' ) };
 
     result( "$@" eq 'UPPER CASE' );
+}
+
+# 36-37 - fields
+
+{
+    eval { FieldsException->throw (error => 'error', foo => 5) };
+
+    result( $@->can('foo'),
+	    "FieldsException should have foo method" );
+    result( $@->foo == 5,
+	    "Exception should have foo = 5 but it's ", $@->foo );
 }
 
 sub argh

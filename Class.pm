@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '0.98';
+$VERSION = '0.99';
 
 sub import
 {
@@ -126,6 +126,18 @@ sub description
 EOPERL
     }
 
+    if ( my $fields = $def->{fields} )
+    {
+	my @fields = UNIVERSAL::isa($fields, 'ARRAY') ? @$fields : $fields;
+
+	$code .= "sub Fields { return (" . join(", ", map { "'$_'" } @fields) . ") }\n\n";
+
+        foreach my $field (@fields)
+	{
+	    $code .= sprintf("sub %s { \$_[0]->{%s} }\n", $field, $field);
+	}
+    }
+
     eval $code;
 
     die $@ if $@;
@@ -141,7 +153,10 @@ use Devel::StackTrace;
 use base qw(Class::Data::Inheritable);
 
 __PACKAGE__->mk_classdata('Trace');
+__PACKAGE__->mk_classdata('Fields');
 *do_trace = \&Trace;
+
+__PACKAGE__->Fields([]);
 
 use overload
     '""' => sub { $_[0]->as_string },
@@ -219,6 +234,21 @@ sub _initialize
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
     $self->{trace} = Devel::StackTrace->new( ignore_class => __PACKAGE__ );
+
+    my %fields = map { $_ => 1 } $self->Fields;
+    while ( my ($key, $value) = each %p )
+    {
+       next if $key =~ /^(?:error|message|show_trace)$/;
+
+       if ( $fields{$key})
+       {
+           $self->{$key} = $value;
+       }
+       else
+       {
+           Exception::Class::Base->throw( error => "unknown field $key passed to constructor for class " . ref $self );
+       }
+    }
 }
 
 sub description
@@ -363,6 +393,19 @@ you do 'use Exception::Class' or you'll get a compile time error.
 This may change if I decide to use Perl 5.6's CHECK blocks, which
 could allow even more crazy automagicalness (which may or may not be a
 good thing).
+
+=item * fields
+
+This allows you to define additional attributes for your exception
+class.  Any field you define can be passed to the C<throw> method as
+an additional parameter for the constructor.  In addition, your
+exception object will have an accessor method for the fields you
+define.
+
+This parameter can be either a scalar (for a single field) or an array
+reference if you need to define multiple fields.
+
+Fields will be inherited by subclasses.
 
 =item * description
 
@@ -528,11 +571,18 @@ This might look something like this:
 
   package Foo::Bar::Exceptions;
 
-  use Exception::Class ( Foo::Bar::Exception::Smell =>
-                         { description => 'stinky!' },
+  use Exception::Class ( Foo::Bar::Exception::Senses =>
+                        { description => 'sense-related exception' },
+
+                         Foo::Bar::Exception::Smell =>
+                         { isa => 'Foo::Bar::Exception::Senses',
+                           fields => 'odor',
+                            description => 'stinky!' },
 
                          Foo::Bar::Exception::Taste =>
-                         { description => 'like, gag me with a spoon!' },
+                         { isa => 'Foo::Bar::Exception::Senses',
+                           fields => [ 'taste', 'bitterness' ],
+                           description => 'like, gag me with a spoon!' },
 
                          ... );
 
