@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..20\n"; }
+BEGIN { $| = 1; print "1..28\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -45,7 +45,7 @@ $main::loaded = 1;
 
 result( $main::loaded, "Unable to load Exception::Class module\n" );
 
-# 2-5: Accessors
+# 2-13: Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
 
@@ -58,11 +58,35 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->description eq 'Generic exception',
 	    "Description should be 'Generic exception' but it's '", $@->description, "'\n" );
 
+    result( $@->package eq 'main',
+	    "Package should be 'main' but it's '", $@->package, "'\n" );
+
+    result( $@->file eq 'test.pl',
+	    "Package should be 'test.pl' but it's '", $@->file, "'\n" );
+
+    result( $@->line == 50,
+	    "Package should be '50' but it's '", $@->line, "'\n" );
+
+    result( $@->pid == $$,
+	    "PID should be '$$' but it's '", $@->pid, "'\n" );
+
+    result( $@->uid == $<,
+	    "UID should be '$<' but it's '", $@->uid, "'\n" );
+
+    result( $@->euid == $>,
+	    "EUID should be '$>' but it's '", $@->euid, "'\n" );
+
+    result( $@->gid == $(,
+	    "GID should be '$(' but it's '", $@->gid, "'\n" );
+
+    result( $@->egid == $),
+	    "EGID should be '$)' but it's '", $@->egid, "'\n" );
+
     result( ! defined $@->trace,
 	    "Exception object has a stacktrace but it shouldn't\n" );
 }
 
-# 6-14 : Test subclass creation
+# 14-22 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -99,7 +123,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 }
 
 
-# 15-18 : Trace related tests
+# 23-26 : Trace related tests
 {
     result( Exception::Class::Base->do_trace == 0,
 	    "Exception::Class::Base class 'do_trace' method should return false\n" );
@@ -121,7 +145,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "Trace contains frames from Exception::Class::Base package\n" );
 }
 
-# 19-20 : overloading
+# 27-28 : overloading
 {
     Exception::Class::Base->do_trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
