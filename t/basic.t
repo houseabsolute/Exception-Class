@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..38\n"; }
+BEGIN { $| = 1; print "1..39\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -28,6 +28,8 @@ use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
 		       'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
 
 		       'Exc::AsString',
+
+		       'Bool' => { fields => [ 'something' ] },
 		     );
 
 
@@ -63,8 +65,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->file eq 't/basic.t',
 	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 46,
-	    "Line should be '46' but it's '", $@->line, "'\n" );
+    result( $@->line == 48,
+	    "Line should be '48' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -238,6 +240,21 @@ sub FieldsException::full_message
 	    "FieldsException should stringify to include the value of foo" );
 }
 
+# 39 - truth
+{
+    Bool->do_trace(0);
+    eval { Bool->throw( something => [ 1, 2, 3 ] ) };
+
+    if (my $e = $@)
+    {
+	result(1);
+    }
+    else
+    {
+	result( 0,
+		"All exceptions should evaluate to true" );
+    }
+}
 
 sub argh
 {
