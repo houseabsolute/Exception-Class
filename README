@@ -6,3 +6,9 @@ You may choose to use another base class for your exceptions.
 Regardless, the ability to declare all your exceptions at compile time
 is a fairly useful trick and helps push people towards more structured
 use of exceptions.
+
+NOTE: This module requires Perl 5.005 or greater.  Also, bugs in Perl
+5.6.0 will cause it to fail its test suite because Devel::StackTrace
+does not work properly with these bugs.  These bugs should be
+addressed in Perl 5.6.1.  The rest of the module (without the
+stacktrace functionality enabled) should work fine under Perl 5.6.0
