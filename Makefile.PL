@@ -3,7 +3,6 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 WriteMakefile(
 	      'NAME'	=> 'Class::Exceptions',
-	      'VERSION_FROM' => 'Class/Exceptions.pm', # finds $VERSION
-	      'PM' => { 'Class/Exceptions.pm' => '$(INST_LIBDIR)/Class/Exceptions.pm' },
-
+	      'VERSION_FROM' => 'lib/Class/Exceptions.pm', # finds $VERSION
+	      'PM' => { 'lib/Class/Exceptions.pm' => '$(INST_LIBDIR)/Exceptions.pm' },
 	     );
