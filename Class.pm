@@ -642,7 +642,7 @@ exceptions to have more methods.
 =head1 OTHER EXCEPTION MODULES (try/catch syntax)
 
 If you are interested in adding try/catch/finally syntactic sugar to
-your code then I recommend you check out Graham Barr's C<Error.pm>
+your code then I recommend you check out U. Arun Kumar's C<Error.pm>
 module, which implements this syntax.  It also includes its own base
 exception class, C<Error::Simple>.
 
@@ -660,6 +660,15 @@ Dave Rolsky, <autarch@urth.org>
 
 =head1 SEE ALSO
 
-Devel::StackTrace, Eror.pm
+Devel::StackTrace - used by this module to create stack traces
+
+Error.pm - implements try/catch in Perl.  Also provides an exception
+base class.
+
+Test::Exception - a module that helps you test exception based code.
+
+Numerous other modules/frameworks seem to have their own exception
+classes (SPOPS and Template Toolkit, to name two) but none of these
+seem to be designed for use outside of these packages.
 
 =cut
