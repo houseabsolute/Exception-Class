@@ -87,3 +87,11 @@ constructor.
 
 - README details various Perl bugs this module (along with
 Devel::StackTrace) can expose and some possible workarounds.
+
+0.6 Jun 27, 2000
+
+- renamed to Exception::Class
+
+0.5 Jun 26, 2000
+
+Initial release, as Class::Exceptions.
