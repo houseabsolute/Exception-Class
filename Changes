@@ -1,3 +1,16 @@
+1.14 Jul 04, 2003
+
+- ** BACKWARDS INCOMPATIBILITY **
+NoRefs is now true by default.  This means that stacktraces will _not_
+store references unless you explicitly set NoRefs to a false value.
+This is done because it's too easy to leak memory when references are
+saved in stack traces.
+
+- Fixed a very odd bug where Exception::Class could mistakenly think
+that an exception class had been created when it really hadn't.  This
+was only exposed with bleadperl (5.8.1-to-be), and is unlikely to
+affect anyone using an existing Perl version.
+
 1.13 Jun 21, 2003
 
 - Documented the Exception::Class::Base->Fields method, which can be
