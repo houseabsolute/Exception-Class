@@ -1,3 +1,9 @@
+1.05 Aug 23, 2002 (from Taiwan)
+
+- Add NoObjectRefs class method to prevent Devel::StackTrace from
+holding onto objects internally, thus delaying destruction.  Based on
+a discussion with Tatsuhiko Miyagawa.
+
 1.04 Aug 22, 2002 (from Taiwan)
 
 - Fix messed up tarball as reported by Tatsuhiko Miyagawa.
