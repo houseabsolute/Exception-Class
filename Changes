@@ -1,3 +1,7 @@
+1.12 Apr 03, 2003
+
+- Added the Exception::Class->Classes method.  Patch by David Wheeler.
+
 1.11 Feb 20, 2003
 
 - A description containing a single quote or backslash would cause a

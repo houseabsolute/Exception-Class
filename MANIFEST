@@ -5,3 +5,4 @@ LICENSE
 Changes
 Makefile.PL
 t/basic.t
+META.yml                                Module meta-data in YAML
