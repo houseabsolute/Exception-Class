@@ -6,48 +6,51 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..18\n"; }
+BEGIN { $| = 1; print "1..20\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
-# Used to test the Exception class's import method.
+# There's actually a few tests here of the import routine.  I don't
+# really know how to quantify them though.  If test.pl fails to
+# compile and there's an error from the BaseException class then something
+# here failed.
 BEGIN
 {
     package FooException;
 
     use vars qw[$VERSION];
 
-    use base qw(Exception);
+    use Class::Exceptions;
+    use base qw(BaseException);
 
     $VERSION = 0.01;
 
     1;
 }
 
-# There's actually a few tests here of the import routine.  I don't
-# really know how to quantify them though.  If test.pl fails to
-# compile and there's an error from the Exception class then something
-# here failed.
-use Exception ( 'YAE' => { isa => 'SubTestException' },
-		'SubTestException' => { isa => 'TestException',
-					description => 'blah blah' },
-		'TestException',
-		'FooBarException' => { isa => 'FooException' },
-	      );
-FooException->import( 'BlahBlah' );
+use Class::Exceptions ( 'YAE' => { isa => 'SubTestException' },
+			'SubTestException' => { isa => 'TestException',
+						description => 'blah blah' },
+			'TestException',
+			'FooBarException' => { isa => 'FooException' },
+		      );
+
+
+$Class::Exceptions::BASE_EXC_CLASS = 'FooException';
+Class::Exceptions->import( 'BlahBlah' );
 
 use strict;
 
 $^W = 1;
 $main::loaded = 1;
 
-result( $main::loaded, "Unable to load Exception module\n" );
+result( $main::loaded, "Unable to load Class::Exceptions module\n" );
 
 # 2-5: Accessors
 {
-    eval { Exception->throw( error => 'err' ); };
+    eval { BaseException->throw( error => 'err' ); };
 
-    result( $@->isa('Exception'),
-	    "\$\@ is not an Exception\n" );
+    result( $@->isa('BaseException'),
+	    "\$\@ is not an BaseException\n" );
 
     result( $@->error eq 'err',
 	    "Exception's error message should be 'err' but it's '", $@->error, "'\n" );
@@ -59,7 +62,7 @@ result( $main::loaded, "Unable to load Exception module\n" );
 	    "Exception object has a stacktrace but it shouldn't\n" );
 }
 
-# 6-13 : Test subclass creation
+# 6-14 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -77,8 +80,8 @@ result( $main::loaded, "Unable to load Exception module\n" );
     result( $@->isa( 'TestException' ),
 	    "SubTestException should be a subclass of TestException\n" );
 
-    result( $@->isa( 'Exception' ),
-	    "SubTestException should be a subclass of Exception\n" );
+    result( $@->isa( 'BaseException' ),
+	    "SubTestException should be a subclass of BaseException\n" );
 
     result( $@->description eq 'blah blah',
 	    "Description should be 'blah blah' but it's '", $@->description, "'\n" );
@@ -91,18 +94,20 @@ result( $main::loaded, "Unable to load Exception module\n" );
     eval { BlahBlah->throw( error => 'yadda yadda' ); };
     result( $@->isa('FooException'),
 	    "The BlahBlah class should be a subclass of FooException\n" );
+    result( $@->isa('BaseException'),
+	    "The BlahBlah class should be a subclass of BaseException\n" );
 }
 
 
-# 14-17 : Trace related tests
+# 15-18 : Trace related tests
 {
-    result( Exception->do_trace == 0,
-	    "Exception class 'do_trace' method should return false\n" );
+    result( BaseException->do_trace == 0,
+	    "BaseException class 'do_trace' method should return false\n" );
 
-    Exception->do_trace(1);
+    BaseException->do_trace(1);
 
-    result( Exception->do_trace == 1,
-	    "Exception class 'do_trace' method should return false\n" );
+    result( BaseException->do_trace == 1,
+	    "BaseException class 'do_trace' method should return false\n" );
 
     eval { argh(); };
 
@@ -112,26 +117,26 @@ result( $main::loaded, "Unable to load Exception module\n" );
     my @f;
     while ( my $f = $@->trace->next_frame ) { push @f, $f; }
 
-    result( ( ! grep { $_->package eq 'Exception' } @f ),
-	    "Trace contains frames from Exception package\n" );
+    result( ( ! grep { $_->package eq 'BaseException' } @f ),
+	    "Trace contains frames from BaseException package\n" );
 }
 
-# 18-19 : overloading
+# 19-20 : overloading
 {
-    Exception->do_trace(0);
-    eval { Exception->throw( error => 'overloaded' ); };
+    BaseException->do_trace(0);
+    eval { BaseException->throw( error => 'overloaded' ); };
 
     result( "$@" eq 'overloaded', "Overloading is not working\n" );
 
-    Exception->do_trace(1);
-    eval { Exception->throw( error => 'overloaded again' ); };
-    my $x = "$@" =~ /overloaded again.+eval {...}\('Exception', 'error', 'overloaded again'\)/s;
+    BaseException->do_trace(1);
+    eval { BaseException->throw( error => 'overloaded again' ); };
+    my $x = "$@" =~ /overloaded again.+eval {...}\('BaseException', 'error', 'overloaded again'\)/s;
     result( $x, "Overloaded stringification did not include the expected stack trace\n" );
 }
 
 sub argh
 {
-    Exception->throw( error => 'ARGH' );
+    BaseException->throw( error => 'ARGH' );
 }
 
 sub result
