@@ -2,7 +2,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 53;
+use Test::More tests => 55;
 
 use_ok('Exception::Class');
 
@@ -330,6 +330,30 @@ sub FieldsException::full_message
     ::is( $e->thing, 10, 'check "thing" field' );
 
     ::is( $e->package, __PACKAGE__, 'package matches current package' );
+}
+
+{
+    package BarBaz;
+
+    use overload '""' => sub { 'overloaded' };
+}
+
+{
+    sub throw { TestException->throw( error => 'dead' ) }
+
+    TestException->Trace(1);
+
+    eval { throw( bless {}, 'BarBaz' ) };
+    my $e = $@;
+
+    unlike( $e->as_string, qr/\boverloaded\b/, 'overloading is ignored by default' );
+
+    TestException->RespectOverload(1);
+
+    eval { throw( bless {}, 'BarBaz' ) };
+    $e = $@;
+
+    like( $e->as_string, qr/\boverloaded\b/, 'overloading is now respected' );
 }
 
 sub argh

@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.17';
+$VERSION = '1.18';
 
 sub import
 {
@@ -174,7 +174,7 @@ EOPERL
 package Exception::Class::Base;
 
 use Class::Data::Inheritable;
-use Devel::StackTrace;
+use Devel::StackTrace 1.07;
 
 use base qw(Class::Data::Inheritable);
 
@@ -184,8 +184,11 @@ BEGIN
     *do_trace = \&Trace;
     __PACKAGE__->mk_classdata('NoRefs');
     *NoObjectRefs = \&NoRefs;
-
     __PACKAGE__->NoRefs(1);
+
+    __PACKAGE__->mk_classdata('RespectOverload');
+    __PACKAGE__->RespectOverload(0);
+
 
     sub Fields { () }
 }
@@ -265,9 +268,10 @@ sub _initialize
     $self->{egid} = $);
 
     $self->{trace} =
-        Devel::StackTrace->new( ignore_class => __PACKAGE__,
-                                ignore_package => 'Exception::Class',
-                                no_refs => $self->NoRefs,
+        Devel::StackTrace->new( ignore_class     => __PACKAGE__,
+                                ignore_package   => 'Exception::Class',
+                                no_refs          => $self->NoRefs,
+                                respect_overload => $self->RespectOverload,
                               );
 
     if ( my $frame = $self->trace->frame(0) )
@@ -528,10 +532,10 @@ This is a class method, not an object method.
 
 =item * NoRefs($boolean)
 
-When a C<Devel::StackTrace> is created, it walks through the stack and
-stores the arguments which were passed to each subroutine on the
-stack.  If any of these arguments are references, then that means that
-the C<Devel::StackTrace> ends up increasing the refcount of these
+When a C<Devel::StackTrace> object is created, it walks through the
+stack and stores the arguments which were passed to each subroutine on
+the stack.  If any of these arguments are references, then that means
+that the C<Devel::StackTrace> ends up increasing the refcount of these
 references, delaying their destruction.
 
 Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
@@ -540,6 +544,19 @@ these references.  Instead, C<Devel::StackTrace> replaces references
 with their stringified representation.
 
 This method defaults to true.  As with C<Trace()>, it is inherited by
+subclasses but setting it in a subclass makes it independent
+thereafter.
+
+=item * RespectOverload($boolean)
+
+When a C<Devel::StackTrace> object stringifies, by default it ignores
+stringification overloading on any objects being dealt with.
+
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
+this method provides a way to tell C<Devel::StackTrace> to respect
+overloading.
+
+This method defaults to false.  As with C<Trace()>, it is inherited by
 subclasses but setting it in a subclass makes it independent
 thereafter.
 
