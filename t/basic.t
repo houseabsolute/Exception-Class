@@ -175,7 +175,7 @@ $^W = 1;
     {
         skip( "Perl 5.6.0 is broken.  See README.", 1 ) if $] == 5.006;
 
-        my $re = qr/overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s;
+        my $re = qr/overloaded again.+eval {...}/s;
 
         my $x = "$@";
         like( $x, $re,

@@ -1,7 +1,11 @@
-1.17
+1.17 Feb 20, 2004
 
 - Document that new() is always called to create an
 Exception::Class::Base object.  Suggested by Steve Hay.
+
+- Fix a test that failed with Devel::StackTrace 1.05.  Basically, the
+test expected output from Devel::StackTrace that reflected a bug that
+was fixed in 1.05.  Reported by Jesse Vincent.
 
 1.16 Sep 25, 2003
 
