@@ -465,8 +465,8 @@ Returns the trace object associated with the object.
 =item * as_string
 
 Returns a string form of the error message (something like what you'd
-expect from die).  If there is a trace available then it also returns
-this in string form (like Carp::confess).
+expect from die).  If the class or object is set to show traces then
+then it also includes this in string form (like Carp::confess).
 
 =back
 
