@@ -204,6 +204,8 @@ BEGIN
 
 1;
 
+sub Classes { sort keys %Exception::Class::CLASSES }
+
 sub throw
 {
     my $proto = shift;
@@ -490,6 +492,13 @@ Foo and never declare Foo.
 =head1 Exception::Class::Base CLASS METHODS
 
 =over 4
+
+=item * Classes
+
+Returns a list of the classes that have been defined as subclasses of
+Exception::Class.  Note that this is I<all> the subclasses that have
+been created, so it may include subclasses created by things like CPAN
+modules, etc.
 
 =item * Trace($boolean)
 
