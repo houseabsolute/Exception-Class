@@ -3,9 +3,11 @@ package Class::Exceptions;
 use 5.005;
 
 use strict;
-use vars qw($VERSION $BASE_EXC_CLASS $DO_TRACE %CLASSES);
+use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'BaseException'; }
+
+$VERSION = '0.5';
 
 sub import
 {
@@ -142,7 +144,7 @@ use overload
     '""' => \&as_string,
     fallback => 1;
 
-use vars qw($VERSION);
+use vars qw($VERSION $DO_TRACE);
 
 $VERSION = '0.5';
 
@@ -154,7 +156,7 @@ BEGIN
     no strict 'refs';
     foreach my $f (keys %{__PACKAGE__ . '::FIELDS'})
     {
-	*{$f} = sub { my __PACKAGE__ $s = shift; return $s->{$f}; };
+	*{$f} = sub { my BaseException $s = shift; return $s->{$f}; };
     }
 }
 
@@ -170,7 +172,7 @@ sub throw
 
 sub rethrow
 {
-    my __PACKAGE__ $self = shift;
+    my BaseException $self = shift;
 
     die $self;
 }
@@ -193,13 +195,13 @@ sub new
 
 sub _initialize
 {
-    my __PACKAGE__ $self = shift;
+    my BaseException $self = shift;
     my %p = @_;
 
     # Try to get something useful in there (I hope).
     $self->{error} = $p{error} || $!;
 
-    $self->{time} = time;
+    $self->{time} = CORE::time; # with CORE:: sometimes makes a warning (why?)
     $self->{pid}  = $$;
     $self->{uid}  = $<;
     $self->{euid} = $>;
@@ -235,7 +237,7 @@ sub do_trace
 
 sub as_string
 {
-    my __PACKAGE__ $self = shift;
+    my BaseException $self = shift;
 
     my $str = $self->{error};
     if ($self->trace)
