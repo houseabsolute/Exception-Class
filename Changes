@@ -1,3 +1,7 @@
+1.04 Aug 22, 2002 (from Taiwan)
+
+- Fix messed up tarball as reported by Tatsuhiko Miyagawa.
+
 1.03 Aug 21, 2002 (from Taiwan)
 
 - Some versions of Perl may give an error about "Ambiguous call
