@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.08';
+$VERSION = '1.09';
 
 sub import
 {
@@ -172,13 +172,13 @@ BEGIN
 
     __PACKAGE__->NoRefs(0);
 
-    sub Fields {}
+    sub Fields { () }
 }
 
 use overload
     # an exception is always true
     bool => sub { 1 },
-    '""' => sub { $_[0]->as_string },
+    '""' => 'as_string',
     fallback => 1;
 
 use vars qw($VERSION);
@@ -254,11 +254,6 @@ sub _initialize
 
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
-    $self->{trace} =
-        Devel::StackTrace->new( ignore_class => __PACKAGE__,
-                                no_refs => $self->NoRefs,
-                              );
-
     my %fields = map { $_ => 1 } $self->Fields;
     while ( my ($key, $value) = each %p )
     {
@@ -270,9 +265,16 @@ sub _initialize
        }
        else
        {
-           Exception::Class::Base->throw( error => "unknown field $key passed to constructor for class " . ref $self );
+           Exception::Class::Base->throw
+               ( error =>
+                 "unknown field $key passed to constructor for class " . ref $self );
        }
     }
+
+    $self->{trace} =
+        Devel::StackTrace->new( ignore_class => __PACKAGE__,
+                                no_refs => $self->NoRefs,
+                              );
 }
 
 sub description
@@ -280,15 +282,25 @@ sub description
     return 'Generic exception';
 }
 
+sub show_trace
+{
+    my $self = shift;
+
+    if (@_)
+    {
+        $self->{show_trace} = shift;
+    }
+
+    return exists $self->{show_trace} ? $self->{show_trace} : $self->Trace;
+}
+
 sub as_string
 {
     my $self = shift;
 
     my $str = $self->full_message;
-    if ( exists $self->{show_trace} ? $self->{show_trace} : $self->Trace )
-    {
-	$str .= "\n\n" . $self->trace->as_string;
-    }
+    $str .= "\n\n" . $self->trace->as_string
+        if $self->show_trace;
 
     return $str;
 }
@@ -602,6 +614,12 @@ Returns the line where the exception was thrown.
 =item * trace
 
 Returns the trace object associated with the object.
+
+=item * show_trace($boolean)
+
+This method can be used to set whether or not a strack trace is
+included when the as_string method is called or the object is
+stringified.
 
 =item * as_string
 

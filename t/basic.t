@@ -231,7 +231,7 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 # 36-37 - fields
 
 {
-    eval { FieldsException->throw (error => 'error', foo => 5) };
+    eval { FieldsException->throw( error => 'error', foo => 5 ) };
 
     can_ok( $@, 'foo');
 
@@ -241,7 +241,7 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 
 # 38-41 - more fields.
 {
-    eval { MoreFieldsException->throw (error => 'error', yip => 10, foo => 15) };
+    eval { MoreFieldsException->throw( error => 'error', yip => 10, foo => 15 ) };
 
     can_ok( $@, 'foo');
 

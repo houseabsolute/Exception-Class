@@ -1,3 +1,11 @@
+1.09 Jan 22, 2003
+
+- Tweak to Fields method so that it returns empty list for 5.6.1 and
+5.00503.
+
+- Require Devel::StackTrace 1.03 to fix potential recursion problem
+between the two classes when stringifying exceptions.
+
 1.08 Jan 21, 2003
 
 - Added "alias" feature, which allows you to create a subroutine that
