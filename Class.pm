@@ -120,11 +120,11 @@ EOPERL
 
     if ($def->{description})
     {
-	(my $desc = $def->{description}) =~ s/[\\\']/\\$1/g;
+	(my $desc = $def->{description}) =~ s/([\\\'])/\\$1/g;
 	$code .= <<"EOPERL";
 sub description
 {
-    return '$def->{description}';
+    return '$desc';
 }
 EOPERL
     }
