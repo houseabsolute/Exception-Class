@@ -1,3 +1,8 @@
+1.01 May 23, 2002
+
+- Make sure that exception objects always test as true in a boolean
+context.
+
 1.00 Mar 8, 2002
 
 - Added a full_message method intended to be overridden when you
