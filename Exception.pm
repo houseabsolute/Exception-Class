@@ -1,32 +1,9 @@
-package Exception;
+package Class::Exceptions;
 
 use 5.005;
 
 use strict;
 use vars qw($VERSION $DO_TRACE %CLASSES);
-
-use StackTrace;
-
-use fields qw( error pid uid euid gid egid time trace );
-
-use overload
-    '""' => \&as_string,
-    fallback => 1;
-
-$VERSION = '0.15';
-
-$DO_TRACE = 0;
-
-# Create accessor routines
-{
-    no strict 'refs';
-    foreach my $f (keys %{__PACKAGE__ . '::FIELDS'})
-    {
-	*{$f} = sub { my Exception $s = shift; return $s->{$f}; };
-    }
-}
-
-1;
 
 sub import
 {
@@ -127,7 +104,7 @@ use vars qw(\$VERSION \$DO_TRACE);
 
 use base qw($isa);
 
-\$VERSION = '0.01';
+\$VERSION = '1.0';
 
 \$DO_TRACE = 0;
 
@@ -153,6 +130,34 @@ EOPERL
     $CLASSES{$subclass} = 1;
 }
 
+package BaseException;
+
+use StackTrace;
+
+use fields qw( error pid uid euid gid egid time trace );
+
+use overload
+    '""' => \&as_string,
+    fallback => 1;
+
+use vars qw($VERSION);
+
+$VERSION = '0.5';
+
+$DO_TRACE = 0;
+
+# Create accessor routines
+BEGIN
+{
+    no strict 'refs';
+    foreach my $f (keys %{__PACKAGE__ . '::FIELDS'})
+    {
+	*{$f} = sub { my __PACKAGE__ $s = shift; return $s->{$f}; };
+    }
+}
+
+1;
+
 sub throw
 {
     my $proto = shift;
@@ -163,7 +168,7 @@ sub throw
 
 sub rethrow
 {
-    my Exception $self = shift;
+    my __PACKAGE__ $self = shift;
 
     die $self;
 }
@@ -186,7 +191,7 @@ sub new
 
 sub _initialize
 {
-    my Exception $self = shift;
+    my __PACKAGE__ $self = shift;
     my %p = @_;
 
     # Try to get something useful in there (I hope).
@@ -228,7 +233,7 @@ sub do_trace
 
 sub as_string
 {
-    my Exception $self = shift;
+    my __PACKAGE__ $self = shift;
 
     my $str = $self->{error};
     if ($self->trace)
@@ -243,7 +248,8 @@ __END__
 
 =head1 NAME
 
-Exception - A base (and default) class for real exception objects in Perl
+Class::Exceptions - A module that allows you to declare real exception
+classes in Perl
 
 =head1 SYNOPSIS
 
@@ -278,30 +284,30 @@ Exception - A base (and default) class for real exception objects in Perl
 
 =head1 DESCRIPTION
 
-Exception is a base class for true Exception objects in Perl.  It is
-designed to make structured exception handling simpler by encouraging
-people to use hierarchies of exceptions in their applications.
+Class::Exceptions allows you to declare exceptions in your modules via
+similar to how exceptions are declared in Java.
 
 It features a simple interface allowing programmers to 'declare'
-Exception classes at compile time.  It can also be used as a base
-class for classes stored in files (aka modules ;) ) that contain
-Exception subclasses.
+exception classes at compile time.  It also has a base exception
+class, BaseException, that can be used for classes stored in files
+(aka modules ;) ) that are subclasses.
 
-In addition, it can be used as a simple Exception class in and of
-itself.
+It is designed to make structured exception handling simpler by
+encouraging people to use hierarchies of exceptions in their
+applications.
 
 =head1 DECLARING EXCEPTION CLASSES
 
-The 'use Exception' syntax lets you automagically create the relevant
-Exception subclasses.  You can also create subclasses via the
-traditional means of external modules loaded via 'use'.  These two
+The 'use Class::Exceptions' syntax lets you automagically create the
+relevant BaseException subclasses.  You can also create subclasses via
+the traditional means of external modules loaded via 'use'.  These two
 methods may be combined.
 
 The syntax for the magic declarations is as follows:
 
-'MANDATORY CLASS NAME" => \%optional_hashref
+'MANDATORY CLASS NAME' => \%optional_hashref
 
-The hashref may contain two options (for now):
+The hashref may contain two options:
 
 =over 4
 
@@ -310,10 +316,10 @@ The hashref may contain two options (for now):
 This is the class's parent class.  If this isn't provided the class
 which was "use'd" is assumed to be the parent (see below).  This lets
 you create arbitrarily deep class hierarchies.  This can be any other
-Exception subclass in your declaration _or_ a subclass loaded from a
-module.
+BaseException subclass in your declaration _or_ a subclass loaded from
+a module.
 
-If you create an Exception class in a file (let's call this class
+If you create a BaseException class in a file (let's call this class
 FooInaFileException) and then 'use' this class like you would 'use'
 Exception, as in:
 
@@ -321,9 +327,9 @@ Exception, as in:
                             'BazException' => { isa => 'BarException' } );
 
 then the default base class will become FooInaFileException, _not_
-Exception.
+BaseException.
 
-CAVEAT: If you want to automagically subclass an Exception class
+CAVEAT: If you want to automagically subclass a BaseException class
 loaded from a file, then you _must_ compile the class (via use or
 require or some other magic) _before_ you do 'use Exception' or you'll
 get a compile time error.  This may change with the advent of Perl
@@ -333,7 +339,7 @@ get a compile time error.  This may change with the advent of Perl
 =item * description
 
 Each exception class has a description method that returns a fixed
-string.  This should describe the exception _class_ (as opposed the
+string.  This should describe the exception _class_ (as opposed to the
 particular exception being thrown).  This is useful for debugging if
 you start catching exceptions you weren't expecting (particularly if
 someone forgot to document them) and you don't understand the error
@@ -341,51 +347,53 @@ messages.
 
 =back
 
-The Exception class's magic attempts to detect circular class
+The Class::Exceptions magic attempts to detect circular class
 hierarchies and will die if it finds one.  It also detects missing
 links in a chain so if you declare Bar to be a subclass of Foo and
 never declare Foo then it will also die.  My tests indicate that this
 is functioning properly but this functionality is still somewhat
 experimental.
 
-=head1 CLASS METHODS
+=head1 BaseException CLASS METHODS
 
 =over 4
 
 =item * do_trace($true_or_false)
 
-Each Exception subclass can be set individually to make a StackTrace
-object when an exception is thrown.  The default is to not make a
-trace.  Calling this method with a value changes this behavior.  It
-always returns the current value (after any change is applied).
+Each BaseException subclass can be set individually to make a
+StackTrace object when an exception is thrown.  The default is to not
+make a trace.  Calling this method with a value changes this behavior.
+It always returns the current value (after any change is applied).
 
 =item * throw( error => $error_message )
 
-This method creates a new Exception object with the given error
+This method creates a new BaseException object with the given error
 message.  If no error message is given, $! is used.  It then die's
 with this object as its argument.
 
 =item * new( error => $error_message )
 
-Returns a new Exception object with the given error message.  If no
-error message is given, $! is used.
+Returns a new BaseException object with the given error message.  If
+no error message is given, $! is used.
 
 =item * description
 
-Returns the description for the given Exception subclass.  The
-Exception base class's description is 'Generic exception' (this may
+Returns the description for the given BaseException subclass.  The
+BaseException class's description is 'Generic exception' (this may
 change in the future).  This is also an object method.
 
 =back
 
-=head1 OBJECT METHODS
+=head1 BaseException OBJECT METHODS
 
 =over 4
 
 =item * rethrow
 
-Simple dies with the object as its sole argument.  It's just syntactic
+Simply dies with the object as its sole argument.  It's just syntactic
 sugar.  This does not change any of the object's attribute values.
+However, it will cause C<caller> to report the die as coming from
+within the BaseException class rather than where rethrow was called.
 
 =item * error
 
@@ -419,22 +427,28 @@ was thrown.
 =item * trace
 
 Returns the trace object associated with the Exception if do_trace was
-true at the time it was created or undef
+true at the time it was created or undef.
 
 =item * as_string
 
 Returns a string form of the error message (something like what you'd
 expect from die).  If there is a trace available then it also returns
-this in string form (like croak).
+this in string form (like confess).
 
 =back
 
 =head1 OVERLOADING
 
-The Exception object is overloaded so that stringification produces a
-normal error message.  It just calls the as_string method described
-above.  This means that you just print $@ after an eval and not worry
-about whether or not its an actual object.
+The BaseException object is overloaded so that stringification
+produces a normal error message.  It just calls the as_string method
+described above.  This means that you can just C<print $@> after an
+eval and not worry about whether or not its an actual object.  It also
+means an application or module could do this:
+
+ $SIG{__DIE__} = sub { BaseException->throw( error => join '', @_ ); };
+
+and this would probably not break anything (unless someone was
+expecting a different type of exception object from C<die>).
 
 =head1 USAGE RECOMMENDATION
 
@@ -442,16 +456,16 @@ If you're creating a complex system that throws lots of different
 types of exceptions consider putting all the exception declarations in
 one place.  For an app called Foo you might make a Foo::Exceptions
 module and use that in all your code.  This module could just contain
-the code to make Exception do its automagic class creation.  This
-allows you to more easily see what exceptions you have and makes it
-easier to keep track of them all (as opposed to looking at the top of
-10-20 different files).  It's also ever so slightly faster as the
-Exception->import method doesn't get called over and over again
+the code to make Class::Exceptions do its automagic class creation.
+This allows you to more easily see what exceptions you have and makes
+it easier to keep track of them all (as opposed to looking at the top
+of 10-20 different files).  It's also ever so slightly faster as the
+Class::Exception->import method doesn't get called over and over again
 (though a given class is only ever made once).
 
-You may want to create a real module to subclass Exception as well,
-particularly if you want your exceptions to have more methods.  Read
-the L<DECLARING EXCEPTION CLASSES> section for more details.
+You may want to create a real module to subclass BaseException as
+well, particularly if you want your exceptions to have more methods.
+Read the L<DECLARING EXCEPTION CLASSES> section for more details.
 
 =head1 AUTHOR
 
