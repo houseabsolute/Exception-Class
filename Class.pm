@@ -646,8 +646,9 @@ your code then I recommend you check out Graham Barr's C<Error.pm>
 module, which implements this syntax.  It also includes its own base
 exception class, C<Error::Simple>.
 
-If you would prefer to use the C<Exception::Class::Base> included with
-this module, you'll have to add this to your code somewhere:
+If you would prefer to use the C<Exception::Class::Base> class
+included with this module, you'll have to add this to your code
+somewhere:
 
   push @Exception::Class::Base::ISA, 'Error';
 
