@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..39\n"; }
+BEGIN { $| = 1; print "1..44\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -26,6 +26,7 @@ use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
 		       'FooBarException' => { isa => 'FooException' },
 
 		       'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
+                       'MoreFieldsException' => { isa => 'FieldsException', fields => [qw(yip)]},
 
 		       'Exc::AsString',
 
@@ -65,8 +66,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->file eq 't/basic.t',
 	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 48,
-	    "Line should be '48' but it's '", $@->line, "'\n" );
+    result( $@->line == 49,
+	    "Line should be '49' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -225,12 +226,26 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 	    "Exception should have foo = 5 but it's ", $@->foo );
 }
 
+# 38-41 - more fields.
+{
+    eval { MoreFieldsException->throw (error => 'error', yip => 10, foo => 15) };
+    result( $@->can('foo'),
+	    "MoreFieldsException should have foo method" );
+    result( $@->foo == 15,
+	    "Exception should have foo = 15 but it's ", $@->foo );
+    result( $@->can('yip'),
+	    "MoreFieldsException should have yip method" );
+    result( $@->yip == 10,
+	    "Exception should have foo = 10 but it's ", $@->foo );
+
+}
+
 sub FieldsException::full_message
 {
     return join ' ', $_[0]->message, "foo = " . $_[0]->foo;
 }
 
-# 38 - fields + full_message
+# 42 - fields + full_message
 
 {
     eval { FieldsException->throw (error => 'error', foo => 5) };
@@ -240,7 +255,7 @@ sub FieldsException::full_message
 	    "FieldsException should stringify to include the value of foo" );
 }
 
-# 39 - truth
+# 43 - truth
 {
     Bool->do_trace(0);
     eval { Bool->throw( something => [ 1, 2, 3 ] ) };
@@ -254,6 +269,13 @@ sub FieldsException::full_message
 	result( 0,
 		"All exceptions should evaluate to true" );
     }
+}
+
+# 44 - single arg constructor
+{
+    eval { YAE->throw( 'foo' ) };
+    result( $@ && $@->error eq 'foo',
+            "Single arg constructor should just set error" );
 }
 
 sub argh
