@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '0.97';
+$VERSION = '0.98';
 
 sub import
 {
@@ -144,7 +144,7 @@ __PACKAGE__->mk_classdata('Trace');
 *do_trace = \&Trace;
 
 use overload
-    '""' => \&as_string,
+    '""' => sub { $_[0]->as_string },
     fallback => 1;
 
 use vars qw($VERSION);
@@ -252,15 +252,11 @@ sub isa
 
     no strict 'refs';
     my @parents = ($inheritor, @{"$inheritor\::ISA"});
-    @seen{@parents} = (1) x @parents;
     while (my $class = shift @parents)
     {
         return 1 if $class eq $base;
-        return 0 if $seen{$class};
 
-        my @isa = @{"$class\::ISA"};
-        @seen{@isa} = (1) x @isa;
-        push @parents, @isa;
+        push @parents, grep {!$seen{$_}++} @{"$class\::ISA"};
     }
     return 0;
 }

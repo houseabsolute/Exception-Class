@@ -1,3 +1,13 @@
+0.98
+
+- Subclasses that overrode the ->as_string method had to repeat the
+stringification overloading for exception objects.  This has been
+changed so that the stringification overloading is now
+
+  sub { $_[0]->as_string }
+
+Suggested by Jon Swartz.
+
 0.97
 
 - Incorporated a patch from Ken Williams that works around several

@@ -5,5 +5,5 @@ WriteMakefile(
 	      'NAME'	=> 'Exception::Class',
 	      'VERSION_FROM' => 'Class.pm', # finds $VERSION
 	      PREREQ_PM => { 'Class::Data::Inheritable' => 0.02,
-			     'Devel::StackTrace' => 0.85 }
+			     'Devel::StackTrace' => 0.90 }
 	     );

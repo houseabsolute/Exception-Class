@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..34\n"; }
+BEGIN { $| = 1; print "1..35\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -24,6 +24,8 @@ use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
 					       description => 'blah blah' },
 		       'TestException',
 		       'FooBarException' => { isa => 'FooException' },
+
+		       'Exc::AsString',
 		     );
 
 
@@ -59,8 +61,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->file eq 't/basic.t',
 	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 42,
-	    "Line should be '42' but it's '", $@->line, "'\n" );
+    result( $@->line == 44,
+	    "Line should be '44' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -161,7 +163,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     my $re;
     if ($] == 5.006)
     {
-	$re = qr/overloaded again.+eval {...}\((?:'Exception::Class::Base')?'error', 'overloaded again'\)/s;
+	$re = qr/overloaded again.+eval {...}\((?:'Exception::Class::Base', )?'error', 'overloaded again'\)/s;
     }
     else
     {
@@ -185,15 +187,27 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
 # 34
 {
-    package X::Y;
+    {
+	package X::Y;
 
-    use Exception::Class ( __PACKAGE__ );
+	use Exception::Class ( __PACKAGE__ );
 
-    sub xy_die () { __PACKAGE__->throw( error => 'dead' ); }
+	sub xy_die () { __PACKAGE__->throw( error => 'dead' ); }
 
-    eval { xy_die };
+	eval { xy_die };
+    }
 
-    main::result( $@->error, 'dead' );
+    result( $@->error eq 'dead' );
+}
+
+# 35 - subclass overriding as_string
+
+sub Exc::AsString::as_string { return uc $_[0]->error }
+
+{
+    eval { Exc::AsString->throw( error => 'upper case' ) };
+
+    result( "$@" eq 'UPPER CASE' );
 }
 
 sub argh
