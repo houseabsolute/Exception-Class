@@ -1,4 +1,4 @@
-BEGIN { $| = 1; print "1..44\n"; }
+BEGIN { $| = 1; print "1..45\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -31,6 +31,8 @@ use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
 		       'Exc::AsString',
 
 		       'Bool' => { fields => [ 'something' ] },
+
+                       'ObjectRefs',
 		     );
 
 
@@ -66,8 +68,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->file eq 't/basic.t',
 	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 49,
-	    "Line should be '49' but it's '", $@->line, "'\n" );
+    result( $@->line == 51,
+	    "Line should be '51' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -278,6 +280,19 @@ sub FieldsException::full_message
             "Single arg constructor should just set error" );
 }
 
+# 45 - no object refs
+{
+    ObjectRefs->NoObjectRefs(1);
+
+    eval { Foo->new->bork };
+    my $exc = $@;
+
+    my @args = ($exc->trace->frames)[1]->args;
+
+    result( ! ref $args[0],
+            "No references should be saved in the stack trace" );
+}
+
 sub argh
 {
     Exception::Class::Base->throw( error => 'ARGH' );
@@ -290,4 +305,18 @@ sub result
     $TESTNUM++;
     print "not "x!$ok, "ok $TESTNUM\n";
     print "@_\n" if !$ok;
+}
+
+package Foo;
+
+sub new
+{
+    return bless {}, shift;
+}
+
+sub bork
+{
+    my $self = shift;
+
+    ObjectRefs->throw( 'kaboom' );
 }
