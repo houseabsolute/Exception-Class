@@ -252,7 +252,6 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 
     is( $@->yip, 10,
         "Exception's foo method should return 10" );
-
 }
 
 sub FieldsException::full_message
@@ -317,13 +316,13 @@ sub FieldsException::full_message
 
 # 47-52 - aliases
 {
-    eval { throw_saf( 'an error' ) };
+    eval { throw_saf 'an error' };
     my $e = $@;
 
     ok( $e, "Throw exception via convenience sub (one param)" );
     is( $e->error, 'an error' );
 
-    eval { throw_saf( error => 'another error', thing => 10 ) };
+    eval { throw_saf error => 'another error', thing => 10 };
     my $e = $@;
 
     ok( $e, "Throw exception via convenience sub (named params)" );
