@@ -9,7 +9,11 @@ use StackTrace;
 
 use fields qw( error pid uid euid gid egid time trace );
 
-$VERSION = '0.01';
+use overload
+    '""' => \&as_string,
+    fallback => 1;
+
+$VERSION = '0.1';
 
 $DO_TRACE = 0;
 
@@ -73,13 +77,12 @@ sub _make_parents
 
     no strict 'refs';
 
-    # What if someone makes a type in specifying their 'isa' param?
-    # This should catch it.  Either it's been made (and we returned
-    # above) because it didn't have missing parents OR it's in our
-    # hash as needing a parent.  If neither of these is true then the
-    # _only_ place it is mentioned is in the 'isa' param for some
-    # other class, which is not a good enough reason to make a new
-    # class.
+    # What if someone makes a typo in specifying their 'isa' param?
+    # This should catch it.  Either it's been made because it didn't
+    # have missing parents OR it's in our hash as needing a parent.
+    # If neither of these is true then the _only_ place it is
+    # mentioned is in the 'isa' param for some other class, which is
+    # not a good enough reason to make a new class.
     die "Class $subclass appears to be a typo as it is only specified in the 'isa' param for $child\n"
 	unless exists $h->{$subclass} || $CLASSES{$subclass} || @{"$subclass\::ISA"};
 
@@ -93,7 +96,7 @@ sub _make_parents
 
 	$seen->{$subclass} = 1;
 
-	$class->_make_parents( $h, $c, $subclass );
+	$class->_make_parents( $h, $c, $seen, $subclass );
     }
 
     return if $CLASSES{$subclass} || @{"$subclass\::ISA"};
@@ -126,7 +129,7 @@ use base qw($isa);
 
 \$VERSION = '0.01';
 
-\$DO_TRACE = 0;
+\$DO_TRACE = 1;
 
 1;
 
@@ -145,9 +148,9 @@ EOPERL
 
     eval $code;
 
-    $CLASSES{$subclass} = 1;
-
     die $@ if $@;
+
+    $CLASSES{$subclass} = 1;
 }
 
 sub throw
@@ -222,6 +225,18 @@ sub do_trace
     return ${"$class\::DO_TRACE"};
 }
 
+sub as_string
+{
+    my Exception $self = shift;
+
+    my $str = $self->{error};
+    if ($self->{trace})
+    {
+	$str .= "\n", $self->{trace}->as_string;
+    }
+
+    return $str;
+}
 
 __END__
 
