@@ -1,3 +1,14 @@
+0.99
+
+- The much-request "arbitrary attributes" feature has been added.
+Thanks to Jon Swartz for the patch.  You can now do this:
+
+  use Exception::Class ( 'My::Exception' => { fields => [ 'bar', 'baz' ] } );
+
+  ...
+
+  if ( UNIVERSAL::isa( $@, 'My::Exception' ) { print $@->bar, $@->baz; }
+
 0.98
 
 - Subclasses that overrode the ->as_string method had to repeat the
