@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.19';
+$VERSION = '1.20';
 
 sub import
 {
@@ -171,6 +171,8 @@ EOPERL
     $CLASSES{$subclass} = 1;
 }
 
+sub Classes { sort keys %Exception::Class::CLASSES }
+
 package Exception::Class::Base;
 
 use Class::Data::Inheritable;
@@ -218,7 +220,7 @@ BEGIN
 
 1;
 
-sub Classes { sort keys %Exception::Class::CLASSES }
+sub Classes { Exception::Class::Classes() }
 
 sub throw
 {
@@ -509,13 +511,6 @@ Foo and never declare Foo.
 
 =over 4
 
-=item * Classes
-
-Returns a list of the classes that have been defined as subclasses of
-Exception::Class.  Note that this is I<all> the subclasses that have
-been created, so it may include subclasses created by things like CPAN
-modules, etc.
-
 =item * Trace($boolean)
 
 Each C<Exception::Class::Base> subclass can be set individually to
@@ -571,9 +566,9 @@ an array.
 
 =item * throw( error => $error )
 
-This method creates a new C<Exception::Class::Base> object with the
-given error message.  If no error message is given, C<$!> is used.  It
-then die's with this object as its argument.
+This method creates a new object with the given error message.  If no
+error message is given, C<$!> is used.  It then die's with this object
+as its argument.
 
 This method also takes a C<show_trace> parameter which indicates
 whether or not the particular exception object being created should
@@ -764,6 +759,17 @@ your own base exception class which subclasses
 C<Exception::Class::Base>.  You should feel free to subclass any of
 the methods documented above.  For example, you may want to subclass
 C<new()> to add additional information to your exception objects.
+
+=head1 Exception::Class FUNCTIONS
+
+The C<Exception::Class> method offers one function, C<Classes()>,
+which is not exported.  This method returns a list of the classes that
+have been created by calling the C<Exception::Class> import() method.
+Note that this is I<all> the subclasses that have been created, so it
+may include subclasses created by things like CPAN modules, etc.  Also
+note that if you simply define a subclass via the normal Perl method
+of setting C<@ISA> or C<use base>, then your subclass will not be
+included.
 
 =head1 OTHER EXCEPTION MODULES (try/catch syntax)
 
