@@ -287,28 +287,28 @@ sub FieldsException::full_message
 
 # 45 - no refs
 {
-    ObjectRefs2->NoRefs(1);
+    ObjectRefs2->NoRefs(0);
 
     eval { Foo->new->bork2 };
     my $exc = $@;
 
     my @args = ($exc->trace->frames)[1]->args;
 
-    ok( ! ref $args[0],
-        "No references should be saved in the stack trace" );
+    ok( ref $args[0],
+        "References should be saved in the stack trace" );
 }
 
 # 46 - no object refs (deprecated)
 {
-    ObjectRefs->NoObjectRefs(1);
+    ObjectRefs->NoObjectRefs(0);
 
     eval { Foo->new->bork };
     my $exc = $@;
 
     my @args = ($exc->trace->frames)[1]->args;
 
-    ok( ! ref $args[0],
-        "No references should be saved in the stack trace" );
+    ok( ref $args[0],
+        "References should be saved in the stack trace" );
 }
 
 # 47-52 - aliases
