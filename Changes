@@ -6,6 +6,8 @@ children.  Patch (with tests!) by David Wheeler.
 - Allow a single argument (error/message) to the constructor.  Patch
 by Tatsuhiko Miyagawa.
 
+- General doc cleanup.
+
 1.01 May 23, 2002
 
 - Make sure that exception objects always test as true in a boolean
