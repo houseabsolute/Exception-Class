@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..28\n"; }
+BEGIN { $| = 1; print "1..31\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -45,7 +45,7 @@ $main::loaded = 1;
 
 result( $main::loaded, "Unable to load Exception::Class module\n" );
 
-# 2-13: Accessors
+# 2-14: Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
 
@@ -54,6 +54,9 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
     result( $@->error eq 'err',
 	    "Exception's error message should be 'err' but it's '", $@->error, "'\n" );
+
+    result( $@->message eq 'err',
+	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
 
     result( $@->description eq 'Generic exception',
 	    "Description should be 'Generic exception' but it's '", $@->description, "'\n" );
@@ -86,7 +89,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "Exception object has a stacktrace but it shouldn't\n" );
 }
 
-# 14-22 : Test subclass creation
+# 15-23 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -123,7 +126,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 }
 
 
-# 23-26 : Trace related tests
+# 24-27 : Trace related tests
 {
     result( Exception::Class::Base->do_trace == 0,
 	    "Exception::Class::Base class 'do_trace' method should return false\n" );
@@ -145,7 +148,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "Trace contains frames from Exception::Class::Base package\n" );
 }
 
-# 27-28 : overloading
+# 28-29 : overloading
 {
     Exception::Class::Base->do_trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
@@ -167,6 +170,17 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
     my $x = "$@" =~ /$re/;
     result( $x, "Overloaded stringification did not include the expected stack trace\n" );
+}
+
+# 30-31 - Test using message as hash key to constructor
+{
+    eval { Exception::Class::Base->throw( message => 'err' ); };
+
+    result( $@->error eq 'err',
+	    "Exception's error message should be 'err' but it's '", $@->error, "'\n" );
+
+    result( $@->message eq 'err',
+	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
 }
 
 sub argh

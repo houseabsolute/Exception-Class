@@ -1,3 +1,8 @@
+0.85
+
+- added ability to use message instead of error as hash key to
+constructor.
+
 0.8
 
 - changed object from psuedo-hash to regular hash

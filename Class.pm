@@ -108,7 +108,7 @@ use vars qw(\$VERSION \$DO_TRACE);
 
 use base qw($isa);
 
-\$VERSION = '1.0';
+\$VERSION = '1.1';
 
 \$DO_TRACE = 0;
 
@@ -138,7 +138,7 @@ package Exception::Class::Base;
 
 use Devel::StackTrace;
 
-use fields qw( error pid uid euid gid egid time trace package file line );
+use fields qw( message pid uid euid gid egid time trace package file line );
 
 use overload
     '""' => \&as_string,
@@ -146,7 +146,7 @@ use overload
 
 use vars qw($VERSION $DO_TRACE);
 
-$VERSION = '1.0';
+$VERSION = '1.1';
 
 $DO_TRACE = 0;
 
@@ -158,6 +158,7 @@ BEGIN
     {
 	*{$f} = sub { my $s = shift; return $s->{$f}; };
     }
+    *{'error'} = \&message;
 }
 
 1;
@@ -195,7 +196,7 @@ sub _initialize
     my %p = @_;
 
     # Try to get something useful in there (I hope).  Or just give up.
-    $self->{error} = $p{error} || $! || '';
+    $self->{message} = $p{message} || $p{error} || $! || '';
 
     $self->{time} = CORE::time; # without CORE:: sometimes makes a warning (why?)
     $self->{pid}  = $$;
@@ -241,7 +242,7 @@ sub as_string
 {
     my $self = shift;
 
-    my $str = $self->{error};
+    my $str = $self->{message};
     if ($self->trace)
     {
 	$str .= "\n\n" . $self->trace->as_string;
@@ -377,16 +378,16 @@ to not make a trace.  Calling this method with a value changes this
 behavior.  It always returns the current value (after any change is
 applied).
 
-=item * throw( error => $error_message )
+=item * throw( message => $message ) OR throw ( error => $error )
 
 This method creates a new Exception::Class::Base object with the given
 error message.  If no error message is given, $! is used.  It then
 die's with this object as its argument.
 
-=item * new( error => $error_message )
+=item * new( message => $message ) OR new ( error => $error )
 
 Returns a new Exception::Class::Base object with the given error
-message.  If no error message is given, $! is used.
+message.  If no message is given, $! is used instead.
 
 =item * description
 
@@ -408,9 +409,15 @@ However, it will cause C<caller> to report the die as coming from
 within the Exception::Class::Base class rather than where rethrow was
 called.
 
+=item * message
+
+Returns the message associated with the exception.  This is synonymous
+with the C<error> method.
+
 =item * error
 
-Returns the error message associated with the exception.
+Returns the error message associated with the exception.  This is
+synonymous with the C<message> method.
 
 =item * pid
 
