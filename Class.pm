@@ -366,20 +366,20 @@ Exception::Class - A module that allows you to declare real exception classes in
   eval { MyException->throw( error => 'I feel funny.'; };
 
   # catch
-  if ( $@ && ref $@ && $@->isa('MyException') )
+  if ( UNIVERSAL::isa( $@, 'MyException' ) )
   {
      warn $@->error, "\n, $@->trace->as_string, "\n";
      warn join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
 
      exit;
   }
-  elsif ( $@->isa('ExceptionWithFields') )
+  elsif ( UNIVERSAL::isa( $@, 'ExceptionWithFields' ) )
   {
      $@->quixotic ? do_something_wacky() : do_something_sane();
   }
   else
   {
-     $@->rethrow;
+     ref $@ ? $@->rethrow : die $@;
   }
 
   # use an alias - without parens subroutine name is checked at
