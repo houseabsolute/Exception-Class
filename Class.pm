@@ -27,7 +27,7 @@ sub import
 	    no strict 'refs';
 	    foreach my $parent (@{ $def->{isa} })
 	    {
-		unless ( defined ${"$parent\::VERSION"} || @{"$parent\::ISA"} )
+		unless ( keys %{"$parent\::"} )
 		{
 		    $needs_parent{$subclass} = { parents => $def->{isa},
 						 def => $def };
@@ -51,7 +51,7 @@ sub import
 sub _make_parents
 {
     my $class = shift;
-    my $h = shift;
+    my $needs = shift;
     my $subclass = shift;
     my $seen = shift;
     my $child = shift; # Just for error messages.
@@ -65,25 +65,25 @@ sub _make_parents
     # mentioned is in the 'isa' param for some other class, which is
     # not a good enough reason to make a new class.
     die "Class $subclass appears to be a typo as it is only specified in the 'isa' param for $child\n"
-	unless exists $h->{$subclass} || $CLASSES{$subclass} || @{"$subclass\::ISA"};
+	unless exists $needs->{$subclass} || $CLASSES{$subclass} || keys %{"$subclass\::"};
 
-    foreach my $c ( @{ $h->{$subclass}{parents} } )
+    foreach my $c ( @{ $needs->{$subclass}{parents} } )
     {
 	# It's been made
-	next if $CLASSES{$c} || @{"$c\::ISA"};
+	next if $CLASSES{$c} || keys %{"$c\::"};
 
 	die "There appears to be some circularity involving $subclass\n"
 	    if $seen->{$subclass};
 
 	$seen->{$subclass} = 1;
 
-	$class->_make_parents( $h, $c, $seen, $subclass );
+	$class->_make_parents( $needs, $c, $seen, $subclass );
     }
 
-    return if $CLASSES{$subclass} || @{"$subclass\::ISA"};
+    return if $CLASSES{$subclass} || keys %{"$subclass\::"};
 
     $class->_make_subclass( subclass => $subclass,
-			    def => $h->{$subclass}{def} );
+			    def => $needs->{$subclass}{def} );
 }
 
 sub _make_subclass
@@ -117,6 +117,7 @@ EOPERL
 
     if ($def->{description})
     {
+	(my $desc = $def->{description}) =~ s/[\\\']/\\$1/g;
 	$code .= <<"EOPERL";
 sub description
 {
@@ -212,7 +213,7 @@ sub _initialize
 
     my $x = 0;
     # move back the stack til we're out of this package
-    $x++ while defined caller($x) && UNIVERSAL::isa( scalar caller($x), __PACKAGE__ );
+    $x++ while defined caller($x) && caller($x)->isa( __PACKAGE__ );
     $x-- until caller($x);
 
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
@@ -237,6 +238,35 @@ sub as_string
 
     return $str;
 }
+
+#
+# The %seen bit protects against circular inheritance.
+#
+eval <<'EOF' if $] == 5.006;
+sub isa
+{
+    my ($inheritor, $base) = @_;
+    $inheritor = ref($inheritor) if ref($inheritor);
+
+    my %seen;
+
+    no strict 'refs';
+    my @parents = ($inheritor, @{"$inheritor\::ISA"});
+    @seen{@parents} = (1) x @parents;
+    while (my $class = shift @parents)
+    {
+        return 1 if $class eq $base;
+        return 0 if $seen{$class};
+
+        my @isa = @{"$class\::ISA"};
+        @seen{@isa} = (1) x @isa;
+        push @parents, @isa;
+    }
+    return 0;
+}
+EOF
+
+1;
 
 __END__
 

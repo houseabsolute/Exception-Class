@@ -161,7 +161,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     my $re;
     if ($] == 5.006)
     {
-	$re = qr/overloaded again.+eval {...}\('error', 'overloaded again'\)/s;
+	$re = qr/overloaded again.+eval {...}\((?:'Exception::Class::Base')?'error', 'overloaded again'\)/s;
     }
     else
     {
