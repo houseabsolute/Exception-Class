@@ -1,3 +1,11 @@
+0.8
+
+- changed object from psuedo-hash to regular hash
+
+- added package, file, & line methods to exception object.
+
+- added more tests for exception object accessors
+
 0.7
 
 - hack in test.pl to allow tests to pass under 5.6.0.
