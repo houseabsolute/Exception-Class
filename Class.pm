@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '0.90';
+$VERSION = '0.95';
 
 sub import
 {
@@ -104,13 +104,11 @@ sub _make_subclass
     my $code = <<"EOPERL";
 package $subclass;
 
-use vars qw(\$VERSION \$DO_TRACE);
+use vars qw(\$VERSION);
 
 use base qw($isa);
 
 \$VERSION = '1.1';
-
-\$DO_TRACE = 0;
 
 1;
 
@@ -136,25 +134,28 @@ EOPERL
 
 package Exception::Class::Base;
 
+use Class::Data::Inheritable;
 use Devel::StackTrace;
 
-use fields qw( message pid uid euid gid egid time trace package file line );
+use base qw(Class::Data::Inheritable);
+
+__PACKAGE__->mk_classdata('Trace');
 
 use overload
     '""' => \&as_string,
     fallback => 1;
 
-use vars qw($VERSION $DO_TRACE);
+use vars qw($VERSION);
 
-$VERSION = '1.1';
-
-$DO_TRACE = 0;
+$VERSION = '1.2';
 
 # Create accessor routines
 BEGIN
 {
+    my @fields = qw( message pid uid euid gid egid time trace package file line );
+
     no strict 'refs';
-    foreach my $f (keys %{__PACKAGE__ . '::FIELDS'})
+    foreach my $f (@fields)
     {
 	*{$f} = sub { my $s = shift; return $s->{$f}; };
     }
@@ -199,6 +200,8 @@ sub _initialize
     # Try to get something useful in there (I hope).  Or just give up.
     $self->{message} = $p{message} || $p{error} || $! || '';
 
+    $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
+
     $self->{time} = CORE::time; # without CORE:: sometimes makes a warning (why?)
     $self->{pid}  = $$;
     $self->{uid}  = $<;
@@ -208,15 +211,12 @@ sub _initialize
 
     my $x = 0;
     # move back the stack til we're out of this package
-    $x++ while UNIVERSAL::isa( scalar caller($x), __PACKAGE__ );
+    $x++ while defined caller($x) && UNIVERSAL::isa( scalar caller($x), __PACKAGE__ );
     $x-- until caller($x);
 
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
-    if ($self->do_trace)
-    {
-	$self->{trace} = Devel::StackTrace->new( ignore_class => __PACKAGE__ );
-    }
+    $self->{trace} = Devel::StackTrace->new( ignore_class => __PACKAGE__ );
 }
 
 sub description
@@ -224,28 +224,12 @@ sub description
     return 'Generic exception';
 }
 
-sub do_trace
-{
-    my $proto = shift;
-    my $class = ref $proto || $proto;
-
-    {
-	no strict 'refs';
-	if ( defined ( my $val = shift ) )
-	{
-	    ${"$class\::DO_TRACE"} = $val;
-	}
-
-	return ${"$class\::DO_TRACE"};
-    }
-}
-
 sub as_string
 {
     my $self = shift;
 
     my $str = $self->{message};
-    if ($self->trace)
+    if ( exists $self->{show_trace} ? $self->{show_trace} : $self->Trace )
     {
 	$str .= "\n\n" . $self->trace->as_string;
     }
@@ -271,7 +255,7 @@ Exception::Class - A module that allows you to declare real exception classes in
 
   print $@->error, "\n";
 
-  MyException->trace(1);
+  MyException->Trace(1);
   eval { MyException->throw( error => 'I feel funnier.'; };
 
   print $@->error, "\n", $@->trace->as_string, "\n";
@@ -372,13 +356,19 @@ experimental.
 
 =over 4
 
-=item * do_trace($true_or_false)
+=item * Trace($true_or_false)
 
-Each Exception::Class::Base subclass can be set individually to make a
-Devel::StackTrace object when an exception is thrown.  The default is
-to not make a trace.  Calling this method with a value changes this
-behavior.  It always returns the current value (after any change is
-applied).
+Each Exception::Class::Base subclass can be set individually to
+include a a stracktrace when the C<as_string> method is called..  The
+default is to not include a stacktrace.  Calling this method with a
+value changes this behavior.  It always returns the current value
+(after any change is applied).
+
+This value is inherited by any subclasses.  However, if this value is
+set for a subclass, it will thereafter be independent of the value in
+Exception::Class::Base.
+
+This is a class method, not an object method.
 
 =item * throw( message => $message ) OR throw ( error => $error )
 
@@ -386,10 +376,20 @@ This method creates a new Exception::Class::Base object with the given
 error message.  If no error message is given, $! is used.  It then
 die's with this object as its argument.
 
+This method also takes a C<show_trace> parameter which indicates
+whether or not the particular exception object being created should
+show a stacktrace when its C<as_string> method is called.  This
+overrides the value of C<Trace> for this class if it is given.
+
 =item * new( message => $message ) OR new ( error => $error )
 
 Returns a new Exception::Class::Base object with the given error
 message.  If no message is given, $! is used instead.
+
+This method also takes a C<show_trace> parameter which indicates
+whether or not the particular exception object being created should
+show a stacktrace when its C<as_string> method is called.  This
+overrides the value of C<Trace> for this class if it is given.
 
 =item * description
 

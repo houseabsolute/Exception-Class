@@ -1,18 +1,10 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
-
-######################### We start with some black magic to print on failure.
-
-# Change 1..1 below to 1..last_test_to_print .
-# (It may become useful if the test is moved to ./t subdirectory.)
-
-BEGIN { $| = 1; print "1..32\n"; }
+BEGIN { $| = 1; print "1..34\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
-# really know how to quantify them though.  If test.pl fails to
-# compile and there's an error from the Exception::Class::Base class
-# then something here failed.
+# really know how to quantify them though.  If we fail to compile and
+# there's an error from the Exception::Class::Base class then
+# something here failed.
 BEGIN
 {
     package FooException;
@@ -64,11 +56,11 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->package eq 'main',
 	    "Package should be 'main' but it's '", $@->package, "'\n" );
 
-    result( $@->file eq 'test.pl',
-	    "Package should be 'test.pl' but it's '", $@->file, "'\n" );
+    result( $@->file eq 't/basic.t',
+	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
 
-    result( $@->line == 50,
-	    "Package should be '50' but it's '", $@->line, "'\n" );
+    result( $@->line == 42,
+	    "Line should be '42' but it's '", $@->line, "'\n" );
 
     result( $@->pid == $$,
 	    "PID should be '$$' but it's '", $@->pid, "'\n" );
@@ -85,8 +77,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $@->egid == $),
 	    "EGID should be '$)' but it's '", $@->egid, "'\n" );
 
-    result( ! defined $@->trace,
-	    "Exception object has a stacktrace but it shouldn't\n" );
+    result( defined $@->trace,
+	    "Exception object does not have a stacktrace but it should\n" );
 }
 
 # 15-23 : Test subclass creation
@@ -126,20 +118,28 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 }
 
 
-# 24-27 : Trace related tests
+# 24-29 : Trace related tests
 {
-    result( Exception::Class::Base->do_trace == 0,
-	    "Exception::Class::Base class 'do_trace' method should return false\n" );
+    result( ! Exception::Class::Base->Trace,
+	    "Exception::Class::Base class 'Trace' method should return false\n" );
 
-    Exception::Class::Base->do_trace(1);
+    eval { Exception::Class::Base->throw( error => 'has stacktrace', show_trace => 1 ) };
+    result( $@->as_string =~ /Trace begun/,
+	    "Setting show_trace to true should override value of Trace" );
 
-    result( Exception::Class::Base->do_trace == 1,
-	    "Exception::Class::Base class 'do_trace' method should return false\n" );
+    Exception::Class::Base->Trace(1);
+
+    result( Exception::Class::Base->Trace,
+	    "Exception::Class::Base class 'Trace' method should return true\n" );
 
     eval { argh(); };
 
     result( $@->trace->as_string,
 	    "Exception should have a stack trace\n" );
+
+    eval { Exception::Class::Base->throw( error => 'has stacktrace', show_trace => 0 ) };
+    result( $@->as_string !~ /Trace begun/,
+	    "Setting show_trace to false should override value of Trace" );
 
     my @f;
     while ( my $f = $@->trace->next_frame ) { push @f, $f; }
@@ -148,14 +148,14 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "Trace contains frames from Exception::Class::Base package\n" );
 }
 
-# 28-29 : overloading
+# 29-30 : overloading
 {
-    Exception::Class::Base->do_trace(0);
+    Exception::Class::Base->Trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
 
     result( "$@" eq 'overloaded', "Overloading is not working\n" );
 
-    Exception::Class::Base->do_trace(1);
+    Exception::Class::Base->Trace(1);
     eval { Exception::Class::Base->throw( error => 'overloaded again' ); };
 
     my $re;
@@ -172,7 +172,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     result( $x, "Overloaded stringification did not include the expected stack trace\n" );
 }
 
-# 30-31 - Test using message as hash key to constructor
+# 32-33 - Test using message as hash key to constructor
 {
     eval { Exception::Class::Base->throw( message => 'err' ); };
 
@@ -183,7 +183,7 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
 }
 
-# 32
+# 34
 {
     package X::Y;
 

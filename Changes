@@ -1,3 +1,20 @@
+0.95
+
+** INCOMPATIBLE CHANGES IN THIS RELEASE **
+
+- Remove do_trace method and replace it with Trace method, which is
+inherited by subclasses.
+
+- Exception object now always have a Devel::StackTrace object
+available.  The Trace method only determines whether or not it is
+included when the exception is stringified.
+
+- A new parameter show_trace for throw which allows you to override
+the value of Trace on a case by case basis.
+
+- Fix uninit value warning with 5.00503.
+
+
 0.90
 
 - fix buglet reported by Terrence Brannon that could occur while
