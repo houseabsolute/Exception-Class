@@ -7,8 +7,45 @@ Regardless, the ability to declare all your exceptions at compile time
 is a fairly useful trick and helps push people towards more structured
 use of exceptions.
 
-NOTE: This module requires Perl 5.005 or greater.  Also, bugs in Perl
-5.6.0 will cause it to fail its test suite because Devel::StackTrace
-does not work properly with these bugs.  These bugs should be
-addressed in Perl 5.6.1.  The rest of the module (without the
-stacktrace functionality enabled) should work fine under Perl 5.6.0
+NOTE: This module requires Perl 5.005 or greater.
+
+BUGS
+
+** Perl5.6.0 and stack traces
+
+Under Perl 5.6.0, there may be problems with stack traces.  I have
+made the test suite pass under 5.6.0 because most of the module's
+functionality works under 5.6.0.  Please don't email me asking why
+your stack traces are screwed up, though.  If it doesn't work with
+5.6.1 when that comes out then please let me know.
+
+** The ->isa method and Class::Fields' base.pm
+
+In addition, bugs in the ->isa method under Perl 5.00503 and greater,
+combined with the base.pm module distributed with the Class::Fields
+module, triggers a bug causing tests 9, 10, and 12 to fail.
+
+** The ->isa method and Perl 5.6.0's base.pm
+
+The same bug is triggered by the base.pm module under Perl 5.6.0
+
+
+Note, the second two bugs can be worked around by replacing the line
+that contains the call to the ->isa method with the a call to the
+following subroutine:
+
+sub _my_isa
+{
+    my ($inheritor, $base) = @_;
+
+    my @parents = @{"$inheritor\::ISA"};
+    while (my $class = shift @parents)
+    {
+        return 1 if $class eq $base;
+        push @parents, @{"$class\::ISA"};
+    }
+}
+
+The fixes for all the Perl bugs mentioned are already checked into the
+Perl CVS (thanks to whoever fixed them :) and will be in the 5.6.1
+release.
