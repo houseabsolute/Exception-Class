@@ -3,4 +3,4 @@ Class.pm
 MANIFEST
 LICENSE
 Makefile.PL
-test.pl
+t/basic.t

@@ -460,8 +460,7 @@ Returns the line where the exception was thrown.
 
 =item * trace
 
-Returns the trace object associated with the Exception::Class::Base if
-do_trace was true at the time it was created or undef.
+Returns the trace object associated with the object.
 
 =item * as_string
 
