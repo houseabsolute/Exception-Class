@@ -15,12 +15,23 @@ sub import
 
     local $Exception::Class::Caller = caller();
 
+    my %c;
+
     my %needs_parent;
- MAKE_CLASSES:
     while (my $subclass = shift)
     {
 	my $def = ref $_[0] ? shift : {};
 	$def->{isa} = $def->{isa} ? ( ref $def->{isa} ? $def->{isa} : [$def->{isa}] ) : [];
+
+        $c{$subclass} = $def;
+    }
+
+    # We need to sort by length because if we check for keys in the
+    # Foo::Bar:: stash, this creates a "Bar::" key in the Foo:: stash!
+ MAKE_CLASSES:
+    foreach my $subclass ( sort { length $a <=> length $b } keys %c )
+    {
+        my $def = $c{$subclass};
 
 	# We already made this one.
 	next if $CLASSES{$subclass};
@@ -174,7 +185,7 @@ BEGIN
     __PACKAGE__->mk_classdata('NoRefs');
     *NoObjectRefs = \&NoRefs;
 
-    __PACKAGE__->NoRefs(0);
+    __PACKAGE__->NoRefs(1);
 
     sub Fields { () }
 }
