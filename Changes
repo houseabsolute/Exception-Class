@@ -1,3 +1,8 @@
+1.10 Jan 28, 2003
+
+- The alias feature had a bug that showed up when an alias was
+assigned to a class whose parent had not yet been made.
+
 1.09 Jan 22, 2003
 
 - Tweak to Fields method so that it returns empty list for 5.6.1 and
