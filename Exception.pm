@@ -129,7 +129,7 @@ use base qw($isa);
 
 \$VERSION = '0.01';
 
-\$DO_TRACE = 1;
+\$DO_TRACE = 0;
 
 1;
 
@@ -201,7 +201,7 @@ sub _initialize
 
     if ($self->do_trace)
     {
-	$self->{trace} = StackTrace->new( ignore_class => ref $self );
+	$self->{trace} = StackTrace->new( ignore_class => __PACKAGE__ );
     }
 }
 
