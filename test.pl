@@ -23,7 +23,7 @@ BEGIN
     1;
 }
 
-# There's actually a few tests here of the import routine.  Don't
+# There's actually a few tests here of the import routine.  I don't
 # really know how to quantify them though.  If test.pl fails to
 # compile and there's an error from the Exception class then something
 # here failed.
@@ -33,6 +33,8 @@ use Exception ( 'YAE' => { isa => 'SubTestException' },
 		'TestException',
 		'FooBarException' => { isa => 'FooException' },
 	      );
+FooException->import( 'BlahBlah' );
+
 use strict;
 
 $^W = 1;
@@ -57,7 +59,7 @@ result( $main::loaded, "Unable to load Exception module\n" );
 	    "Exception object has a stacktrace but it shouldn't\n" );
 }
 
-# 6-12 : Test subclass creation
+# 6-13 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -85,10 +87,14 @@ result( $main::loaded, "Unable to load Exception module\n" );
 
     result( $@->isa( 'SubTestException' ),
 	    "YAE should be a subclass of SubTestException\n" );
+
+    eval { BlahBlah->throw( error => 'yadda yadda' ); };
+    result( $@->isa('FooException'),
+	    "The BlahBlah class should be a subclass of FooException\n" );
 }
 
 
-# 13-16 : Trace related tests
+# 14-17 : Trace related tests
 {
     result( Exception->do_trace == 0,
 	    "Exception class 'do_trace' method should return false\n" );
@@ -110,7 +116,7 @@ result( $main::loaded, "Unable to load Exception module\n" );
 	    "Trace contains frames from Exception package\n" );
 }
 
-# 17-18 : overloading
+# 18-19 : overloading
 {
     Exception->do_trace(0);
     eval { Exception->throw( error => 'overloaded' ); };
@@ -118,8 +124,8 @@ result( $main::loaded, "Unable to load Exception module\n" );
     result( "$@" eq 'overloaded', "Overloading is not working\n" );
 
     Exception->do_trace(1);
-    eval { Exception->throw( error => 'overloaded' ); };
-    my $x = "$@" =~ /overloaded.+\(eval\)/s;
+    eval { Exception->throw( error => 'overloaded again' ); };
+    my $x = "$@" =~ /overloaded again.+eval {...}\('Exception', 'error', 'overloaded again'\)/s;
     result( $x, "Overloaded stringification did not include the expected stack trace\n" );
 }
 
