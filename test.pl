@@ -6,7 +6,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN { $| = 1; print "1..31\n"; }
+BEGIN { $| = 1; print "1..32\n"; }
 END {print "not ok 1\n" unless $main::loaded;}
 
 # There's actually a few tests here of the import routine.  I don't
@@ -181,6 +181,19 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 
     result( $@->message eq 'err',
 	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
+}
+
+# 32
+{
+    package X::Y;
+
+    use Exception::Class ( __PACKAGE__ );
+
+    sub xy_die () { __PACKAGE__->throw( error => 'dead' ); }
+
+    eval { xy_die };
+
+    main::result( $@->error, 'dead' );
 }
 
 sub argh

@@ -1,3 +1,12 @@
+0.90
+
+- fix buglet reported by Terrence Brannon that could occur while
+trying to figure out where the exception was thrown, if the exception
+was thrown from the package that the exception is an object of.
+
+- doc improvements suggested Nathaniel Smith (related to using
+Error.pm) and Mark Stosberg.
+
 0.85
 
 - added ability to use message instead of error as hash key to

@@ -166,9 +166,10 @@ BEGIN
 sub throw
 {
     my $proto = shift;
-    my $class = ref $proto || $proto;
 
-    die $class->new(@_);
+    $proto->rethrow if ref $proto;
+
+    die $proto->new(@_);
 }
 
 sub rethrow
@@ -207,7 +208,8 @@ sub _initialize
 
     my $x = 0;
     # move back the stack til we're out of this package
-    $x++ while (caller($x))->isa(__PACKAGE__);
+    $x++ while UNIVERSAL::isa( scalar caller($x), __PACKAGE__ );
+    $x-- until caller($x);
 
     @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
@@ -495,6 +497,18 @@ of 10-20 different files).  It's also ever so slightly faster as the
 Class::Exception->import method doesn't get called over and over again
 (though a given class is only ever made once).
 
+This might look something like this:
+
+  package Foo::Bar::Exceptions;
+
+  use Exception::Class ( Foo::Bar::Exception::Smell =>
+                         { description => 'stinky!' },
+
+                         Foo::Bar::Exception::Taste =>
+                         { description => 'like, gag me with a spoon!' },
+
+                         ... );
+
 You may want to create a real module to subclass
 Exception::Class::Base as well, particularly if you want your
 exceptions to have more methods.  Read the L<DECLARING EXCEPTION
@@ -505,11 +519,14 @@ CLASSES> for more details.
 If you are interested in adding try/catch/finally syntactic sugar to
 your code then I recommend you check out Graham Barr's Error module,
 which implements this syntax.  It also includes its own base exception
-class, Error::Simple, but you should be able to use
-Exception::Class::Base along with his try/catch routines
-transparently.  If you encounter any issues in getting these two to
-work together, please let me know (and maybe Graham as well) and I
-will fix this.
+class, Error::Simple.
+
+If you would prefer to use the Exception::Class::Base included with
+this module, you'll have to add this to your code somewhere:
+
+  push @Exception::Class::Base::ISA, 'Error';
+
+It's a hack but apparently it works.
 
 =head1 AUTHOR
 
