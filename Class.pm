@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 sub import
 {
@@ -130,7 +130,9 @@ EOPERL
     {
 	my @fields = UNIVERSAL::isa($fields, 'ARRAY') ? @$fields : $fields;
 
-	$code .= "sub Fields { return (" . join(", ", map { "'$_'" } @fields) . ") }\n\n";
+	$code .=
+            "sub Fields { return (\$_[0]->SUPER::Fields, " .
+            join(", ", map { "'$_'" } @fields) . ") }\n\n";
 
         foreach my $field (@fields)
 	{
@@ -214,7 +216,7 @@ sub new
 sub _initialize
 {
     my $self = shift;
-    my %p = @_;
+    my %p = @_ == 1 ? ( error => $_[0] ) : @_;
 
     # Try to get something useful in there (I hope).  Or just give up.
     $self->{message} = $p{message} || $p{error} || $! || '';
@@ -445,7 +447,11 @@ Exception::Class::Base.
 
 This is a class method, not an object method.
 
-=item * throw( message => $message ) OR throw ( error => $error )
+=item * throw( $message )
+
+=item * throw( message => $message )
+
+=item * throw( error => $error )
 
 This method creates a new Exception::Class::Base object with the given
 error message.  If no error message is given, $! is used.  It then
@@ -456,7 +462,15 @@ whether or not the particular exception object being created should
 show a stacktrace when its C<as_string> method is called.  This
 overrides the value of C<Trace> for this class if it is given.
 
-=item * new( message => $message ) OR new ( error => $error )
+If only a single value is given to the constructor it is assumed to be
+the message parameter.
+
+Additional keys corresponding to any fields defined for the particular
+exception subclass will also be accepted.
+
+=item * new
+
+This method takes the same parameters as C<throw>.
 
 Returns a new Exception::Class::Base object with the given error
 message.  If no message is given, $! is used instead.
