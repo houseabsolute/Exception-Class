@@ -782,7 +782,8 @@ If you would prefer to use the C<Exception::Class::Base> class
 included with this module, you'll have to add this to your code
 somewhere:
 
-  push @Exception::Class::Base::ISA, 'Error';
+  push @Exception::Class::Base::ISA, 'Error'
+      unless Exception::Class::Base->isa('Error');
 
 It's a hack but apparently it works.
 
