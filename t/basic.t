@@ -1,5 +1,10 @@
-BEGIN { $| = 1; print "1..45\n"; }
-END {print "not ok 1\n" unless $main::loaded;}
+use strict;
+
+use File::Spec;
+
+use Test::More tests => 46;
+
+use_ok('Exception::Class');
 
 # There's actually a few tests here of the import routine.  I don't
 # really know how to quantify them though.  If we fail to compile and
@@ -19,21 +24,25 @@ BEGIN
     1;
 }
 
-use Exception::Class ( 'YAE' => { isa => 'SubTestException' },
-		       'SubTestException' => { isa => 'TestException',
-					       description => 'blah blah' },
-		       'TestException',
-		       'FooBarException' => { isa => 'FooException' },
+use Exception::Class
+  ( 'YAE' => { isa => 'SubTestException' },
 
-		       'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
-                       'MoreFieldsException' => { isa => 'FieldsException', fields => [qw(yip)]},
+    'SubTestException' => { isa => 'TestException',
+                            description => 'blah blah' },
 
-		       'Exc::AsString',
+    'TestException',
 
-		       'Bool' => { fields => [ 'something' ] },
+    'FooBarException' => { isa => 'FooException' },
 
-                       'ObjectRefs',
-		     );
+    'FieldsException' => { isa => 'YAE', fields => [ qw( foo bar ) ] },
+    'MoreFieldsException' => { isa => 'FieldsException', fields => [qw(yip)]},
+
+    'Exc::AsString',
+
+    'Bool' => { fields => [ 'something' ] },
+
+    'ObjectRefs',
+  );
 
 
 $Exception::Class::BASE_EXC_CLASS = 'FooException';
@@ -42,119 +51,112 @@ Exception::Class->import( 'BlahBlah' );
 use strict;
 
 $^W = 1;
-$main::loaded = 1;
-
-result( $main::loaded, "Unable to load Exception::Class module\n" );
 
 # 2-14: Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
 
-    result( $@->isa('Exception::Class::Base'),
-	    "\$\@ is not an Exception::Class::Base\n" );
+    isa_ok( $@, 'Exception::Class::Base', '$@' );
 
-    result( $@->error eq 'err',
-	    "Exception's error message should be 'err' but it's '", $@->error, "'\n" );
+    is( $@->error, 'err',
+        "Exception's error message should be 'err'" );
 
-    result( $@->message eq 'err',
-	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
+    is( $@->message, 'err',
+        "Exception's message should be 'err'" );
 
-    result( $@->description eq 'Generic exception',
-	    "Description should be 'Generic exception' but it's '", $@->description, "'\n" );
+    is( $@->description, 'Generic exception',
+        "Description should be 'Generic exception'" );
 
-    result( $@->package eq 'main',
-	    "Package should be 'main' but it's '", $@->package, "'\n" );
+    is( $@->package, 'main',
+        "Package should be 'main'" );
 
-    result( $@->file eq 't/basic.t',
-	    "Package should be 't/basic.t' but it's '", $@->file, "'\n" );
+    my $expect = File::Spec->catfile( 't', 'basic.t' );
+    is( $@->file, $expect,
+        "File should be '$expect'" );
 
-    result( $@->line == 51,
-	    "Line should be '51' but it's '", $@->line, "'\n" );
+    is( $@->line, 57,
+        "Line should be 57" );
 
-    result( $@->pid == $$,
-	    "PID should be '$$' but it's '", $@->pid, "'\n" );
+    is( $@->pid, $$,
+        "PID should be $$" );
 
-    result( $@->uid == $<,
-	    "UID should be '$<' but it's '", $@->uid, "'\n" );
+    is( $@->uid, $<,
+        "UID should be $<" );
 
-    result( $@->euid == $>,
-	    "EUID should be '$>' but it's '", $@->euid, "'\n" );
+    is( $@->euid, $>,
+        "EUID should be $>" );
 
-    result( $@->gid == $(,
-	    "GID should be '$(' but it's '", $@->gid, "'\n" );
+    is( $@->gid, $(,
+        "GID should be $(" );
 
-    result( $@->egid == $),
-	    "EGID should be '$)' but it's '", $@->egid, "'\n" );
+    is( $@->egid, $),
+        "EGID should be $)" );
 
-    result( defined $@->trace,
-	    "Exception object does not have a stacktrace but it should\n" );
+    ok( defined $@->trace,
+        "Exception object should have a stacktrace" );
 }
 
 # 15-23 : Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
-    result( $@->isa( 'TestException' ),
-	    "TestException was thrown in class ", ref $@, "\n" );
+    isa_ok( $@, 'TestException' );
 
-    result( $@->description eq 'Generic exception',
-	    "Description should be 'Generic exception' but it's '", $@->description, "'\n" );
+    is( $@->description, 'Generic exception',
+        "Description should be 'Generic exception'" );
 
     eval { SubTestException->throw( error => 'err' ); };
 
-    result( $@->isa( 'SubTestException' ),
-	    "SubTestException was thrown in class ", ref $@, "\n" );
+    isa_ok( $@, 'SubTestException' );
 
-    result( $@->isa( 'TestException' ),
-	    "SubTestException should be a subclass of TestException (triggers ->isa bug.  See README.)\n" );
+    isa_ok( $@, 'TestException' );
 
-    result( $@->isa( 'Exception::Class::Base' ),
-	    "SubTestException should be a subclass of Exception::Class::Base (triggers ->isa bug.  See README.)\n" );
+    isa_ok( $@, 'Exception::Class::Base' );
 
-    result( $@->description eq 'blah blah',
-	    "Description should be 'blah blah' but it's '", $@->description, "'\n" );
+    is( $@->description, 'blah blah',
+        "Description should be 'blah blah'" );
 
     eval { YAE->throw( error => 'err' ); };
 
-    result( $@->isa( 'SubTestException' ),
-	    "YAE should be a subclass of SubTestException (triggers ->isa bug.  See README.)\n" );
+    isa_ok( $@, 'SubTestException' );
 
     eval { BlahBlah->throw( error => 'yadda yadda' ); };
-    result( $@->isa('FooException'),
-	    "BlahBlah should be a subclass of FooException\n" );
-    result( $@->isa('Exception::Class::Base'),
-	    "The BlahBlah class should be a subclass of Exception::Class::Base\n" );
+
+    isa_ok( $@, 'FooException');
+
+    isa_ok( $@, 'Exception::Class::Base');
 }
 
 
 # 24-29 : Trace related tests
 {
-    result( ! Exception::Class::Base->Trace,
-	    "Exception::Class::Base class 'Trace' method should return false\n" );
+    ok( ! Exception::Class::Base->Trace,
+        "Exception::Class::Base class 'Trace' method should return false" );
 
     eval { Exception::Class::Base->throw( error => 'has stacktrace', show_trace => 1 ) };
-    result( $@->as_string =~ /Trace begun/,
-	    "Setting show_trace to true should override value of Trace" );
+    like( $@->as_string, qr/Trace begun/,
+          "Setting show_trace to true should override value of Trace" );
 
     Exception::Class::Base->Trace(1);
 
-    result( Exception::Class::Base->Trace,
-	    "Exception::Class::Base class 'Trace' method should return true\n" );
+    ok( Exception::Class::Base->Trace,
+        "Exception::Class::Base class 'Trace' method should return true" );
 
     eval { argh(); };
 
-    result( $@->trace->as_string,
-	    "Exception should have a stack trace\n" );
+    ok( $@->trace->as_string,
+        "Exception should have a stack trace" );
 
     eval { Exception::Class::Base->throw( error => 'has stacktrace', show_trace => 0 ) };
-    result( $@->as_string !~ /Trace begun/,
+
+    unlike( $@->as_string, qr/Trace begun/,
 	    "Setting show_trace to false should override value of Trace" );
 
     my @f;
     while ( my $f = $@->trace->next_frame ) { push @f, $f; }
 
-    result( ( ! grep { $_->package eq 'Exception::Class::Base' } @f ),
-	    "Trace contains frames from Exception::Class::Base package\n" );
+    ok( ( ! grep { $_->package eq 'Exception::Class::Base' } @f ),
+        "Trace should contain frames from Exception::Class::Base package" );
 }
 
 # 29-30 : overloading
@@ -162,7 +164,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
     Exception::Class::Base->Trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
 
-    result( "$@" eq 'overloaded', "Overloading is not working\n" );
+    is( "$@", 'overloaded',
+        "Overloading in string context" );
 
     Exception::Class::Base->Trace(1);
     eval { Exception::Class::Base->throw( error => 'overloaded again' ); };
@@ -177,19 +180,20 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	$re = qr/overloaded again.+eval {...}\('Exception::Class::Base', 'error', 'overloaded again'\)/s
     }
 
-    my $x = "$@" =~ /$re/;
-    result( $x, "Overloaded stringification did not include the expected stack trace\n" );
+    my $x = "$@";
+    like( $x, $re,
+          "Overloaded stringification should include a stack trace" );
 }
 
 # 32-33 - Test using message as hash key to constructor
 {
     eval { Exception::Class::Base->throw( message => 'err' ); };
 
-    result( $@->error eq 'err',
-	    "Exception's error message should be 'err' but it's '", $@->error, "'\n" );
+    is( $@->error, 'err',
+        "Exception's error message should be 'err'" );
 
-    result( $@->message eq 'err',
-	    "Exception's message should be 'err' but it's '", $@->message, "'\n" );
+    is( $@->message, 'err',
+        "Exception's message should be 'err'" );
 }
 
 # 34
@@ -204,7 +208,8 @@ result( $main::loaded, "Unable to load Exception::Class module\n" );
 	eval { xy_die };
     }
 
-    result( $@->error eq 'dead' );
+    is( $@->error, 'dead',
+        "Error message should be 'dead'" );
 }
 
 # 35 - subclass overriding as_string
@@ -214,7 +219,8 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 {
     eval { Exc::AsString->throw( error => 'upper case' ) };
 
-    result( "$@" eq 'UPPER CASE' );
+    is( "$@", 'UPPER CASE',
+        "Overriding as_string in subclass" );
 }
 
 # 36-37 - fields
@@ -222,23 +228,25 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 {
     eval { FieldsException->throw (error => 'error', foo => 5) };
 
-    result( $@->can('foo'),
-	    "FieldsException should have foo method" );
-    result( $@->foo == 5,
-	    "Exception should have foo = 5 but it's ", $@->foo );
+    can_ok( $@, 'foo');
+
+    is( $@->foo, 5,
+        "Exception's foo method should return 5" );
 }
 
 # 38-41 - more fields.
 {
     eval { MoreFieldsException->throw (error => 'error', yip => 10, foo => 15) };
-    result( $@->can('foo'),
-	    "MoreFieldsException should have foo method" );
-    result( $@->foo == 15,
-	    "Exception should have foo = 15 but it's ", $@->foo );
-    result( $@->can('yip'),
-	    "MoreFieldsException should have yip method" );
-    result( $@->yip == 10,
-	    "Exception should have foo = 10 but it's ", $@->foo );
+
+    can_ok( $@, 'foo');
+
+    is( $@->foo, 15,
+        "Exception's foo method should return 15" );
+
+    can_ok( $@, 'yip');
+
+    is( $@->yip, 10,
+        "Exception's foo method should return 10" );
 
 }
 
@@ -252,9 +260,8 @@ sub FieldsException::full_message
 {
     eval { FieldsException->throw (error => 'error', foo => 5) };
 
-    my $result = ("$@" =~ /error foo = 5/);
-    result( $result,
-	    "FieldsException should stringify to include the value of foo" );
+    like( "$@", qr/error foo = 5/,
+          "FieldsException should stringify to include the value of foo" );
 }
 
 # 43 - truth
@@ -262,22 +269,19 @@ sub FieldsException::full_message
     Bool->do_trace(0);
     eval { Bool->throw( something => [ 1, 2, 3 ] ) };
 
-    if (my $e = $@)
-    {
-	result(1);
-    }
-    else
-    {
-	result( 0,
-		"All exceptions should evaluate to true" );
-    }
+    ok( $@,
+        "All exceptions should evaluate to true in a boolean context" );
 }
 
 # 44 - single arg constructor
 {
     eval { YAE->throw( 'foo' ) };
-    result( $@ && $@->error eq 'foo',
-            "Single arg constructor should just set error" );
+
+    ok( $@,
+        "Single arg constructor should work" );
+
+    is( $@->error, 'foo',
+        "Single arg constructor should just set error/message" );
 }
 
 # 45 - no object refs
@@ -289,22 +293,13 @@ sub FieldsException::full_message
 
     my @args = ($exc->trace->frames)[1]->args;
 
-    result( ! ref $args[0],
-            "No references should be saved in the stack trace" );
+    ok( ! ref $args[0],
+        "No references should be saved in the stack trace" );
 }
 
 sub argh
 {
     Exception::Class::Base->throw( error => 'ARGH' );
-}
-
-sub result
-{
-    my $ok = !!shift;
-    use vars qw($TESTNUM);
-    $TESTNUM++;
-    print "not "x!$ok, "ok $TESTNUM\n";
-    print "@_\n" if !$ok;
 }
 
 package Foo;
