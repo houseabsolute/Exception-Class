@@ -1,3 +1,8 @@
+1.15 Sep 17, 2003
+
+- Exceptions thrown from an alias subroutine always had
+"Exception::Class" as their package name.  Patch by David Wheeler.
+
 1.14 Jul 04, 2003
 
 - ** BACKWARDS INCOMPATIBILITY **

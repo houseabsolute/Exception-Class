@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.14';
+$VERSION = '1.15';
 
 sub import
 {
@@ -264,12 +264,18 @@ sub _initialize
     $self->{gid}  = $(;
     $self->{egid} = $);
 
-    my $x = 0;
-    # move back the stack til we're out of this package
-    $x++ while defined caller($x) && caller($x)->isa( __PACKAGE__ );
-    $x-- until caller($x);
+    $self->{trace} =
+        Devel::StackTrace->new( ignore_class => __PACKAGE__,
+                                ignore_package => 'Exception::Class',
+                                no_refs => $self->NoRefs,
+                              );
 
-    @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
+    if ( my $frame = $self->trace->frame(0) )
+    {
+        $self->{package} = $frame->package;
+        $self->{line} = $frame->line;
+        $self->{file} = $frame->filename;
+    }
 
     my %fields = map { $_ => 1 } $self->Fields;
     while ( my ($key, $value) = each %p )
@@ -287,11 +293,6 @@ sub _initialize
                  "unknown field $key passed to constructor for class " . ref $self );
        }
     }
-
-    $self->{trace} =
-        Devel::StackTrace->new( ignore_class => __PACKAGE__,
-                                no_refs => $self->NoRefs,
-                              );
 }
 
 sub description
