@@ -13,7 +13,7 @@ use overload
     '""' => \&as_string,
     fallback => 1;
 
-$VERSION = '0.1';
+$VERSION = '0.15';
 
 $DO_TRACE = 0;
 
@@ -118,7 +118,7 @@ sub _make_subclass
     {
 	$isa = ref $def->{isa} ? join ' ', @{ $def->{isa} } : $def->{isa};
     }
-    $isa ||= __PACKAGE__;
+    $isa ||= $class;
 
     my $code = <<"EOPERL";
 package $subclass;
@@ -215,14 +215,15 @@ sub do_trace
     my $proto = shift;
     my $class = ref $proto || $proto;
 
-    no strict 'refs';
-    my $val;
-    if ( defined ( $val = shift ) )
     {
-	${"$class\::DO_TRACE"} = $val;
-    }
+	no strict 'refs';
+	if ( defined ( my $val = shift ) )
+	{
+	    ${"$class\::DO_TRACE"} = $val;
+	}
 
-    return ${"$class\::DO_TRACE"};
+	return ${"$class\::DO_TRACE"};
+    }
 }
 
 sub as_string
@@ -232,7 +233,7 @@ sub as_string
     my $str = $self->{error};
     if ($self->trace)
     {
-	$str .= "\n" . $self->trace->as_string;
+	$str .= "\n\n" . $self->trace->as_string;
     }
 
     return $str;
@@ -242,27 +243,222 @@ __END__
 
 =head1 NAME
 
-Exception - Perl extension for blah blah blah
+Exception - A base (and default) class for real exception objects in Perl
 
 =head1 SYNOPSIS
 
-  use Exception;
-  blah blah blah
+  use Exception ( 'MyException',
+                  'AnotherException' => { isa => 'MyException' },
+                  'YetAnotherException' => { isa => 'AnotherException',
+                                             description => 'These exceptions are related to IPC' } );
+
+  eval { MyException->throw( error => 'I feel funny.'; };
+
+  print $@->error, "\n";
+
+  MyException->trace(1);
+  eval { MyException->throw( error => 'I feel funnier.'; };
+
+  print $@->error, "\n", $@->trace->as_string, "\n";
+  print join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
+
+  # catch
+  if ($@->isa('MyException'))
+  {
+     do_something();
+  }
+  elsif ($@->isa('FooException'))
+  {
+     go_foo_yourself();
+  }
+  else
+  {
+     $@->rethrow;
+  }
 
 =head1 DESCRIPTION
 
-Stub documentation for Exception was created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+Exception is a base class for true Exception objects in Perl.  It is
+designed to make structured exception handling simpler by encouraging
+people to use hierarchies of exceptions in their applications.
 
-Blah blah blah.
+It features a simple interface allowing programmers to 'declare'
+Exception classes at compile time.  It can also be used as a base
+class for classes stored in files (aka modules ;) ) that contain
+Exception subclasses.
+
+In addition, it can be used as a simple Exception class in and of
+itself.
+
+=head1 DECLARING EXCEPTION CLASSES
+
+The 'use Exception' syntax lets you automagically create the relevant
+Exception subclasses.  You can also create subclasses via the
+traditional means of external modules loaded via 'use'.  These two
+methods may be combined.
+
+The syntax for the magic declarations is as follows:
+
+'MANDATORY CLASS NAME" => \%optional_hashref
+
+The hashref may contain two options (for now):
+
+=over 4
+
+=item * isa
+
+This is the class's parent class.  If this isn't provided the class
+which was "use'd" is assumed to be the parent (see below).  This lets
+you create arbitrarily deep class hierarchies.  This can be any other
+Exception subclass in your declaration _or_ a subclass loaded from a
+module.
+
+If you create an Exception class in a file (let's call this class
+FooInaFileException) and then 'use' this class like you would 'use'
+Exception, as in:
+
+  use FooInaFileException ( 'BarException',
+                            'BazException' => { isa => 'BarException' } );
+
+then the default base class will become FooInaFileException, _not_
+Exception.
+
+CAVEAT: If you want to automagically subclass an Exception class
+loaded from a file, then you _must_ compile the class (via use or
+require or some other magic) _before_ you do 'use Exception' or you'll
+get a compile time error.  This may change with the advent of Perl
+5.6's CHECK blocks, which could allow even more crazy automagicalness
+(which may or may not be a good thing).
+
+=item * description
+
+Each exception class has a description method that returns a fixed
+string.  This should describe the exception _class_ (as opposed the
+particular exception being thrown).  This is useful for debugging if
+you start catching exceptions you weren't expecting (particularly if
+someone forgot to document them) and you don't understand the error
+messages.
+
+=back
+
+The Exception class's magic attempts to detect circular class
+hierarchies and will die if it finds one.  It also detects missing
+links in a chain so if you declare Bar to be a subclass of Foo and
+never declare Foo then it will also die.  My tests indicate that this
+is functioning properly but this functionality is still somewhat
+experimental.
+
+=head1 CLASS METHODS
+
+=over 4
+
+=item * do_trace($true_or_false)
+
+Each Exception subclass can be set individually to make a StackTrace
+object when an exception is thrown.  The default is to not make a
+trace.  Calling this method with a value changes this behavior.  It
+always returns the current value (after any change is applied).
+
+=item * throw( error => $error_message )
+
+This method creates a new Exception object with the given error
+message.  If no error message is given, $! is used.  It then die's
+with this object as its argument.
+
+=item * new( error => $error_message )
+
+Returns a new Exception object with the given error message.  If no
+error message is given, $! is used.
+
+=item * description
+
+Returns the description for the given Exception subclass.  The
+Exception base class's description is 'Generic exception' (this may
+change in the future).  This is also an object method.
+
+=back
+
+=head1 OBJECT METHODS
+
+=over 4
+
+=item * rethrow
+
+Simple dies with the object as its sole argument.  It's just syntactic
+sugar.  This does not change any of the object's attribute values.
+
+=item * error
+
+Returns the error message associated with the exception.
+
+=item * pid
+
+Returns the pid at the time the exception was thrown.
+
+=item * uid
+
+Returns the real user id at the time the exception was thrown.
+
+=item * gid
+
+Returns the real group id at the time the exception was thrown.
+
+=item * euid
+
+Returns the effective user id at the time the exception was thrown.
+
+=item * egid
+
+Returns the effective group id at the time the exception was thrown.
+
+=item * time
+
+Returns the time in seconds since the epoch at the time the exception
+was thrown.
+
+=item * trace
+
+Returns the trace object associated with the Exception if do_trace was
+true at the time it was created or undef
+
+=item * as_string
+
+Returns a string form of the error message (something like what you'd
+expect from die).  If there is a trace available then it also returns
+this in string form (like croak).
+
+=back
+
+=head1 OVERLOADING
+
+The Exception object is overloaded so that stringification produces a
+normal error message.  It just calls the as_string method described
+above.  This means that you just print $@ after an eval and not worry
+about whether or not its an actual object.
+
+=head1 USAGE RECOMMENDATION
+
+If you're creating a complex system that throws lots of different
+types of exceptions consider putting all the exception declarations in
+one place.  For an app called Foo you might make a Foo::Exceptions
+module and use that in all your code.  This module could just contain
+the code to make Exception do its automagic class creation.  This
+allows you to more easily see what exceptions you have and makes it
+easier to keep track of them all (as opposed to looking at the top of
+10-20 different files).  It's also ever so slightly faster as the
+Exception->import method doesn't get called over and over again
+(though a given class is only ever made once).
+
+You may want to create a real module to subclass Exception as well,
+particularly if you want your exceptions to have more methods.  Read
+the L<DECLARING EXCEPTION CLASSES> section for more details.
 
 =head1 AUTHOR
 
-A. U. Thor, a.u.thor@a.galaxy.far.far.away
+Dave Rolsky, <autarch@urth.org>
 
 =head1 SEE ALSO
 
-perl(1).
+StackTrace
 
 =cut
