@@ -323,7 +323,7 @@ sub FieldsException::full_message
     is( $e->error, 'an error' );
 
     eval { throw_saf error => 'another error', thing => 10 };
-    my $e = $@;
+    $e = $@;
 
     ok( $e, "Throw exception via convenience sub (named params)" );
     is( $e->error, 'another error' );
