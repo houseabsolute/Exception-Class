@@ -1,3 +1,7 @@
+1.07
+
+- Forgot to require Devel::StackTrace 1.01.
+
 1.06
 
 - Use File::Spec when testing file method so that test 7 passes on all
