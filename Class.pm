@@ -138,7 +138,7 @@ package Exception::Class::Base;
 
 use Devel::StackTrace;
 
-use fields qw( error pid uid euid gid egid time trace );
+use fields qw( error pid uid euid gid egid time trace package file line );
 
 use overload
     '""' => \&as_string,
@@ -146,7 +146,7 @@ use overload
 
 use vars qw($VERSION $DO_TRACE);
 
-$VERSION = '0.5';
+$VERSION = '1.0';
 
 $DO_TRACE = 0;
 
@@ -156,7 +156,7 @@ BEGIN
     no strict 'refs';
     foreach my $f (keys %{__PACKAGE__ . '::FIELDS'})
     {
-	*{$f} = sub { my Exception::Class::Base $s = shift; return $s->{$f}; };
+	*{$f} = sub { my $s = shift; return $s->{$f}; };
     }
 }
 
@@ -172,7 +172,7 @@ sub throw
 
 sub rethrow
 {
-    my Exception::Class::Base $self = shift;
+    my $self = shift;
 
     die $self;
 }
@@ -182,11 +182,7 @@ sub new
     my $proto = shift;
     my $class = ref $proto || $proto;
 
-    my $self;
-    {
-	no strict 'refs';
-	$self = bless [ \%{"${class}::FIELDS"} ], $class;
-    }
+    my $self = bless {}, $class;
 
     $self->_initialize(@_);
 
@@ -195,7 +191,7 @@ sub new
 
 sub _initialize
 {
-    my Exception::Class::Base $self = shift;
+    my $self = shift;
     my %p = @_;
 
     # Try to get something useful in there (I hope).  Or just give up.
@@ -207,6 +203,12 @@ sub _initialize
     $self->{euid} = $>;
     $self->{gid}  = $(;
     $self->{egid} = $);
+
+    my $x = 0;
+    # move back the stack til we're out of this package
+    $x++ while (caller($x))->isa(__PACKAGE__);
+
+    @{ $self }{ qw( package file line ) } = (caller($x))[0..2];
 
     if ($self->do_trace)
     {
@@ -237,7 +239,7 @@ sub do_trace
 
 sub as_string
 {
-    my Exception::Class::Base $self = shift;
+    my $self = shift;
 
     my $str = $self->{error};
     if ($self->trace)
@@ -434,6 +436,18 @@ Returns the effective group id at the time the exception was thrown.
 
 Returns the time in seconds since the epoch at the time the exception
 was thrown.
+
+=item * package
+
+Returns the package from which the exception was thrown.
+
+=item * file
+
+Returns the file within which the exception was thrown.
+
+=item * line
+
+Returns the line where the exception was thrown.
 
 =item * trace
 
