@@ -1,3 +1,11 @@
+1.02 Aug 20, 2002 (from Taiwan)
+
+- Fields set in a parent class were not actually being inherited by
+children.  Patch (with tests!) by David Wheeler.
+
+- Allow a single argument (error/message) to the constructor.  Patch
+by Tatsuhiko Miyagawa.
+
 1.01 May 23, 2002
 
 - Make sure that exception objects always test as true in a boolean
