@@ -146,7 +146,7 @@ EOPERL
     if ( my $alias = $def->{alias} )
     {
         no strict 'refs';
-        *{"${p{caller}}::$alias"} = sub { $subclass->throw(@_) };
+        *{"$p{caller}::$alias"} = sub { $subclass->throw(@_) };
     }
 
     eval $code;
