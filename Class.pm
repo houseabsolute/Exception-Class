@@ -531,6 +531,11 @@ This method defaults to false.  As with C<Trace>, it is inherited by
 subclasses but setting it in a subclass makes it independent
 thereafter.
 
+=item * Fields
+
+This method returns the extra fields defined for the given class, as
+an array.
+
 =item * throw( $message )
 
 =item * throw( message => $message )
