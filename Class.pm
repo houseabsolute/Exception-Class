@@ -7,7 +7,7 @@ use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.03';
+$VERSION = '1.04';
 
 sub import
 {
