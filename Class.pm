@@ -13,6 +13,8 @@ sub import
 {
     my $class = shift;
 
+    local $Exception::Class::Caller = caller();
+
     my %needs_parent;
  MAKE_CLASSES:
     while (my $subclass = shift)
@@ -38,7 +40,6 @@ sub import
 
 	$class->_make_subclass( subclass => $subclass,
 				def => $def || {},
-                                caller => scalar caller(),
                               );
     }
 
@@ -146,7 +147,7 @@ EOPERL
     if ( my $alias = $def->{alias} )
     {
         no strict 'refs';
-        *{"$p{caller}::$alias"} = sub { $subclass->throw(@_) };
+        *{"$Exception::Class::Caller\::$alias"} = sub { $subclass->throw(@_) };
     }
 
     eval $code;
