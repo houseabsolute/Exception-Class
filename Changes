@@ -1,8 +1,13 @@
-1.07
+1.08
+
+- Added "alias" feature, which allows you to create a subroutine that
+throws a specified exception.
+
+1.07 Sep 9, 2002
 
 - Forgot to require Devel::StackTrace 1.01.
 
-1.06
+1.06 release date?
 
 - Use File::Spec when testing file method so that test 7 passes on all
 platforms.  Reported by Ron Savage.
