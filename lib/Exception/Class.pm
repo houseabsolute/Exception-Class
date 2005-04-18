@@ -565,7 +565,7 @@ C<isa()> in that class like this:
  sub isa { shift->rethrow }
 
 Of course, this only works if you always call 
-C<< Exception::Class->caught() > after an C<eval>.
+C<< Exception::Class->caught() >> after an C<eval>.
 
 =head1 Exception::Class::Base CLASS METHODS
 
