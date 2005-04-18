@@ -1,3 +1,10 @@
+1.21 Apr 17, 2005
+
+- Added Exception::Class->caught() as syntactic sugar for catching
+exceptions in a "safe" manner.  See the docs for details.  Suggested
+by Damian Conway.
+
+
 1.20 Jan 1, 2005
 
 - Moved the Classes() method to Exception::Class, now as a function,
