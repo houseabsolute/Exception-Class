@@ -7,4 +7,5 @@ MANIFEST			This list of files
 META.yml			Module meta-data (added by MakeMaker)
 README
 t/basic.t
+t/caught.t
 t/ignore.t

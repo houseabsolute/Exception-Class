@@ -7,6 +7,7 @@ my $build =
                         license     => 'perl',
                         requires    => { 'Class::Data::Inheritable' => 0.02,
                                          'Devel::StackTrace' => 1.10,
+                                         'Scalar::Util' => 0,
                                          'Test::More' => 0.46,
                                        },
                         sign        => 1,

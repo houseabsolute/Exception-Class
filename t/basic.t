@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 use strict;
 
 use File::Spec;
@@ -75,8 +77,8 @@ $^W = 1;
     is( $@->file, $expect,
         "File should be '$expect'" );
 
-    is( $@->line, 58,
-        "Line should be 58" );
+    is( $@->line, 60,
+        "Line should be 60" );
 
     is( $@->pid, $$,
         "PID should be $$" );

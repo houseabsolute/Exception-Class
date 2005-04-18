@@ -1,5 +1,7 @@
-#!perl
+#!/usr/bin/perl -w
+
 use strict;
+
 use Test::More tests => 4;
 
 package Foo;

@@ -5,9 +5,12 @@ use 5.005;
 use strict;
 use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
+use Scalar::Util qw(blessed);
+
+
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.20';
+$VERSION = '1.21';
 
 sub import
 {
@@ -169,6 +172,14 @@ EOPERL
     die $@ if $@;
 
     $CLASSES{$subclass} = 1;
+}
+
+sub caught
+{
+    my $e = $@;
+
+    return unless blessed($e) && $e->isa( $_[1] );
+    return $e;
 }
 
 sub Classes { sort keys %Exception::Class::CLASSES }
@@ -520,6 +531,42 @@ hierarchies and will die if it finds one.  It also detects missing
 links in a chain, for example if you declare Bar to be a subclass of
 Foo and never declare Foo.
 
+=head1 Catching Exceptions
+
+C<Exception::Class> provides some syntactic sugar for catching
+exceptions in a safe manner:
+
+ eval { ... }
+
+ if ( my $e = Exception::Class->caught('My::Error') )
+ {
+     cleanup();
+     do_something_with_exception($e);
+ }
+
+The C<caught()> method returns an exception object if the last thrown
+exception is of the given class, or a subclass of that class.
+Otherwise it returns false.
+
+You should B<always> make a copy of the exception object, rather than
+using C<$@> directly.  This is necessary because if your C<cleanup()>
+function uses C<eval>, or calls something which uses it, then C<$@> is
+overwritten.  Copying the exception preserves it for the call to
+C<do_something_with_exception()>.
+
+=head2 Uncatchable Exceptions
+
+Internally, the C<caught()> method will call C<isa()> on the exception
+object.  You could make an exception "uncatchable" by overriding
+C<isa()> in that class like this:
+
+ package Exception::Uncatchable;
+
+ sub isa { shift->rethrow }
+
+Of course, this only works if you always call 
+C<< Exception::Class->caught() > after an C<eval>.
+
 =head1 Exception::Class::Base CLASS METHODS
 
 =over 4
@@ -703,7 +750,7 @@ overridden by a subclass.  See below for details.
 The C<Exception::Class::Base> object is overloaded so that
 stringification produces a normal error message.  It just calls the
 as_string method described above.  This means that you can just
-C<print $@> after an eval and not worry about whether or not its an
+C<print $@> after an C<eval> and not worry about whether or not its an
 actual object.  It also means an application or module could do this:
 
  $SIG{__DIE__} = sub { Exception::Class::Base->throw( error => join '', @_ ); };
