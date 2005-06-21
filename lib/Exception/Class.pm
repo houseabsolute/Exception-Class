@@ -407,15 +407,16 @@ Exception::Class - A module that allows you to declare real exception classes in
   # try
   eval { MyException->throw( error => 'I feel funny.' ) };
 
+  my $e;
   # catch
-  if ( Exception::Class->caught('MyException') )
+  if ( $e = Exception::Class->caught('MyException') )
   {
      warn $@->error, "\n, $@->trace->as_string, "\n";
      warn join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
 
      exit;
   }
-  elsif ( Exception::Class->caught('ExceptionWithFields') )
+  elsif ( $e = Exception::Class->caught('ExceptionWithFields') )
   {
      $@->quixotic ? do_something_wacky() : do_something_sane();
   }
