@@ -1,3 +1,10 @@
+1.22
+
+- Added Exception::Class::Base->caught() so you can write
+"My::Error->caught()".  Apparently this is what Damian documented in
+Perl Best Practices.  Thanks to JD Hedden for pointing this out.
+
+
 1.21 Apr 17, 2005
 
 - Added Exception::Class->caught() as syntactic sugar for catching

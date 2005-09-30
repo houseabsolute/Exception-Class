@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.21';
+$VERSION = '1.22';
 
 sub import
 {
@@ -378,6 +378,12 @@ sub isa
 }
 EOF
 
+sub caught
+{
+    return Exception::Class->caught(shift);
+}
+
+
 1;
 
 __END__
@@ -554,6 +560,14 @@ using C<$@> directly.  This is necessary because if your C<cleanup()>
 function uses C<eval>, or calls something which uses it, then C<$@> is
 overwritten.  Copying the exception preserves it for the call to
 C<do_something_with_exception()>.
+
+Exception objects also provide a caught method so you can write:
+
+ if ( my $e = My::Error->caught() )
+ {
+     cleanup();
+     do_something_with_exception($e);
+ }
 
 =head2 Uncatchable Exceptions
 
