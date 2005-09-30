@@ -1,8 +1,11 @@
-1.22
+1.22 Sep 30, 2005
 
 - Added Exception::Class::Base->caught() so you can write
 "My::Error->caught()".  Apparently this is what Damian documented in
 Perl Best Practices.  Thanks to JD Hedden for pointing this out.
+
+- Require Devel::StackTrace 1.12 to fix a test failure on Win32.
+Reported by Garrett Goebel.
 
 
 1.21 Apr 17, 2005
