@@ -408,6 +408,7 @@ Exception::Class - A module that allows you to declare real exception classes in
         { isa => 'YetAnotherException',
           fields => [ 'grandiosity', 'quixotic' ],
           alias => 'throw_fields',
+        },
       );
 
   # try
@@ -417,18 +418,18 @@ Exception::Class - A module that allows you to declare real exception classes in
   # catch
   if ( $e = Exception::Class->caught('MyException') )
   {
-     warn $@->error, "\n, $@->trace->as_string, "\n";
-     warn join ' ',  $@->euid, $@->egid, $@->uid, $@->gid, $@->pid, $@->time;
+     warn $e->error, "\n, $e->trace->as_string, "\n";
+     warn join ' ',  $e->euid, $e->egid, $e->uid, $e->gid, $e->pid, $e->time;
 
      exit;
   }
   elsif ( $e = Exception::Class->caught('ExceptionWithFields') )
   {
-     $@->quixotic ? do_something_wacky() : do_something_sane();
+     $e->quixotic ? do_something_wacky() : do_something_sane();
   }
   else
   {
-     ref $@ ? $@->rethrow : die $@;
+     ref $e ? $e->rethrow : die $e;
   }
 
   # use an alias - without parens subroutine name is checked at
