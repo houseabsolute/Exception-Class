@@ -2,7 +2,7 @@
 
 use strict;
 
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 use Exception::Class ( 'Foo',
                        'Bar' => { isa => 'Foo' },
@@ -38,6 +38,15 @@ use Exception::Class ( 'Foo',
     eval { Foo->throw( error => 'foo' ) };
 
     my $e = Foo->caught();
+
+    ok( $e, 'Foo->caught() returns exception' );
+    isa_ok( $e, 'Foo' );
+}
+
+{
+    eval { Foo->throw( error => 'foo' ) };
+
+    my $e = Exception::Class->caught();
 
     ok( $e, 'Foo->caught() returns exception' );
     isa_ok( $e, 'Foo' );

@@ -178,6 +178,8 @@ sub caught
 {
     my $e = $@;
 
+    return $e unless $_[1];
+
     return unless blessed($e) && $e->isa( $_[1] );
     return $e;
 }
@@ -429,6 +431,7 @@ Exception::Class - A module that allows you to declare real exception classes in
   }
   else
   {
+     $e = Exception::Class->caught();
      ref $e ? $e->rethrow : die $e;
   }
 
@@ -552,9 +555,10 @@ exceptions in a safe manner:
      do_something_with_exception($e);
  }
 
-The C<caught()> method returns an exception object if the last thrown
-exception is of the given class, or a subclass of that class.
-Otherwise it returns false.
+The C<caught()> method takes a class name and returns an exception
+object if the last thrown exception is of the given class, or a
+subclass of that class.  If it is not given any arguments, it simply
+returns C<$@>.
 
 You should B<always> make a copy of the exception object, rather than
 using C<$@> directly.  This is necessary because if your C<cleanup()>

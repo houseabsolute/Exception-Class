@@ -1,3 +1,10 @@
+1.23 Dec 30, 2005
+
+- Fix code bugs in the SYNOPSIS.
+
+- Exception::Class->caught() now returns $@ if not given an argument.
+
+
 1.22 Sep 30, 2005
 
 - Added Exception::Class::Base->caught() so you can write
