@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.22';
+$VERSION = '1.23';
 
 sub import
 {
@@ -420,7 +420,7 @@ Exception::Class - A module that allows you to declare real exception classes in
   # catch
   if ( $e = Exception::Class->caught('MyException') )
   {
-     warn $e->error, "\n, $e->trace->as_string, "\n";
+     warn $e->error, "\n", $e->trace->as_string, "\n";
      warn join ' ',  $e->euid, $e->egid, $e->uid, $e->gid, $e->pid, $e->time;
 
      exit;
