@@ -871,21 +871,23 @@ somewhere:
 
 It's a hack but apparently it works.
 
+=head1 SUPPORT
+
+Please submit bugs to the CPAN RT system at
+http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Exception%3A%3AClass or
+via email at bug-exception-class@rt.cpan.org.
+
 =head1 AUTHOR
 
 Dave Rolsky, <autarch@urth.org>
 
-=head1 SEE ALSO
+=head1 COPYRIGHT
 
-Devel::StackTrace - used by this module to create stack traces
+Copyright (c) 2000-2006 David Rolsky.  All rights reserved.  This
+program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
-Error.pm - implements try/catch in Perl.  Also provides an exception
-base class.
-
-Test::Exception - a module that helps you test exception based code.
-
-Numerous other modules/frameworks seem to have their own exception
-classes (SPOPS and Template Toolkit, to name two) but none of these
-seem to be designed for use outside of these packages.
+The full text of the license can be found in the LICENSE file included
+with this module.
 
 =cut
