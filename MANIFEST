@@ -7,4 +7,7 @@ README
 t/basic.t
 t/caught.t
 t/ignore.t
+t/pod.t
 t/pod-coverage.t
+Makefile.PL
+META.yml

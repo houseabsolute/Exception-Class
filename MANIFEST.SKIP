@@ -14,4 +14,4 @@ test\.c
 \.svn
 _build.*
 ^Build$
-t/pod\.t
+
