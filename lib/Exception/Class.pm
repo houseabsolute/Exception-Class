@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.23';
+$VERSION = '1.24';
 
 sub import
 {
@@ -189,7 +189,7 @@ sub Classes { sort keys %Exception::Class::CLASSES }
 package Exception::Class::Base;
 
 use Class::Data::Inheritable;
-use Devel::StackTrace 1.07;
+use Devel::StackTrace 1.17;
 
 use base qw(Class::Data::Inheritable);
 
@@ -204,6 +204,8 @@ BEGIN
     __PACKAGE__->mk_classdata('RespectOverload');
     __PACKAGE__->RespectOverload(0);
 
+    __PACKAGE__->mk_classdata('MaxArgLength');
+    __PACKAGE__->MaxArgLength(0);
 
     sub Fields { () }
 }
@@ -300,6 +302,7 @@ sub _initialize
                                 ignore_package   => \@ignore_package,
                                 no_refs          => $self->NoRefs,
                                 respect_overload => $self->RespectOverload,
+                                max_arg_length   => $self->MaxArgLength,
                               );
 
     if ( my $frame = $self->trace->frame(0) )
@@ -632,6 +635,20 @@ this method provides a way to tell C<Devel::StackTrace> to respect
 overloading.
 
 This method defaults to false.  As with C<Trace()>, it is inherited by
+subclasses but setting it in a subclass makes it independent
+thereafter.
+
+=item * MaxArgLength($boolean)
+
+When a C<Devel::StackTrace> object stringifies, by default it displays
+the full argument for each function. This parameter can be used to
+limit the maximum length of each argument.
+
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
+this method provides a way to tell C<Devel::StackTrace> to limit the
+length of arguments.
+
+This method defaults to 0. As with C<Trace()>, it is inherited by
 subclasses but setting it in a subclass makes it independent
 thereafter.
 

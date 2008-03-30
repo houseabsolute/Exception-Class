@@ -4,7 +4,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 56;
+use Test::More tests => 58;
 
 use_ok('Exception::Class');
 
@@ -363,6 +363,23 @@ sub FieldsException::full_message
 
     ok( $classes{TestException}, 'TestException should be in the return from Classes()' );
 }
+
+{
+    sub throw2 {  TestException->throw( error => 'dead' ); }
+
+    eval { throw2('abcdefghijklmnop') };
+    my $e = $@;
+
+    like( $e->as_string, qr/'abcdefghijklmnop'/, 'arguments are not truncated by default' );
+
+    TestException->MaxArgLength(10);
+
+    eval { throw2('abcdefghijklmnop') };
+    $e = $@;
+
+    like( $e->as_string, qr/'abcdefghij\.\.\.'/, 'arguments are now truncated' );
+}
+
 
 sub argh
 {
