@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.24';
+$VERSION = '1.25';
 
 sub import
 {
