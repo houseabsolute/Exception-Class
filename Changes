@@ -1,4 +1,4 @@
-1,25 Oct 21, 2008
+1.25 Oct 21, 2008
 
 - The Exception::Class::Base constructor no longer looks at the
   associated Devel::StackTrace object's frames. Avoiding looking at
