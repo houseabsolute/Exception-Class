@@ -1,3 +1,13 @@
+1,25 Oct 21, 2008
+
+- The Exception::Class::Base constructor no longer looks at the
+  associated Devel::StackTrace object's frames. Avoiding looking at
+  the frames should make constructing exception objects much
+  faster. Instead the information based on the stack trace frames -
+  package(), file(), and line() - is only retrieved when it is
+  requested. Patch by Ruslan Zakirov. RT #40221.
+
+
 1.24 Mar 30, 2008
 
 - Added a MaxArgLength class parameter to go along with the new

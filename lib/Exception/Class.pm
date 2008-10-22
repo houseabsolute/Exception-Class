@@ -223,14 +223,37 @@ $VERSION = '1.2';
 # Create accessor routines
 BEGIN
 {
-    my @fields = qw( message pid uid euid gid egid time trace package file line );
+    my @fields = qw( message pid uid euid gid egid time trace );
 
-    no strict 'refs';
     foreach my $f (@fields)
     {
-        *{$f} = sub { my $s = shift; return $s->{$f}; };
+        my $sub = sub { my $s = shift; return $s->{$f}; };;
+
+        no strict 'refs';
+        *{$f} = $sub;
     }
-    *{'error'} = \&message;
+    *error = \&message;
+
+    my %trace_fields =
+        ( package => 'package',
+          file    => 'filename',
+          line    => 'line',
+        );
+
+    while ( my ( $f, $m ) = each %trace_fields )
+    {
+        my $sub = sub
+        {
+            my $s = shift;
+            return $s->{$f} if exists $s->{$f};
+
+            my $frame = $s->trace->frame(0);
+
+            return $s->{$f} = $frame ? $frame->$m() : undef;
+        };
+        no strict 'refs';
+        *{$f} = $sub;
+    }
 }
 
 1;
@@ -304,13 +327,6 @@ sub _initialize
                                 respect_overload => $self->RespectOverload,
                                 max_arg_length   => $self->MaxArgLength,
                               );
-
-    if ( my $frame = $self->trace->frame(0) )
-    {
-        $self->{package} = $frame->package;
-        $self->{line} = $frame->line;
-        $self->{file} = $frame->filename;
-    }
 
     my %fields = map { $_ => 1 } $self->Fields;
     while ( my ($key, $value) = each %p )
