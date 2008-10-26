@@ -227,7 +227,7 @@ BEGIN
 
     foreach my $f (@fields)
     {
-        my $sub = sub { my $s = shift; return $s->{$f}; };;
+        my $sub = sub { my $s = shift; return $s->{$f}; };
 
         no strict 'refs';
         *{$f} = $sub;
