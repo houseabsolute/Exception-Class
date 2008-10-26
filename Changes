@@ -1,3 +1,13 @@
+1.26 Oct 25, 2008
+
+- No code changes, just bumped the Devel::StackTrace dependency to
+  1.20.
+
+  The changes in 1.25 exposed a bug in Devel::StackTrace which has now
+  been fixed. This caused HTML::Mason test failures, among other
+  things. Reported by Andreas Koenig.
+
+
 1.25 Oct 21, 2008
 
 - The Exception::Class::Base constructor no longer looks at the

@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.25';
+$VERSION = '1.26';
 
 sub import
 {
@@ -189,7 +189,7 @@ sub Classes { sort keys %Exception::Class::CLASSES }
 package Exception::Class::Base;
 
 use Class::Data::Inheritable;
-use Devel::StackTrace 1.17;
+use Devel::StackTrace 1.20;
 
 use base qw(Class::Data::Inheritable);
 
