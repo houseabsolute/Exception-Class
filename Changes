@@ -1,3 +1,10 @@
+1.27
+
+- I'm now only supporting Perl 5.8.0. This module broke on 5.6.2 at
+  some point and I don't really care enough to fix it. Non-intrusive
+  patches to make it work on 5.6.x (again) will be accepted.
+
+
 1.26 Oct 25, 2008
 
 - No code changes, just bumped the Devel::StackTrace dependency to
