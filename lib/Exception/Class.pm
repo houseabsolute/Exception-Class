@@ -3,14 +3,15 @@ package Exception::Class;
 use 5.008001;
 
 use strict;
-use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
 
 use Scalar::Util qw(blessed);
 
-
+our $BASE_EXC_CLASS;
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-$VERSION = '1.26';
+our $VERSION = '1.27';
+
+our %CLASSES;
 
 sub import
 {
