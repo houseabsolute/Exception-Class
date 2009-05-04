@@ -1,4 +1,7 @@
+use 5.008;
+
 use strict;
+use warnings;
 
 use Module::Build;
 
@@ -9,6 +12,7 @@ my $build =
           requires    => { 'Class::Data::Inheritable' => '0.02',
                            'Devel::StackTrace'        => '1.20',
                            'Scalar::Util'             => '0',
+                           'perl'                     => '5.008',
                          },
           build_requires => { 'Test::More' => '0.46',
                             },
