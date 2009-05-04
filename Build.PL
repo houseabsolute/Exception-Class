@@ -1,4 +1,4 @@
-use 5.008;
+use 5.008001;
 
 use strict;
 use warnings;
@@ -12,7 +12,7 @@ my $build =
           requires    => { 'Class::Data::Inheritable' => '0.02',
                            'Devel::StackTrace'        => '1.20',
                            'Scalar::Util'             => '0',
-                           'perl'                     => '5.008',
+                           'perl'                     => '5.008001',
                          },
           build_requires => { 'Test::More' => '0.46',
                             },

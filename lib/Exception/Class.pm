@@ -1,6 +1,6 @@
 package Exception::Class;
 
-use 5.008;
+use 5.008001;
 
 use strict;
 use vars qw($VERSION $BASE_EXC_CLASS %CLASSES);
