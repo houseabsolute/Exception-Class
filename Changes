@@ -1,4 +1,4 @@
-1.27
+1.27 May 4, 2009
 
 * The error message for an exception no longer defaults to $!. This
   was a bad idea, and has bitten some people. Addresses RT #43600.
