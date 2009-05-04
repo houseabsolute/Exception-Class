@@ -293,8 +293,7 @@ sub _initialize
     my $self = shift;
     my %p = @_ == 1 ? ( error => $_[0] ) : @_;
 
-    # Try to get something useful in there (I hope).  Or just give up.
-    $self->{message} = $p{message} || $p{error} || $! || '';
+    $self->{message} = $p{message} || $p{error} || '';
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
@@ -680,8 +679,8 @@ an array.
 =item * throw( error => $error )
 
 This method creates a new object with the given error message.  If no
-error message is given, C<$!> is used.  It then die's with this object
-as its argument.
+error message is given, this will be an empty string.  It then die's
+with this object as its argument.
 
 This method also takes a C<show_trace> parameter which indicates
 whether or not the particular exception object being created should
