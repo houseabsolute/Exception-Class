@@ -4,7 +4,8 @@
   which have been undocumented for many years.
 
 - Moved Exception::Class::Base to its own file, so it doesn't
-  overwrite the $VERSION in Exception::Class (and for general sanity).
+  overwrite the $VERSION in Exception::Class (and for general
+  sanity). Reported by Kirk Baucom.
 
 
 1.27 May 4, 2009
