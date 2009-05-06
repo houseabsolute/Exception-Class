@@ -1,3 +1,12 @@
+1.28 May 6, 2009
+
+* Removed Exception::Class::Base->do_trace and ->NoObjectRefs, both of
+  which have been undocumented for many years.
+
+- Moved Exception::Class::Base to its own file, so it doesn't
+  overwrite the $VERSION in Exception::Class (and for general sanity).
+
+
 1.27 May 4, 2009
 
 * The error message for an exception no longer defaults to $!. This

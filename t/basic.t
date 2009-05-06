@@ -4,7 +4,7 @@ use strict;
 
 use File::Spec;
 
-use Test::More tests => 58;
+use Test::More tests => 56;
 
 use_ok('Exception::Class');
 
@@ -55,7 +55,7 @@ use strict;
 
 $^W = 1;
 
-# 2-14: Accessors
+# Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
 
@@ -99,7 +99,7 @@ $^W = 1;
         "Exception object should have a stacktrace" );
 }
 
-# 15-23 : Test subclass creation
+# Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
 
@@ -131,7 +131,7 @@ $^W = 1;
 }
 
 
-# 24-29 : Trace related tests
+# Trace related tests
 {
     ok( ! Exception::Class::Base->Trace,
         "Exception::Class::Base class 'Trace' method should return false" );
@@ -162,7 +162,7 @@ $^W = 1;
         "Trace should contain frames from Exception::Class::Base package" );
 }
 
-# 29-30 : overloading
+# overloading
 {
     Exception::Class::Base->Trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
@@ -185,7 +185,7 @@ $^W = 1;
     }
 }
 
-# 32-33 - Test using message as hash key to constructor
+# Test using message as hash key to constructor
 {
     eval { Exception::Class::Base->throw( message => 'err' ); };
 
@@ -196,7 +196,6 @@ $^W = 1;
         "Exception's message should be 'err'" );
 }
 
-# 34
 {
     {
 	package X::Y;
@@ -212,7 +211,7 @@ $^W = 1;
         "Error message should be 'dead'" );
 }
 
-# 35 - subclass overriding as_string
+# subclass overriding as_string
 
 sub Exc::AsString::as_string { return uc $_[0]->error }
 
@@ -223,7 +222,7 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
         "Overriding as_string in subclass" );
 }
 
-# 36-37 - fields
+# fields
 
 {
     eval { FieldsException->throw( error => 'error', foo => 5 ) };
@@ -234,7 +233,7 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
         "Exception's foo method should return 5" );
 }
 
-# 38-41 - more fields.
+# more fields.
 {
     eval { MoreFieldsException->throw( error => 'error', yip => 10, foo => 15 ) };
 
@@ -254,7 +253,7 @@ sub FieldsException::full_message
     return join ' ', $_[0]->message, "foo = " . $_[0]->foo;
 }
 
-# 42 - fields + full_message
+# fields + full_message
 
 {
     eval { FieldsException->throw (error => 'error', foo => 5) };
@@ -263,16 +262,7 @@ sub FieldsException::full_message
           "FieldsException should stringify to include the value of foo" );
 }
 
-# 43 - truth
-{
-    Bool->do_trace(0);
-    eval { Bool->throw( something => [ 1, 2, 3 ] ) };
-
-    ok( $@,
-        "All exceptions should evaluate to true in a boolean context" );
-}
-
-# 44 - single arg constructor
+# single arg constructor
 {
     eval { YAE->throw( 'foo' ) };
 
@@ -283,7 +273,7 @@ sub FieldsException::full_message
         "Single arg constructor should just set error/message" );
 }
 
-# 45 - no refs
+# no refs
 {
     ObjectRefs2->NoRefs(0);
 
@@ -296,20 +286,7 @@ sub FieldsException::full_message
         "References should be saved in the stack trace" );
 }
 
-# 46 - no object refs (deprecated)
-{
-    ObjectRefs->NoObjectRefs(0);
-
-    eval { Foo->new->bork };
-    my $exc = $@;
-
-    my @args = ($exc->trace->frames)[1]->args;
-
-    ok( ref $args[0],
-        "References should be saved in the stack trace" );
-}
-
-# 47-53 - aliases
+# aliases
 {
     package FooBar;
 

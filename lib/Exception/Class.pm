@@ -4,6 +4,7 @@ use 5.008001;
 
 use strict;
 
+use Exception::Class::Base;
 use Scalar::Util qw(blessed);
 
 our $BASE_EXC_CLASS;
@@ -187,224 +188,6 @@ sub caught
 
 sub Classes { sort keys %Exception::Class::CLASSES }
 
-package Exception::Class::Base;
-
-use Class::Data::Inheritable;
-use Devel::StackTrace 1.20;
-
-use base qw(Class::Data::Inheritable);
-
-BEGIN
-{
-    __PACKAGE__->mk_classdata('Trace');
-    *do_trace = \&Trace;
-    __PACKAGE__->mk_classdata('NoRefs');
-    *NoObjectRefs = \&NoRefs;
-    __PACKAGE__->NoRefs(1);
-
-    __PACKAGE__->mk_classdata('RespectOverload');
-    __PACKAGE__->RespectOverload(0);
-
-    __PACKAGE__->mk_classdata('MaxArgLength');
-    __PACKAGE__->MaxArgLength(0);
-
-    sub Fields { () }
-}
-
-use overload
-    # an exception is always true
-    bool => sub { 1 },
-    '""' => 'as_string',
-    fallback => 1;
-
-use vars qw($VERSION);
-
-$VERSION = '1.2';
-
-# Create accessor routines
-BEGIN
-{
-    my @fields = qw( message pid uid euid gid egid time trace );
-
-    foreach my $f (@fields)
-    {
-        my $sub = sub { my $s = shift; return $s->{$f}; };
-
-        no strict 'refs';
-        *{$f} = $sub;
-    }
-    *error = \&message;
-
-    my %trace_fields =
-        ( package => 'package',
-          file    => 'filename',
-          line    => 'line',
-        );
-
-    while ( my ( $f, $m ) = each %trace_fields )
-    {
-        my $sub = sub
-        {
-            my $s = shift;
-            return $s->{$f} if exists $s->{$f};
-
-            my $frame = $s->trace->frame(0);
-
-            return $s->{$f} = $frame ? $frame->$m() : undef;
-        };
-        no strict 'refs';
-        *{$f} = $sub;
-    }
-}
-
-1;
-
-sub Classes { Exception::Class::Classes() }
-
-sub throw
-{
-    my $proto = shift;
-
-    $proto->rethrow if ref $proto;
-
-    die $proto->new(@_);
-}
-
-sub rethrow
-{
-    my $self = shift;
-
-    die $self;
-}
-
-sub new
-{
-    my $proto = shift;
-    my $class = ref $proto || $proto;
-
-    my $self = bless {}, $class;
-
-    $self->_initialize(@_);
-
-    return $self;
-}
-
-sub _initialize
-{
-    my $self = shift;
-    my %p = @_ == 1 ? ( error => $_[0] ) : @_;
-
-    $self->{message} = $p{message} || $p{error} || '';
-
-    $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
-
-    # CORE::time is important to fix an error with some versions of
-    # Perl
-    $self->{time} = CORE::time();
-    $self->{pid}  = $$;
-    $self->{uid}  = $<;
-    $self->{euid} = $>;
-    $self->{gid}  = $(;
-    $self->{egid} = $);
-
-    my @ignore_class   = (__PACKAGE__);
-    my @ignore_package = 'Exception::Class';
-
-    if ( my $i = delete $p{ignore_class} )
-    {
-        push @ignore_class, ( ref($i) eq 'ARRAY' ? @$i : $i );
-    }
-
-    if ( my $i = delete $p{ignore_package} )
-    {
-        push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
-    }
-
-    $self->{trace} =
-        Devel::StackTrace->new( ignore_class     => \@ignore_class,
-                                ignore_package   => \@ignore_package,
-                                no_refs          => $self->NoRefs,
-                                respect_overload => $self->RespectOverload,
-                                max_arg_length   => $self->MaxArgLength,
-                              );
-
-    my %fields = map { $_ => 1 } $self->Fields;
-    while ( my ($key, $value) = each %p )
-    {
-       next if $key =~ /^(?:error|message|show_trace)$/;
-
-       if ( $fields{$key})
-       {
-           $self->{$key} = $value;
-       }
-       else
-       {
-           Exception::Class::Base->throw
-               ( error =>
-                 "unknown field $key passed to constructor for class " . ref $self );
-       }
-    }
-}
-
-sub description
-{
-    return 'Generic exception';
-}
-
-sub show_trace
-{
-    my $self = shift;
-
-    if (@_)
-    {
-        $self->{show_trace} = shift;
-    }
-
-    return exists $self->{show_trace} ? $self->{show_trace} : $self->Trace;
-}
-
-sub as_string
-{
-    my $self = shift;
-
-    my $str = $self->full_message;
-    $str .= "\n\n" . $self->trace->as_string
-        if $self->show_trace;
-
-    return $str;
-}
-
-sub full_message { $_[0]->{message} }
-
-#
-# The %seen bit protects against circular inheritance.
-#
-eval <<'EOF' if $] == 5.006;
-sub isa
-{
-    my ($inheritor, $base) = @_;
-    $inheritor = ref($inheritor) if ref($inheritor);
-
-    my %seen;
-
-    no strict 'refs';
-    my @parents = ($inheritor, @{"$inheritor\::ISA"});
-    while (my $class = shift @parents)
-    {
-        return 1 if $class eq $base;
-
-        push @parents, grep {!$seen{$_}++} @{"$class\::ISA"};
-    }
-    return 0;
-}
-EOF
-
-sub caught
-{
-    return Exception::Class->caught(shift);
-}
-
-
 1;
 
 __END__
@@ -465,7 +248,7 @@ modules in a "Java-esque" manner.
 
 It features a simple interface allowing programmers to 'declare'
 exception classes at compile time.  It also has a base exception
-class, Exception::Class::Base, that can be easily extended.
+class, L<Exception::Class::Base>, that can be easily extended.
 
 It is designed to make structured exception handling simpler and
 better by encouraging people to use hierarchies of exceptions in their
@@ -475,10 +258,14 @@ This module does not implement any try/catch syntax.  Please see the
 "OTHER EXCEPTION MODULES (try/catch syntax)" section for more
 information on how to get this syntax.
 
+You will also want to look at the documentation for
+L<Exception::Class::Base>, which is the default base class for all
+exception objects created by this module.
+
 =head1 DECLARING EXCEPTION CLASSES
 
 Importing C<Exception::Class> allows you to automagically create
-C<Exception::Class::Base> subclasses.  You can also create subclasses
+L<Exception::Class::Base> subclasses.  You can also create subclasses
 via the traditional means of defining your own subclass with C<@ISA>.
 These two methods may be easily combined, so that you could subclass
 an exception class defined via the automagic import, if you desired
@@ -499,7 +286,7 @@ class name in C<$Exception::Class::BASE_EXC_CLASS> is assumed to be
 the parent (see below).
 
 This parameter lets you create arbitrarily deep class hierarchies.
-This can be any other C<Exception::Class::Base> subclass in your
+This can be any other L<Exception::Class::Base> subclass in your
 declaration I<or> a subclass loaded from a module.
 
 To change the default exception class you will need to change the
@@ -512,7 +299,7 @@ If anyone can come up with a more elegant way to do this please let me
 know.
 
 CAVEAT: If you want to automagically subclass an
-C<Exception::Class::Base> subclass loaded from a file, then you
+L<Exception::Class::Base> subclass loaded from a file, then you
 I<must> compile the class (via use or require or some other magic)
 I<before> you import C<Exception::Class> or you'll get a compile time
 error.
@@ -606,236 +393,6 @@ C<isa()> in that class like this:
 Of course, this only works if you always call 
 C<< Exception::Class->caught() >> after an C<eval>.
 
-=head1 Exception::Class::Base CLASS METHODS
-
-=over 4
-
-=item * Trace($boolean)
-
-Each C<Exception::Class::Base> subclass can be set individually to
-include a a stracktrace when the C<as_string> method is called.  The
-default is to not include a stacktrace.  Calling this method with a
-value changes this behavior.  It always returns the current value
-(after any change is applied).
-
-This value is inherited by any subclasses.  However, if this value is
-set for a subclass, it will thereafter be independent of the value in
-C<Exception::Class::Base>.
-
-This is a class method, not an object method.
-
-=item * NoRefs($boolean)
-
-When a C<Devel::StackTrace> object is created, it walks through the
-stack and stores the arguments which were passed to each subroutine on
-the stack.  If any of these arguments are references, then that means
-that the C<Devel::StackTrace> ends up increasing the refcount of these
-references, delaying their destruction.
-
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> not to store
-these references.  Instead, C<Devel::StackTrace> replaces references
-with their stringified representation.
-
-This method defaults to true.  As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
-
-=item * RespectOverload($boolean)
-
-When a C<Devel::StackTrace> object stringifies, by default it ignores
-stringification overloading on any objects being dealt with.
-
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> to respect
-overloading.
-
-This method defaults to false.  As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
-
-=item * MaxArgLength($boolean)
-
-When a C<Devel::StackTrace> object stringifies, by default it displays
-the full argument for each function. This parameter can be used to
-limit the maximum length of each argument.
-
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> to limit the
-length of arguments.
-
-This method defaults to 0. As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
-
-=item * Fields
-
-This method returns the extra fields defined for the given class, as
-an array.
-
-=item * throw( $message )
-
-=item * throw( message => $message )
-
-=item * throw( error => $error )
-
-This method creates a new object with the given error message.  If no
-error message is given, this will be an empty string.  It then die's
-with this object as its argument.
-
-This method also takes a C<show_trace> parameter which indicates
-whether or not the particular exception object being created should
-show a stacktrace when its C<as_string()> method is called.  This
-overrides the value of C<Trace()> for this class if it is given.
-
-The frames included in the trace can be controlled by the C<ignore_class>
-and C<ignore_package> parameters. These are passed directly to
-Devel::Stacktrace's constructor. See C<Devel::Stacktrace> for more details.
-
-If only a single value is given to the constructor it is assumed to be
-the message parameter.
-
-Additional keys corresponding to the fields defined for the particular
-exception subclass will also be accepted.
-
-=item * new
-
-This method takes the same parameters as C<throw()>, but instead of
-dying simply returns a new exception object.
-
-This method is always called when constructing a new exception object
-via the C<throw()> method.
-
-=item * description
-
-Returns the description for the given C<Exception::Class::Base>
-subclass.  The C<Exception::Class::Base> class's description is
-"Generic exception" (this may change in the future).  This is also an
-object method.
-
-=back
-
-=head1 Exception::Class::Base OBJECT METHODS
-
-=over 4
-
-=item * rethrow
-
-Simply dies with the object as its sole argument.  It's just syntactic
-sugar.  This does not change any of the object's attribute values.
-However, it will cause C<caller()> to report the die as coming from
-within the C<Exception::Class::Base> class rather than where rethrow
-was called.
-
-Of course, you always have access to the original stacktrace for the
-exception object.
-
-=item * message
-
-=item * error
-
-Returns the error/message associated with the exception.
-
-=item * pid
-
-Returns the pid at the time the exception was thrown.
-
-=item * uid
-
-Returns the real user id at the time the exception was thrown.
-
-=item * gid
-
-Returns the real group id at the time the exception was thrown.
-
-=item * euid
-
-Returns the effective user id at the time the exception was thrown.
-
-=item * egid
-
-Returns the effective group id at the time the exception was thrown.
-
-=item * time
-
-Returns the time in seconds since the epoch at the time the exception
-was thrown.
-
-=item * package
-
-Returns the package from which the exception was thrown.
-
-=item * file
-
-Returns the file within which the exception was thrown.
-
-=item * line
-
-Returns the line where the exception was thrown.
-
-=item * trace
-
-Returns the trace object associated with the object.
-
-=item * show_trace($boolean)
-
-This method can be used to set whether or not a strack trace is
-included when the as_string method is called or the object is
-stringified.
-
-=item * as_string
-
-Returns a string form of the error message (something like what you'd
-expect from die).  If the class or object is set to show traces then
-then the full trace is also included.  The result looks like
-C<Carp::confess()>.
-
-=item * full_message
-
-Called by the C<as_string()> method to get the message.  By default,
-this is the same as calling the C<message()> method, but may be
-overridden by a subclass.  See below for details.
-
-=back
-
-=head1 OVERLOADING
-
-The C<Exception::Class::Base> object is overloaded so that
-stringification produces a normal error message.  It just calls the
-as_string method described above.  This means that you can just
-C<print $@> after an C<eval> and not worry about whether or not its an
-actual object.  It also means an application or module could do this:
-
- $SIG{__DIE__} = sub { Exception::Class::Base->throw( error => join '', @_ ); };
-
-and this would probably not break anything (unless someone was
-expecting a different type of exception object from C<die()>).
-
-=head1 OVERRIDING THE as_string METHOD
-
-By default, the C<as_string()> method simply returns the value
-C<message> or C<error> param plus a stack trace, if the class's
-C<Trace()> method returns a true value or C<show_trace> was set when
-creating the exception.
-
-However, once you add new fields to a subclass, you may want to
-include those fields in the stringified error.
-
-Inside the C<as_string()> method, the message (non-stack trace)
-portion of the error is generated by calling the C<full_message()>
-method.  This can be easily overridden.  For example:
-
-  sub full_message
-  {
-      my $self = shift;
-
-      my $msg = $self->message;
-
-      $msg .= " and foo was " . $self->foo;
-
-      return $msg;
-  }
-
 =head1 USAGE RECOMMENDATION
 
 If you're creating a complex system that throws lots of different
@@ -866,14 +423,14 @@ This might look something like this:
                          ... );
 
 You may want to create a real module to subclass
-C<Exception::Class::Base> as well, particularly if you want your
+L<Exception::Class::Base> as well, particularly if you want your
 exceptions to have more methods.
 
 =head2 Subclassing Exception::Class::Base
 
 As part of your usage of C<Exception::Class>, you may want to create
 your own base exception class which subclasses
-C<Exception::Class::Base>.  You should feel free to subclass any of
+L<Exception::Class::Base>.  You should feel free to subclass any of
 the methods documented above.  For example, you may want to subclass
 C<new()> to add additional information to your exception objects.
 
@@ -895,7 +452,7 @@ your code then I recommend you check out U. Arun Kumar's C<Error.pm>
 module, which implements this syntax.  It also includes its own base
 exception class, C<Error::Simple>.
 
-If you would prefer to use the C<Exception::Class::Base> class
+If you would prefer to use the L<Exception::Class::Base> class
 included with this module, you'll have to add this to your code
 somewhere:
 
@@ -933,11 +490,11 @@ L<http://www.urth.org/~autarch/fs-donation.html>
 
 =head1 AUTHOR
 
-Dave Rolsky, <autarch@urth.org>
+Dave Rolsky, E<gt>autarch@urth.orgE<lt>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000-2006 David Rolsky.  All rights reserved.  This
+Copyright (c) 2000-2009 David Rolsky.  All rights reserved.  This
 program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
