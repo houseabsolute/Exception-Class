@@ -10,7 +10,7 @@ use Scalar::Util qw(blessed);
 our $BASE_EXC_CLASS;
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-our $VERSION = '1.28';
+our $VERSION = '1.29';
 
 our %CLASSES;
 
