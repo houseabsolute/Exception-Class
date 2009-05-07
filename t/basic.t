@@ -16,14 +16,8 @@ BEGIN
 {
     package FooException;
 
-    use vars qw[$VERSION];
-
     use Exception::Class;
     use base qw(Exception::Class::Base);
-
-    $VERSION = 0.01;
-
-    1;
 }
 
 use Exception::Class
@@ -77,8 +71,8 @@ $^W = 1;
     is( $@->file, $expect,
         "File should be '$expect'" );
 
-    is( $@->line, 60,
-        "Line should be 60" );
+    is( $@->line, 54,
+        "Line should be 54" );
 
     is( $@->pid, $$,
         "PID should be $$" );

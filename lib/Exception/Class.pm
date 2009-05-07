@@ -120,14 +120,14 @@ sub _make_subclass
     }
     $isa ||= $BASE_EXC_CLASS;
 
+    my $version_name = 'VERSION';
+
     my $code = <<"EOPERL";
 package $subclass;
 
-use vars qw(\$VERSION);
-
 use base qw($isa);
 
-\$VERSION = '1.1';
+our \$$version_name = '1.1';
 
 1;
 
