@@ -160,8 +160,10 @@ $^W = 1;
     );
 
     eval {
-        Exception::Class::Base->throw( error => 'has stacktrace',
-            show_trace => 1 );
+        Exception::Class::Base->throw(
+            error      => 'has stacktrace',
+            show_trace => 1,
+        );
     };
     like(
         $@->as_string, qr/Trace begun/,
@@ -183,8 +185,10 @@ $^W = 1;
     );
 
     eval {
-        Exception::Class::Base->throw( error => 'has stacktrace',
-            show_trace => 0 );
+        Exception::Class::Base->throw(
+            error      => 'has stacktrace',
+            show_trace => 0,
+        );
     };
 
     unlike(
@@ -396,8 +400,10 @@ sub FieldsException::full_message {
     eval { throw( bless {}, 'BarBaz' ) };
     my $e = $@;
 
-    unlike( $e->as_string, qr/\boverloaded\b/,
-        'overloading is ignored by default' );
+    unlike(
+        $e->as_string, qr/\boverloaded\b/,
+        'overloading is ignored by default'
+    );
 
     TestException->RespectOverload(1);
 
@@ -428,8 +434,10 @@ sub FieldsException::full_message {
     eval { throw2('abcdefghijklmnop') };
     $e = $@;
 
-    like( $e->as_string, qr/'abcdefghij\.\.\.'/,
-        'arguments are now truncated' );
+    like(
+        $e->as_string, qr/'abcdefghij\.\.\.'/,
+        'arguments are now truncated'
+    );
 }
 
 sub argh {
