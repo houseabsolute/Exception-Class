@@ -10,8 +10,7 @@ use Devel::StackTrace 1.20;
 
 use base qw(Class::Data::Inheritable);
 
-BEGIN
-{
+BEGIN {
     __PACKAGE__->mk_classdata('Trace');
     __PACKAGE__->mk_classdata('NoRefs');
     __PACKAGE__->NoRefs(1);
@@ -26,18 +25,15 @@ BEGIN
 }
 
 use overload
+
     # an exception is always true
-    bool => sub { 1 },
-    '""' => 'as_string',
-    fallback => 1;
+    bool => sub {1}, '""' => 'as_string', fallback => 1;
 
 # Create accessor routines
-BEGIN
-{
+BEGIN {
     my @fields = qw( message pid uid euid gid egid time trace );
 
-    foreach my $f (@fields)
-    {
+    foreach my $f (@fields) {
         my $sub = sub { my $s = shift; return $s->{$f}; };
 
         no strict 'refs';
@@ -45,16 +41,14 @@ BEGIN
     }
     *error = \&message;
 
-    my %trace_fields =
-        ( package => 'package',
-          file    => 'filename',
-          line    => 'line',
-        );
+    my %trace_fields = (
+        package => 'package',
+        file    => 'filename',
+        line    => 'line',
+    );
 
-    while ( my ( $f, $m ) = each %trace_fields )
-    {
-        my $sub = sub
-        {
+    while ( my ( $f, $m ) = each %trace_fields ) {
+        my $sub = sub {
             my $s = shift;
             return $s->{$f} if exists $s->{$f};
 
@@ -71,8 +65,7 @@ BEGIN
 
 sub Classes { Exception::Class::Classes() }
 
-sub throw
-{
+sub throw {
     my $proto = shift;
 
     $proto->rethrow if ref $proto;
@@ -80,15 +73,13 @@ sub throw
     die $proto->new(@_);
 }
 
-sub rethrow
-{
+sub rethrow {
     my $self = shift;
 
     die $self;
 }
 
-sub new
-{
+sub new {
     my $proto = shift;
     my $class = ref $proto || $proto;
 
@@ -99,8 +90,7 @@ sub new
     return $self;
 }
 
-sub _initialize
-{
+sub _initialize {
     my $self = shift;
     my %p = @_ == 1 ? ( error => $_[0] ) : @_;
 
@@ -120,61 +110,52 @@ sub _initialize
     my @ignore_class   = (__PACKAGE__);
     my @ignore_package = 'Exception::Class';
 
-    if ( my $i = delete $p{ignore_class} )
-    {
+    if ( my $i = delete $p{ignore_class} ) {
         push @ignore_class, ( ref($i) eq 'ARRAY' ? @$i : $i );
     }
 
-    if ( my $i = delete $p{ignore_package} )
-    {
+    if ( my $i = delete $p{ignore_package} ) {
         push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
     }
 
-    $self->{trace} =
-        Devel::StackTrace->new( ignore_class     => \@ignore_class,
-                                ignore_package   => \@ignore_package,
-                                no_refs          => $self->NoRefs,
-                                respect_overload => $self->RespectOverload,
-                                max_arg_length   => $self->MaxArgLength,
-                              );
+    $self->{trace} = Devel::StackTrace->new(
+        ignore_class     => \@ignore_class,
+        ignore_package   => \@ignore_package,
+        no_refs          => $self->NoRefs,
+        respect_overload => $self->RespectOverload,
+        max_arg_length   => $self->MaxArgLength,
+    );
 
     my %fields = map { $_ => 1 } $self->Fields;
-    while ( my ($key, $value) = each %p )
-    {
-       next if $key =~ /^(?:error|message|show_trace)$/;
+    while ( my ( $key, $value ) = each %p ) {
+        next if $key =~ /^(?:error|message|show_trace)$/;
 
-       if ( $fields{$key})
-       {
-           $self->{$key} = $value;
-       }
-       else
-       {
-           Exception::Class::Base->throw
-               ( error =>
-                 "unknown field $key passed to constructor for class " . ref $self );
-       }
+        if ( $fields{$key} ) {
+            $self->{$key} = $value;
+        }
+        else {
+            Exception::Class::Base->throw(
+                error => "unknown field $key passed to constructor for class "
+                    . ref $self );
+        }
     }
 }
 
-sub description
-{
+sub description {
     return 'Generic exception';
 }
 
-sub show_trace
-{
+sub show_trace {
     my $self = shift;
 
-    if (@_)
-    {
+    if (@_) {
         $self->{show_trace} = shift;
     }
 
     return exists $self->{show_trace} ? $self->{show_trace} : $self->Trace;
 }
 
-sub as_string
-{
+sub as_string {
     my $self = shift;
 
     my $str = $self->full_message;
@@ -209,8 +190,7 @@ sub isa
 }
 EOF
 
-sub caught
-{
+sub caught {
     return Exception::Class->caught(shift);
 }
 
