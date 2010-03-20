@@ -15,7 +15,7 @@ my $build = Module::Build->new(
         'perl'                     => '5.008001',
     },
     build_requires => {
-        'Test::More' => '0.46',
+        'Test::More' => '0.88',
     },
     sign               => 1,
     create_makefile_pl => 'traditional',
