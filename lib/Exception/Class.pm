@@ -204,43 +204,41 @@ Exception::Class - A module that allows you to declare real exception classes in
 
 =head1 SYNOPSIS
 
-  use Exception::Class
-      ( 'MyException',
+  use Exception::Class (
+      'MyException',
 
-        'AnotherException' =>
-        { isa => 'MyException' },
+      'AnotherException' => { isa => 'MyException' },
 
-        'YetAnotherException' =>
-        { isa => 'AnotherException',
-          description => 'These exceptions are related to IPC' },
+      'YetAnotherException' => {
+          isa         => 'AnotherException',
+          description => 'These exceptions are related to IPC'
+      },
 
-        'ExceptionWithFields' =>
-        { isa => 'YetAnotherException',
+      'ExceptionWithFields' => {
+          isa    => 'YetAnotherException',
           fields => [ 'grandiosity', 'quixotic' ],
-          alias => 'throw_fields',
-        },
-      );
+          alias  => 'throw_fields',
+      },
+  );
 
   # try
   eval { MyException->throw( error => 'I feel funny.' ) };
 
   my $e;
-  # catch
-  if ( $e = Exception::Class->caught('MyException') )
-  {
-     warn $e->error, "\n", $e->trace->as_string, "\n";
-     warn join ' ',  $e->euid, $e->egid, $e->uid, $e->gid, $e->pid, $e->time;
 
-     exit;
+  # catch
+  if ( $e = Exception::Class->caught('MyException') ) {
+      warn $e->error, "\n", $e->trace->as_string, "\n";
+      warn join ' ', $e->euid, $e->egid, $e->uid, $e->gid, $e->pid, $e->time;
+
+      exit;
   }
-  elsif ( $e = Exception::Class->caught('ExceptionWithFields') )
-  {
-     $e->quixotic ? do_something_wacky() : do_something_sane();
+  elsif ( $e = Exception::Class->caught('ExceptionWithFields') ) {
+      $e->quixotic ? do_something_wacky() : do_something_sane();
   }
-  else
-  {
-     $e = Exception::Class->caught();
-     ref $e ? $e->rethrow : die $e;
+  else {
+      $e = Exception::Class->caught();
+      ref $e ? $e->rethrow : die $e;
   }
 
   # use an alias - without parens subroutine name is checked at
