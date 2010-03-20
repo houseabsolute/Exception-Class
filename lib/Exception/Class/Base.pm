@@ -15,6 +15,9 @@ BEGIN {
     __PACKAGE__->mk_classdata('NoRefs');
     __PACKAGE__->NoRefs(1);
 
+    __PACKAGE__->mk_classdata('NoContextInfo');
+    __PACKAGE__->NoContextInfo(0);
+
     __PACKAGE__->mk_classdata('RespectOverload');
     __PACKAGE__->RespectOverload(0);
 
@@ -82,7 +85,7 @@ sub new {
     my $proto = shift;
     my $class = ref $proto || $proto;
 
-    my $self = bless { $class->_defaults }, $class;
+    my $self = bless {}, $class;
 
     $self->_initialize(@_);
 
@@ -108,17 +111,11 @@ sub _initialize {
         push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
     }
 
-    if (
-        exists $p{no_context_info}
-        ? delete $p{no_context_info}
-        : $self->{no_context_info} ) {
-
-        # Prevent methods looking for trace object
+    if ( $self->NoContextInfo() ) {
         $self->{show_trace} = 0;
         $self->{package} = $self->{file} = $self->{line} = undef;
     }
     else {
-
         # CORE::time is important to fix an error with some versions of
         # Perl
         $self->{time} = CORE::time();
@@ -151,8 +148,6 @@ sub _initialize {
         }
     }
 }
-
-sub _defaults { }
 
 sub description {
     return 'Generic exception';
@@ -437,17 +432,18 @@ overridden by a subclass.  See below for details.
 =head1 LIGHTWEIGHT EXCEPTIONS
 
 A lightweight expception is one which records no infomation about its context
-when it is created. This can be achieved by passing a non-zero value for
-C<no_context_info> when creating the exception object.
+when it is created. This can be achieved by setting C<<
+$class->NoContextInfo() >> to a true value.
 
-You can make this the default for a class of exceptions by setting it in the
-defaults hash:
+You can make this the default for a class of exceptions by setting it after
+creating the class:
 
   use Exception::Class (
-      'LightWeight' => {
-          defaults => { no_context_info => 1 },
-      },
+      'LightWeight',
+      'HeavyWeight',
   );
+
+  LightWeight->NoContextInfo(1);
 
 =head1 OVERLOADING
 

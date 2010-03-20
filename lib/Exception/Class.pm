@@ -219,10 +219,6 @@ Exception::Class - A module that allows you to declare real exception classes in
           fields => [ 'grandiosity', 'quixotic' ],
           alias  => 'throw_fields',
       },
-
-      'LightWeight' => {
-          defaults => { no_context_info => 1 },
-      },
   );
 
   # try
@@ -348,13 +344,6 @@ any particular exception object).  This may be useful for debugging if
 you start catching exceptions you weren't expecting (particularly if
 someone forgot to document them) and you don't understand the error
 messages.
-
-=item * defaults
-
-This allows you to define default values that are passed to the constructor
-when making an object of the given class.
-
-This parameter should be a hash reference with field names as keys.
 
 =back
 
