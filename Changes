@@ -1,3 +1,11 @@
+1.30 Mar 20, 2010
+
+- Added the ability to create light weight exceptions, which don't record a
+  stack trace or any other context info (time, pid, etc.). This is done by
+  setting $class->NoContextInfo to a true value for the exception class. Based
+  on a patch by Graham Barr. RT #54826.
+
+
 1.29 May 8, 2009
 
 - Make sure that there is only one line that the toolchain can pick up
