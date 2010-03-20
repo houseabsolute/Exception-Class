@@ -1,17 +1,46 @@
-.*CVS.*
-Makefile$
-\.\#.*
-~$
-MANIFEST.SKIP
-.*\.tar\.gz
-benchmarks
-_old.pm$
-.bak$
-blib/
-pm_to_blib
-\.o$
-test\.c
-\.svn
-_build.*
-^Build$
+# Avoid version control files.
+^RCS
+^CVS
+,v$
+\.svn.*
+^\.hg
+^\.git
 
+# Avoid Makemaker generated and utility files.
+^Makefile$
+^blib
+^MakeMaker-\d
+^pm_to_blib$
+^blibdirs$
+^MANIFEST\.SKIP$
+
+# Avoid Module::Build generated and utility files.
+\bBuild$
+\bBuild.bat$
+\b_build
+\bBuild.COM$
+\bBUILD.COM$
+\bbuild.com$
+
+# Avoid temp and backup files.
+~$
+\.old$
+\.bak$
+\#$
+^\.#
+\.rej$
+\.orig$
+
+# Avoid Devel::Cover generated files
+^cover_db
+
+# kwalitee.t junk
+^Debian_CPANTS\.txt
+
+# Avoid tarballs
+\.(?:tar|tgz|tar\.gz)$
+
+^Exception-Class-
+
+# No need to ship this
+\.shipit
