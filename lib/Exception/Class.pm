@@ -169,11 +169,11 @@ EOPERL
             = sub { $subclass->throw(@_) };
     }
 
-    if ( my $defaults = $def->{defaults} )
-    {
-        $code .= "sub _defaults { return shift->SUPER::_defaults, our \%_DEFAULTS }\n";
+    if ( my $defaults = $def->{defaults} ) {
+        $code
+            .= "sub _defaults { return shift->SUPER::_defaults, our \%_DEFAULTS }\n";
         no strict 'refs';
-        *{"$subclass\::_DEFAULTS"} = { %$defaults };
+        *{"$subclass\::_DEFAULTS"} = {%$defaults};
     }
 
     eval $code;
@@ -349,8 +349,8 @@ messages.
 
 =item * defaults
 
-This allows you to define default values used to initialize each object
-with.
+This allows you to define default values that are passed to the constructor
+when making an object of the given class.
 
 This parameter should be a hash reference with field names as keys.
 
