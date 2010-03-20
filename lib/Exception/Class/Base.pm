@@ -431,7 +431,7 @@ overridden by a subclass.  See below for details.
 
 =head1 LIGHTWEIGHT EXCEPTIONS
 
-A lightweight exception is one which records no infomation about its context
+A lightweight exception is one which records no information about its context
 when it is created. This can be achieved by setting C<<
 $class->NoContextInfo() >> to a true value.
 
