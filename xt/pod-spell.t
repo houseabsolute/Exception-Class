@@ -23,4 +23,17 @@ local $ENV{LC_ALL} = 'C';
 all_pod_files_spelling_ok();
 
 __DATA__
+Arun
+Kumar's
 PayPal
+automagic
+esque
+isa
+namespace
+runtime
+uncatchable
+param
+refcount
+rethrow
+stacktrace
+stringifies
