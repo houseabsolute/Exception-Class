@@ -81,8 +81,8 @@ $^W = 1;
     );
 
     is(
-        $@->line, 54,
-        "Line should be 54"
+        $@->line, 53,
+        "Line should be 53"
     );
 
     is(
@@ -439,6 +439,8 @@ sub FieldsException::full_message {
     );
 }
 
+done_testing();
+
 sub argh {
     Exception::Class::Base->throw( error => 'ARGH' );
 }
@@ -460,5 +462,3 @@ sub bork2 {
 
     ObjectRefs2->throw('kaboom');
 }
-
-done_testing();
