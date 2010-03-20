@@ -219,6 +219,10 @@ Exception::Class - A module that allows you to declare real exception classes in
           fields => [ 'grandiosity', 'quixotic' ],
           alias  => 'throw_fields',
       },
+
+      'LightWeight' => {
+          defaults => { no_context_info => 1 },
+      },
   );
 
   # try

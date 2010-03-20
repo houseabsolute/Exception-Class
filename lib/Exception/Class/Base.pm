@@ -436,9 +436,18 @@ overridden by a subclass.  See below for details.
 
 =head1 LIGHTWEIGHT EXCEPTIONS
 
-A lightweight expception is one which records no infomation about its
-context when it is created. This can be achieved by passing a non-zero value
-for C<no_context_info> when creating the execption object
+A lightweight expception is one which records no infomation about its context
+when it is created. This can be achieved by passing a non-zero value for
+C<no_context_info> when creating the exception object.
+
+You can make this the default for a class of exceptions by setting it in the
+defaults hash:
+
+  use Exception::Class (
+      'LightWeight' => {
+          defaults => { no_context_info => 1 },
+      },
+  );
 
 =head1 OVERLOADING
 
