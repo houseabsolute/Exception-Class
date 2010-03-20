@@ -1,8 +1,7 @@
-#!/usr/bin/perl -w
-
 use strict;
+use warnings;
 
-use Test::More tests => 2;
+use Test::More;
 
 use Exception::Class (
     'Foo',
@@ -27,3 +26,4 @@ Bar->NoContextInfo(1);
     ok( !defined( $e->trace ), 'has no trace detail' );
 }
 
+done_testing();

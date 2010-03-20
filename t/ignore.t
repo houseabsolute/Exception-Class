@@ -1,8 +1,7 @@
-#!/usr/bin/perl -w
-
 use strict;
+use warnings;
 
-use Test::More tests => 4;
+use Test::More;
 
 package Foo;
 
@@ -76,3 +75,4 @@ $e = $@;
 
 check_trace( $e->trace, [ 'Foo', 'Baz' ], [] );
 
+done_testing();

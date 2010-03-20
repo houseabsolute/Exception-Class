@@ -1,8 +1,7 @@
-#!/usr/bin/perl -w
-
 use strict;
+use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 
 use Exception::Class (
     'Foo',
@@ -52,3 +51,5 @@ use Exception::Class (
     ok( $e, 'Foo->caught() returns exception' );
     isa_ok( $e, 'Foo' );
 }
+
+done_testing();

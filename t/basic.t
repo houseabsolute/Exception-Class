@@ -1,10 +1,9 @@
-#!/usr/bin/perl -w
-
 use strict;
+use warnings;
 
 use File::Spec;
 
-use Test::More tests => 56;
+use Test::More;
 
 use_ok('Exception::Class');
 
@@ -461,3 +460,5 @@ sub bork2 {
 
     ObjectRefs2->throw('kaboom');
 }
+
+done_testing();
