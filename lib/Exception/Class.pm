@@ -169,6 +169,13 @@ EOPERL
             = sub { $subclass->throw(@_) };
     }
 
+    if ( my $defaults = $def->{defaults} )
+    {
+        $code .= "sub _defaults { return shift->SUPER::_defaults, our \%_DEFAULTS }\n";
+        no strict 'refs';
+        *{"$subclass\::_DEFAULTS"} = { %$defaults };
+    }
+
     eval $code;
 
     die $@ if $@;
@@ -339,6 +346,13 @@ any particular exception object).  This may be useful for debugging if
 you start catching exceptions you weren't expecting (particularly if
 someone forgot to document them) and you don't understand the error
 messages.
+
+=item * defaults
+
+This allows you to define default values used to initialize each object
+with.
+
+This parameter should be a hash reference with field names as keys.
 
 =back
 

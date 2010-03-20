@@ -25,7 +25,6 @@ BEGIN {
 }
 
 use overload
-
     # an exception is always true
     bool => sub {1}, '""' => 'as_string', fallback => 1;
 
@@ -83,7 +82,7 @@ sub new {
     my $proto = shift;
     my $class = ref $proto || $proto;
 
-    my $self = bless {}, $class;
+    my $self = bless { $class->_defaults }, $class;
 
     $self->_initialize(@_);
 
@@ -98,15 +97,6 @@ sub _initialize {
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
-    # CORE::time is important to fix an error with some versions of
-    # Perl
-    $self->{time} = CORE::time();
-    $self->{pid}  = $$;
-    $self->{uid}  = $<;
-    $self->{euid} = $>;
-    $self->{gid}  = $(;
-    $self->{egid} = $);
-
     my @ignore_class   = (__PACKAGE__);
     my @ignore_package = 'Exception::Class';
 
@@ -118,13 +108,34 @@ sub _initialize {
         push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
     }
 
-    $self->{trace} = Devel::StackTrace->new(
-        ignore_class     => \@ignore_class,
-        ignore_package   => \@ignore_package,
-        no_refs          => $self->NoRefs,
-        respect_overload => $self->RespectOverload,
-        max_arg_length   => $self->MaxArgLength,
-    );
+    if (
+        exists $p{no_context_info}
+        ? delete $p{no_context_info}
+        : $self->{no_context_info} ) {
+
+        # Prevent methods looking for trace object
+        $self->{show_trace} = 0;
+        $self->{package} = $self->{file} = $self->{line} = undef;
+    }
+    else {
+
+        # CORE::time is important to fix an error with some versions of
+        # Perl
+        $self->{time} = CORE::time();
+        $self->{pid}  = $$;
+        $self->{uid}  = $<;
+        $self->{euid} = $>;
+        $self->{gid}  = $(;
+        $self->{egid} = $);
+
+        $self->{trace} = Devel::StackTrace->new(
+            ignore_class     => \@ignore_class,
+            ignore_package   => \@ignore_package,
+            no_refs          => $self->NoRefs,
+            respect_overload => $self->RespectOverload,
+            max_arg_length   => $self->MaxArgLength,
+        );
+    }
 
     my %fields = map { $_ => 1 } $self->Fields;
     while ( my ( $key, $value ) = each %p ) {
@@ -141,12 +152,16 @@ sub _initialize {
     }
 }
 
+sub _defaults { }
+
 sub description {
     return 'Generic exception';
 }
 
 sub show_trace {
     my $self = shift;
+
+    return 0 unless $self->{trace};
 
     if (@_) {
         $self->{show_trace} = shift;
@@ -420,6 +435,12 @@ C<Carp::confess()>.
 Called by the C<as_string()> method to get the message.  By default,
 this is the same as calling the C<message()> method, but may be
 overridden by a subclass.  See below for details.
+
+=head1 LIGHTWEIGHT EXCEPTIONS
+
+A lightweight expception is one which records no infomation about its
+context when it is created. This can be achieved by passing a non-zero value
+for C<no_context_info> when creating the execption object
 
 =head1 OVERLOADING
 
