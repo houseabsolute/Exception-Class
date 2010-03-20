@@ -18,6 +18,7 @@ my $build = Module::Build->new(
         'Test::More' => '0.88',
     },
     sign               => 1,
+    create_readme      => 1,
     create_makefile_pl => 'traditional',
     meta_merge         => {
         resources => {
