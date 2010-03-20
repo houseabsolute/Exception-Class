@@ -44,10 +44,6 @@ use Exception::Class (
 $Exception::Class::BASE_EXC_CLASS = 'FooException';
 Exception::Class->import('BlahBlah');
 
-use strict;
-
-$^W = 1;
-
 # Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
@@ -81,8 +77,8 @@ $^W = 1;
     );
 
     is(
-        $@->line, 53,
-        "Line should be 53"
+        $@->line, 49,
+        "Line should be 49"
     );
 
     is(
