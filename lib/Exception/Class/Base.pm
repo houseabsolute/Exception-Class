@@ -319,7 +319,7 @@ control.
 =head2 MyException->throw( error => $error )
 
 This method creates a new object with the given error message.  If no
-error message is given, this will be an empty string.  It then die's
+error message is given, this will be an empty string.  It then dies
 with this object as its argument.
 
 This method also takes a C<show_trace> parameter which indicates
