@@ -100,17 +100,6 @@ sub _initialize {
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
-    my @ignore_class   = (__PACKAGE__);
-    my @ignore_package = 'Exception::Class';
-
-    if ( my $i = delete $p{ignore_class} ) {
-        push @ignore_class, ( ref($i) eq 'ARRAY' ? @$i : $i );
-    }
-
-    if ( my $i = delete $p{ignore_package} ) {
-        push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
-    }
-
     if ( $self->NoContextInfo() ) {
         $self->{show_trace} = 0;
         $self->{package} = $self->{file} = $self->{line} = undef;
@@ -124,6 +113,17 @@ sub _initialize {
         $self->{euid} = $>;
         $self->{gid}  = $(;
         $self->{egid} = $);
+
+        my @ignore_class   = (__PACKAGE__);
+        my @ignore_package = 'Exception::Class';
+
+        if ( my $i = delete $p{ignore_class} ) {
+            push @ignore_class, ( ref($i) eq 'ARRAY' ? @$i : $i );
+        }
+
+        if ( my $i = delete $p{ignore_package} ) {
+            push @ignore_package, ( ref($i) eq 'ARRAY' ? @$i : $i );
+        }
 
         $self->{trace} = Devel::StackTrace->new(
             ignore_class     => \@ignore_class,
@@ -444,6 +444,9 @@ creating the class:
   );
 
   LightWeight->NoContextInfo(1);
+
+A lightweight exception does have a stack trace object, nor does it record the
+time, pid, uid, euid, gid, or egid. It only has a message.
 
 =head1 OVERLOADING
 
