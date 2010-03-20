@@ -412,7 +412,7 @@ Returns the trace object associated with the object.
 
 =head2 $exception->show_trace($boolean)
 
-This method can be used to set whether or not a strack trace is
+This method can be used to set whether or not a stack trace is
 included when the as_string method is called or the object is
 stringified.
 
