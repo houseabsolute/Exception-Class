@@ -186,20 +186,18 @@ sub full_message { $_[0]->{message} }
 # The %seen bit protects against circular inheritance.
 #
 eval <<'EOF' if $] == 5.006;
-sub isa
-{
-    my ($inheritor, $base) = @_;
+sub isa {
+    my ( $inheritor, $base ) = @_;
     $inheritor = ref($inheritor) if ref($inheritor);
 
     my %seen;
 
     no strict 'refs';
-    my @parents = ($inheritor, @{"$inheritor\::ISA"});
-    while (my $class = shift @parents)
-    {
+    my @parents = ( $inheritor, @{"$inheritor\::ISA"} );
+    while ( my $class = shift @parents ) {
         return 1 if $class eq $base;
 
-        push @parents, grep {!$seen{$_}++} @{"$class\::ISA"};
+        push @parents, grep { !$seen{$_}++ } @{"$class\::ISA"};
     }
     return 0;
 }
