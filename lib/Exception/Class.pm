@@ -297,7 +297,7 @@ To change the default exception class you will need to change the
 value of C<$Exception::Class::BASE_EXC_CLASS> I<before> calling
 C<import()>.  To do this simply do something like this:
 
-BEGIN { $Exception::Class::BASE_EXC_CLASS = 'SomeExceptionClass'; }
+  BEGIN { $Exception::Class::BASE_EXC_CLASS = 'SomeExceptionClass'; }
 
 If anyone can come up with a more elegant way to do this please let me
 know.
@@ -364,13 +364,12 @@ Foo and never declare Foo.
 C<Exception::Class> provides some syntactic sugar for catching
 exceptions in a safe manner:
 
- eval { ... }
+  eval {...};
 
- if ( my $e = Exception::Class->caught('My::Error') )
- {
-     cleanup();
-     do_something_with_exception($e);
- }
+  if ( my $e = Exception::Class->caught('My::Error') ) {
+      cleanup();
+      do_something_with_exception($e);
+  }
 
 The C<caught()> method takes a class name and returns an exception
 object if the last thrown exception is of the given class, or a
@@ -385,11 +384,10 @@ C<do_something_with_exception()>.
 
 Exception objects also provide a caught method so you can write:
 
- if ( my $e = My::Error->caught() )
- {
-     cleanup();
-     do_something_with_exception($e);
- }
+  if ( my $e = My::Error->caught() ) {
+      cleanup();
+      do_something_with_exception($e);
+  }
 
 =head2 Uncatchable Exceptions
 
@@ -418,20 +416,24 @@ This might look something like this:
 
   package Foo::Bar::Exceptions;
 
-  use Exception::Class ( Foo::Bar::Exception::Senses =>
-                        { description => 'sense-related exception' },
+  use Exception::Class (
+      Foo::Bar::Exception::Senses =>
+          { description => 'sense-related exception' },
 
-                         Foo::Bar::Exception::Smell =>
-                         { isa => 'Foo::Bar::Exception::Senses',
-                           fields => 'odor',
-                           description => 'stinky!' },
+      Foo::Bar::Exception::Smell => {
+          isa         => 'Foo::Bar::Exception::Senses',
+          fields      => 'odor',
+          description => 'stinky!'
+      },
 
-                         Foo::Bar::Exception::Taste =>
-                         { isa => 'Foo::Bar::Exception::Senses',
-                           fields => [ 'taste', 'bitterness' ],
-                           description => 'like, gag me with a spoon!' },
+      Foo::Bar::Exception::Taste => {
+          isa         => 'Foo::Bar::Exception::Senses',
+          fields      => [ 'taste', 'bitterness' ],
+          description => 'like, gag me with a spoon!'
+      },
 
-                         ... );
+      ...
+  );
 
 You may want to create a real module to subclass
 L<Exception::Class::Base> as well, particularly if you want your
