@@ -227,7 +227,7 @@ information about the exception.
 =head2 MyException->Trace($boolean)
 
 Each C<Exception::Class::Base> subclass can be set individually to
-include a a stacktrace when the C<as_string> method is called.  The
+include a stacktrace when the C<as_string> method is called.  The
 default is to not include a stacktrace.  Calling this method with a
 value changes this behavior.  It always returns the current value
 (after any change is applied).
