@@ -7,6 +7,7 @@ our $VERSION = '1.30';
 
 use Class::Data::Inheritable;
 use Devel::StackTrace 1.20;
+use Scalar::Util qw( blessed );
 
 use base qw(Class::Data::Inheritable);
 
@@ -199,7 +200,12 @@ sub isa {
 EOF
 
 sub caught {
-    return Exception::Class->caught(shift);
+    my $class = shift;
+
+    my $e = $@;
+
+    return unless defined $e && blessed($e) && $e->isa($class);
+    return $e;
 }
 
 1;
