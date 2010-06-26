@@ -10,8 +10,6 @@ use Scalar::Util qw(blessed);
 our $BASE_EXC_CLASS;
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
 
-our $VERSION = '1.30';
-
 our %CLASSES;
 
 sub import {
@@ -196,11 +194,11 @@ sub Classes { sort keys %Exception::Class::CLASSES }
 
 1;
 
+# ABSTRACT: A module that allows you to declare real exception classes in Perl
+
 __END__
 
-=head1 NAME
-
-Exception::Class - A module that allows you to declare real exception classes in Perl
+=pod
 
 =head1 SYNOPSIS
 
@@ -493,18 +491,5 @@ best.
 To donate, log into PayPal and send money to autarch@urth.org or use
 the button on this page:
 L<http://www.urth.org/~autarch/fs-donation.html>
-
-=head1 AUTHOR
-
-Dave Rolsky, E<gt>autarch@urth.orgE<lt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2000-2009 David Rolsky.  All rights reserved.  This
-program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-The full text of the license can be found in the LICENSE file included
-with this module.
 
 =cut

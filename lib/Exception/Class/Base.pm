@@ -3,8 +3,6 @@ package Exception::Class::Base;
 use strict;
 use warnings;
 
-our $VERSION = '1.30';
-
 use Class::Data::Inheritable;
 use Devel::StackTrace 1.20;
 use Scalar::Util qw( blessed );
@@ -210,9 +208,11 @@ sub caught {
 
 1;
 
-=head1 NAME
+# ABSTRACT: A base class for exception objects
 
-Exception::Class::Base - Base class for exception classes created by Exception::Class
+__END__
+
+=pod
 
 =head1 SYNOPSIS
 
@@ -491,18 +491,5 @@ method.  This can be easily overridden.  For example:
 
       return $msg;
   }
-
-=head1 AUTHOR
-
-Dave Rolsky, E<gt>autarch@urth.orgE<lt>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2000-2009 David Rolsky.  All rights reserved.  This
-program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-The full text of the license can be found in the LICENSE file included
-with this module.
 
 =cut
