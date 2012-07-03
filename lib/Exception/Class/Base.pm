@@ -148,6 +148,31 @@ sub _initialize {
     }
 }
 
+sub context_hash {
+    my $self = shift;
+
+    return {
+        time => $self->{time},
+        pid  => $self->{pid},
+        uid  => $self->{uid},
+        euid => $self->{euid},
+        gid  => $self->{gid},
+        egid => $self->{egid},
+    };
+}
+
+sub field_hash {
+    my $self = shift;
+
+    my $hash = {};
+
+    for my $field ($self->Fields) {
+      $hash->{ $field } = $self->$field;
+    }
+
+    return $hash;
+}
+
 sub description {
     return 'Generic exception';
 }
@@ -311,7 +336,7 @@ control.
 =head2 MyException->Fields
 
 This method returns the extra fields defined for the given class, as
-an array.
+a list.
 
 Do not call this on the C<Exception::Class::Base> class directly or
 you'll change it for all exception classes that use

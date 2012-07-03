@@ -1,3 +1,6 @@
+
+- Added field_hash and context_hash methods.  Patch by Ricardo Signes.
+
 1.32 Jun 28, 2010
 
 - Removed Test::Most dependency, which was causing a circular dependency

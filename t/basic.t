@@ -87,6 +87,11 @@ Exception::Class->import('BlahBlah');
     );
 
     is(
+        $@->context_hash->{pid}, $$,
+        "PID is also in context_hash",
+    );
+
+    is(
         $@->uid, $<,
         "UID should be $<"
     );
@@ -217,7 +222,7 @@ SKIP:
     {
         skip( "Perl 5.6.0 is broken.  See README.", 1 ) if $] == 5.006;
 
-        my $re = qr/overloaded again.+eval {...}/s;
+        my $re = qr/overloaded again.+eval \{...\}/s;
 
         my $x = "$@";
         like(
@@ -283,6 +288,12 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
     is(
         $@->foo, 5,
         "Exception's foo method should return 5"
+    );
+
+    is_deeply(
+      $@->field_hash,
+      { foo => 5, bar => undef },
+      "Exception's fields_hash should contain foo=>5,bar=>undef",
     );
 }
 
