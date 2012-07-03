@@ -161,6 +161,18 @@ sub context_hash {
     };
 }
 
+sub field_hash {
+    my $self = shift;
+
+    my $hash = {};
+
+    for my $field ($self->Fields) {
+      $hash->{ $field } = $self->$field;
+    }
+
+    return $hash;
+}
+
 sub description {
     return 'Generic exception';
 }

@@ -289,6 +289,12 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
         $@->foo, 5,
         "Exception's foo method should return 5"
     );
+
+    is_deeply(
+      $@->field_hash,
+      { foo => 5, bar => undef },
+      "Exception's fields_hash should contain foo=>5,bar=>undef",
+    );
 }
 
 # more fields.
