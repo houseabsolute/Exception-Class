@@ -311,7 +311,7 @@ control.
 =head2 MyException->Fields
 
 This method returns the extra fields defined for the given class, as
-an array.
+a list.
 
 Do not call this on the C<Exception::Class::Base> class directly or
 you'll change it for all exception classes that use
