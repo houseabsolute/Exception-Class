@@ -87,6 +87,11 @@ Exception::Class->import('BlahBlah');
     );
 
     is(
+        $@->context_hash->{pid}, $$,
+        "PID is also in context_hash",
+    );
+
+    is(
         $@->uid, $<,
         "UID should be $<"
     );

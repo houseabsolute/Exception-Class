@@ -148,6 +148,19 @@ sub _initialize {
     }
 }
 
+sub context_hash {
+    my $self = shift;
+
+    return {
+        time => $self->{time},
+        pid  => $self->{pid},
+        uid  => $self->{uid},
+        euid => $self->{euid},
+        gid  => $self->{gid},
+        egid => $self->{egid},
+    };
+}
+
 sub description {
     return 'Generic exception';
 }
