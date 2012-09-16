@@ -390,8 +390,8 @@ C<isa()> in that class like this:
 
  sub isa { shift->rethrow }
 
-Of course, this only works if you always call 
-C<< Exception::Class->caught() >> after an C<eval>.
+Of course, this only works if you always call C<< Exception::Class->caught()
+>> after an C<eval>.
 
 =head1 USAGE RECOMMENDATION
 
