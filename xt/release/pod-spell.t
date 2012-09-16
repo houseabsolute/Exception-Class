@@ -24,17 +24,19 @@ all_pod_files_spelling_ok();
 
 __DATA__
 Arun
+CPAN
 Kumar's
 PayPal
+Rolsky
 automagic
 egid
 esque
 isa
 namespace
-runtime
-uncatchable
 param
 refcount
 rethrow
+runtime
 stacktrace
 stringifies
+uncatchable
