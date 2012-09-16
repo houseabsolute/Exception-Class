@@ -314,7 +314,7 @@
 
 0.95    2001-11-22
 
-** INCOMPATIBLE CHANGES IN THIS RELEASE **
+  ** INCOMPATIBLE CHANGES IN THIS RELEASE **
 
 - Remove do_trace method and replace it with Trace method, which is
   inherited by subclasses.
