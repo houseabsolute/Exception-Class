@@ -27,8 +27,9 @@ BEGIN {
 }
 
 use overload
+
     # an exception is always true
-    bool => sub {1}, '""' => 'as_string', fallback => 1;
+    bool => sub { 1 }, '""' => 'as_string', fallback => 1;
 
 # Create accessor routines
 BEGIN {
