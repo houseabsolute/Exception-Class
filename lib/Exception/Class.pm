@@ -84,8 +84,8 @@ sub _make_parents {
     die
         "Class $subclass appears to be a typo as it is only specified in the 'isa' param for $child\n"
         unless exists $needs->{$subclass}
-            || $CLASSES{$subclass}
-            || keys %{"$subclass\::"};
+        || $CLASSES{$subclass}
+        || keys %{"$subclass\::"};
 
     foreach my $c ( @{ $needs->{$subclass}{parents} } ) {
 
@@ -150,7 +150,7 @@ EOPERL
 
         $code
             .= "sub Fields { return (\$_[0]->SUPER::Fields, "
-            . join( ", ", map {"'$_'"} @fields )
+            . join( ", ", map { "'$_'" } @fields )
             . ") }\n\n";
 
         foreach my $field (@fields) {
