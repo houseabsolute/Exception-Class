@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.35    2012-09-17
+
 - Require Class::Data::Inheritable 0.02+.
 
 
