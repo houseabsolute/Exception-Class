@@ -3,7 +3,7 @@ use warnings;
 
 use File::Spec;
 
-use Test::More;
+use Test::More 0.88;
 
 use_ok('Exception::Class');
 
