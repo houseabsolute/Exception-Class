@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- 1.33 did not declare any prereqs. Oops. Reported by Roham McGovern. RT
+  #79677.
+
+
 1.33    2012-09-16
 
 - Fixed warning from basic.t on 5.17.x. RT #79121.
