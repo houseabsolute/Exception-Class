@@ -3,7 +3,7 @@ package Exception::Class::Base;
 use strict;
 use warnings;
 
-use Class::Data::Inheritable;
+use Class::Data::Inheritable 0.02;
 use Devel::StackTrace 1.20;
 use Scalar::Util qw( blessed );
 
