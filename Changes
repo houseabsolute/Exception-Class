@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.34    2012-09-16
+
 - 1.33 did not declare any prereqs. Oops. Reported by Roham McGovern. RT
   #79677.
 
