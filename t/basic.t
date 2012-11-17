@@ -48,66 +48,68 @@ Exception::Class->import('BlahBlah');
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
 
-    isa_ok( $@, 'Exception::Class::Base', '$@' );
+    my $e = $@;
+
+    isa_ok( $e, 'Exception::Class::Base', '$@' );
 
     is(
-        $@->error, 'err',
+        $e->error, 'err',
         "Exception's error message should be 'err'"
     );
 
     is(
-        $@->message, 'err',
+        $e->message, 'err',
         "Exception's message should be 'err'"
     );
 
     is(
-        $@->description, 'Generic exception',
+        $e->description, 'Generic exception',
         "Description should be 'Generic exception'"
     );
 
     is(
-        $@->package, 'main',
+        $e->package, 'main',
         "Package should be 'main'"
     );
 
     my $expect = File::Spec->catfile( 't', 'basic.t' );
     is(
-        $@->file, $expect,
+        $e->file, $expect,
         "File should be '$expect'"
     );
 
     is(
-        $@->line, 49,
+        $e->line, 49,
         "Line should be 49"
     );
 
     is(
-        $@->pid, $$,
+        $e->pid, $$,
         "PID should be $$"
     );
 
     is(
-        $@->uid, $<,
+        $e->uid, $<,
         "UID should be $<"
     );
 
     is(
-        $@->euid, $>,
+        $e->euid, $>,
         "EUID should be $>"
     );
 
     is(
-        $@->gid, $(,
+        $e->gid, $(,
         "GID should be $("
     );
 
     is(
-        $@->egid, $),
+        $e->egid, $),
         "EGID should be $)"
     );
 
     ok(
-        defined $@->trace,
+        defined $e->trace,
         "Exception object should have a stacktrace"
     );
 }
@@ -115,36 +117,43 @@ Exception::Class->import('BlahBlah');
 # Test subclass creation
 {
     eval { TestException->throw( error => 'err' ); };
+    my $e = $@;
 
-    isa_ok( $@, 'TestException' );
+    isa_ok( $e, 'TestException' );
 
     is(
-        $@->description, 'Generic exception',
+        $e->description, 'Generic exception',
         "Description should be 'Generic exception'"
     );
 
     eval { SubTestException->throw( error => 'err' ); };
 
-    isa_ok( $@, 'SubTestException' );
+    $e = $@;
 
-    isa_ok( $@, 'TestException' );
+    isa_ok( $e, 'SubTestException' );
 
-    isa_ok( $@, 'Exception::Class::Base' );
+    isa_ok( $e, 'TestException' );
+
+    isa_ok( $e, 'Exception::Class::Base' );
 
     is(
-        $@->description, q|blah'\\blah|,
+        $e->description, q|blah'\\blah|,
         q|Description should be "blah'\\blah"|
     );
 
     eval { YAE->throw( error => 'err' ); };
 
-    isa_ok( $@, 'SubTestException' );
+    $e = $@;
+
+    isa_ok( $e, 'SubTestException' );
 
     eval { BlahBlah->throw( error => 'yadda yadda' ); };
 
-    isa_ok( $@, 'FooException' );
+    $e = $@;
 
-    isa_ok( $@, 'Exception::Class::Base' );
+    isa_ok( $e, 'FooException' );
+
+    isa_ok( $e, 'Exception::Class::Base' );
 }
 
 # Trace related tests
@@ -160,8 +169,11 @@ Exception::Class->import('BlahBlah');
             show_trace => 1,
         );
     };
+
+    my $e = $@;
+
     like(
-        $@->as_string, qr/Trace begun/,
+        $e->as_string, qr/Trace begun/,
         "Setting show_trace to true should override value of Trace"
     );
 
@@ -174,8 +186,10 @@ Exception::Class->import('BlahBlah');
 
     eval { argh(); };
 
+    $e = $@;
+
     ok(
-        $@->trace->as_string,
+        $e->trace->as_string,
         "Exception should have a stack trace"
     );
 
@@ -186,13 +200,15 @@ Exception::Class->import('BlahBlah');
         );
     };
 
+    $e = $@;
+
     unlike(
-        $@->as_string, qr/Trace begun/,
+        $e->as_string, qr/Trace begun/,
         "Setting show_trace to false should override value of Trace"
     );
 
     my @f;
-    while ( my $f = $@->trace->next_frame ) { push @f, $f; }
+    while ( my $f = $e->trace->next_frame ) { push @f, $f; }
 
     ok(
         ( !grep { $_->package eq 'Exception::Class::Base' } @f ),
@@ -205,8 +221,10 @@ Exception::Class->import('BlahBlah');
     Exception::Class::Base->Trace(0);
     eval { Exception::Class::Base->throw( error => 'overloaded' ); };
 
+    my $e = $@;
+
     is(
-        "$@", 'overloaded',
+        "$e", 'overloaded',
         "Overloading in string context"
     );
 
@@ -231,13 +249,15 @@ SKIP:
 {
     eval { Exception::Class::Base->throw( message => 'err' ); };
 
+    my $e = $@;
+
     is(
-        $@->error, 'err',
+        $e->error, 'err',
         "Exception's error message should be 'err'"
     );
 
     is(
-        $@->message, 'err',
+        $e->message, 'err',
         "Exception's message should be 'err'"
     );
 }
@@ -254,8 +274,10 @@ SKIP:
         eval {xy_die};
     }
 
+    my $e = $@;
+
     is(
-        $@->error, 'dead',
+        $e->error, 'dead',
         "Error message should be 'dead'"
     );
 }
@@ -267,8 +289,10 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 {
     eval { Exc::AsString->throw( error => 'upper case' ) };
 
+    my $e = $@;
+
     is(
-        "$@", 'UPPER CASE',
+        "$e", 'UPPER CASE',
         "Overriding as_string in subclass"
     );
 }
@@ -278,10 +302,12 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 {
     eval { FieldsException->throw( error => 'error', foo => 5 ) };
 
-    can_ok( $@, 'foo' );
+    my $e = $@;
+
+    can_ok( $e, 'foo' );
 
     is(
-        $@->foo, 5,
+        $e->foo, 5,
         "Exception's foo method should return 5"
     );
 }
@@ -292,17 +318,19 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
         MoreFieldsException->throw( error => 'error', yip => 10, foo => 15 );
     };
 
-    can_ok( $@, 'foo' );
+    my $e = $@;
+
+    can_ok( $e, 'foo' );
 
     is(
-        $@->foo, 15,
+        $e->foo, 15,
         "Exception's foo method should return 15"
     );
 
-    can_ok( $@, 'yip' );
+    can_ok( $e, 'yip' );
 
     is(
-        $@->yip, 10,
+        $e->yip, 10,
         "Exception's foo method should return 10"
     );
 }
@@ -316,8 +344,10 @@ sub FieldsException::full_message {
 {
     eval { FieldsException->throw( error => 'error', foo => 5 ) };
 
+    my $e = $@;
+
     like(
-        "$@", qr/error foo = 5/,
+        "$e", qr/error foo = 5/,
         "FieldsException should stringify to include the value of foo"
     );
 }
@@ -326,13 +356,15 @@ sub FieldsException::full_message {
 {
     eval { YAE->throw('foo') };
 
+    my $e = $@;
+
     ok(
-        $@,
+        $e,
         "Single arg constructor should work"
     );
 
     is(
-        $@->error, 'foo',
+        $e->error, 'foo',
         "Single arg constructor should just set error/message"
     );
 }
