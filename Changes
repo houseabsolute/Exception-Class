@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- Fixed some stupidity in the tests that appears to have been highlighted by
+  recent changes to Devel::StackTrace. Reported by Dan Horne. RT #81245.
+
+
 1.35    2012-09-17
 
 - Require Class::Data::Inheritable 0.02+.
