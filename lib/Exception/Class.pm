@@ -453,7 +453,27 @@ included.
 
 If you are interested in adding try/catch/finally syntactic sugar to your code
 then I recommend you check out L<Try::Tiny>. This is a great module that helps
-you ignore some of the weirdness with C<eval> and C<$@>.
+you ignore some of the weirdness with C<eval> and C<$@>. Here's an example of
+how the two modules work together:
+
+  use Exception::Class ( 'My::Exception' );
+  use Scalar::Util qw( blessed );
+  use Try::Tiny;
+
+  try {
+      might_throw();
+  }
+  catch {
+      if ( blessed $_ && $_->isa('My::Exception') ) {
+          handle_it();
+      }
+      else {
+          die $_;
+      }
+  };
+
+Note that you B<cannot> use C<< Exception::Class->caught() >> with
+L<Try::Tiny>.
 
 =head1 SUPPORT
 
