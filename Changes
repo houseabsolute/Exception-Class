@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+- I now recommend you use Throwable instead of this module. It has a nicer,
+  more modern interface.
+
+- Fixed various bugs and confusion in the docs.
+
+
 1.36    2012-11-17
 
 - Fixed some stupidity in the tests that appears to have been highlighted by
