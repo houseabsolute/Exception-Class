@@ -218,6 +218,7 @@ __END__
           alias  => 'throw_fields',
       },
   );
+  use Scalar::Util qw( blessed );
 
   # try
   eval { MyException->throw( error => 'I feel funny.' ) };
@@ -232,11 +233,20 @@ __END__
       exit;
   }
   elsif ( $e = Exception::Class->caught('ExceptionWithFields') ) {
-      $e->quixotic ? do_something_wacky() : do_something_sane();
+      if ( $e->quixotic ) {
+          handle_quixotic_exception();
+      }
+      else {
+          handle_non_quixotic_exception();
+      }
   }
-  else {
-      $e = Exception::Class->caught();
-      ref $e ? $e->rethrow : die $e;
+  elsif ( $e = Exception::Class->caught() ) {
+      if ( blessed $e && $e->can('rethrow') ) {
+          $e->rethrow;
+      }
+      else {
+          die $e;
+      }
   }
 
   # use an alias - without parens subroutine name is checked at
