@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.37    2013-02-24
+
 - I now recommend you use Throwable instead of this module. It has a nicer,
   more modern interface.
 
