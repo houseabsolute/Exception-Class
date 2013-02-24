@@ -219,41 +219,49 @@ __END__
       },
   );
   use Scalar::Util qw( blessed );
+  use Try::Tiny;
 
-  # try
-  eval { MyException->throw( error => 'I feel funny.' ) };
-
-  my $e;
-
-  # catch
-  if ( $e = Exception::Class->caught('MyException') ) {
-      warn $e->error, "\n", $e->trace->as_string, "\n";
-      warn join ' ', $e->euid, $e->egid, $e->uid, $e->gid, $e->pid, $e->time;
-
-      exit;
+  try {
+      MyException->throw( error => 'I feel funny.' );
   }
-  elsif ( $e = Exception::Class->caught('ExceptionWithFields') ) {
-      if ( $e->quixotic ) {
-          handle_quixotic_exception();
+  catch {
+      die $_ unless blessed $_ && $_->can('rethrow');
+
+      if ( $_->isa('Exception::Class') ) {
+          warn $_->error, "\n", $_->trace->as_string, "\n";
+          warn join ' ', $_->euid, $_->egid, $_->uid, $_->gid, $_->pid, $_->time;
+
+          exit;
+      }
+      elsif ( $_->isa('ExceptionWithFields') ) {
+          if ( $_->quixotic ) {
+              handle_quixotic_exception();
+          }
+          else {
+              handle_non_quixotic_exception();
+          }
       }
       else {
-          handle_non_quixotic_exception();
+          $_->rethrow;
       }
-  }
-  elsif ( $e = Exception::Class->caught() ) {
-      if ( blessed $e && $e->can('rethrow') ) {
-          $e->rethrow;
-      }
-      else {
-          die $e;
-      }
-  }
+  };
+
+  # without Try::Tiny
+
+  eval { ... };
+  if ( my $e = Exception::Class->caught() ) { ... }
 
   # use an alias - without parens subroutine name is checked at
   # compile time
   throw_fields error => "No strawberry", grandiosity => "quite a bit";
 
 =head1 DESCRIPTION
+
+B<RECOMMENDATION 1>: If you are writing modern Perl code with L<Moose> or
+L<Moo> I highly recommend using L<Throwable> instead of this module.
+
+B<RECOMMENDATION 2>: Whether or not you use L<Throwable>, you should use
+L<Try::Tiny>.
 
 Exception::Class allows you to declare exception hierarchies in your
 modules in a "Java-esque" manner.
@@ -360,7 +368,33 @@ hierarchies and will die if it finds one.  It also detects missing
 links in a chain, for example if you declare Bar to be a subclass of
 Foo and never declare Foo.
 
-=head1 Catching Exceptions
+=head1 L<Try::Tiny>
+
+If you are interested in adding try/catch/finally syntactic sugar to your code
+then I recommend you check out L<Try::Tiny>. This is a great module that helps
+you ignore some of the weirdness with C<eval> and C<$@>. Here's an example of
+how the two modules work together:
+
+  use Exception::Class ( 'My::Exception' );
+  use Scalar::Util qw( blessed );
+  use Try::Tiny;
+
+  try {
+      might_throw();
+  }
+  catch {
+      if ( blessed $_ && $_->isa('My::Exception') ) {
+          handle_it();
+      }
+      else {
+          die $_;
+      }
+  };
+
+Note that you B<cannot> use C<< Exception::Class->caught() >> with
+L<Try::Tiny>.
+
+=head1 Catching Exceptions Without L<Try::Tiny>
 
 C<Exception::Class> provides some syntactic sugar for catching
 exceptions in a safe manner:
@@ -458,32 +492,6 @@ may include subclasses created by things like CPAN modules, etc.  Also
 note that if you simply define a subclass via the normal Perl method
 of setting C<@ISA> or C<use base>, then your subclass will not be
 included.
-
-=head1 Try::Tiny
-
-If you are interested in adding try/catch/finally syntactic sugar to your code
-then I recommend you check out L<Try::Tiny>. This is a great module that helps
-you ignore some of the weirdness with C<eval> and C<$@>. Here's an example of
-how the two modules work together:
-
-  use Exception::Class ( 'My::Exception' );
-  use Scalar::Util qw( blessed );
-  use Try::Tiny;
-
-  try {
-      might_throw();
-  }
-  catch {
-      if ( blessed $_ && $_->isa('My::Exception') ) {
-          handle_it();
-      }
-      else {
-          die $_;
-      }
-  };
-
-Note that you B<cannot> use C<< Exception::Class->caught() >> with
-L<Try::Tiny>.
 
 =head1 SUPPORT
 
