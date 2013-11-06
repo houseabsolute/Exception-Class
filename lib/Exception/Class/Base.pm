@@ -169,6 +169,11 @@ sub as_string {
     my $self = shift;
 
     my $str = $self->full_message;
+    unless (defined $str and length $str) {
+        my $desc = $self->description;
+        $str = defined $desc && length $desc ? "[$desc]" : "[Generic exception]";
+    }
+
     $str .= "\n\n" . $self->trace->as_string
         if $self->show_trace;
 
