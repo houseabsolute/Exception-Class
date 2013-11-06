@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- An exception without a message will now default to either the associated
+  exception class description or the string "[Generic exception]". Patch by
+  Ricardo Signes. PR #2.
+
+
 1.37    2013-02-24
 
 - I now recommend you use Throwable instead of this module. It has a nicer,
