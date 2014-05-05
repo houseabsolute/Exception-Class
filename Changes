@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.38    2014-05-05
+
 - An exception without a message will now default to either the associated
   exception class description or the string "[Generic exception]". Patch by
   Ricardo Signes. PR #2.
