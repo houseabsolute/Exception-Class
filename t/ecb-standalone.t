@@ -17,7 +17,6 @@ eval { MyE->throw() };
 isa_ok( $@, 'MyE', 'can throw MyE without loading Exception::Class' );
 
 my $caught = MyE->caught();
-is( $@, q{}, 'no exception calling MyE->caught()' );
 ok( $caught, 'caught MyE exception' );
 
 done_testing();
