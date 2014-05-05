@@ -198,6 +198,13 @@ sub Classes { sort keys %Exception::Class::CLASSES }
 
 __END__
 
+=begin Pod::Coverage
+
+    Classes
+    caught
+
+=end Pod::Coverage
+
 =pod
 
 =head1 SYNOPSIS

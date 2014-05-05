@@ -63,8 +63,6 @@ BEGIN {
     }
 }
 
-1;
-
 sub Classes { Exception::Class::Classes() }
 
 sub throw {
@@ -245,6 +243,13 @@ sub caught {
 __END__
 
 =pod
+
+=begin Pod::Coverage
+
+    Classes
+    caught
+
+=end Pod::Coverage
 
 =head1 SYNOPSIS
 
@@ -464,7 +469,7 @@ Returns a hash reference with the following keys:
 
 =back
 
-=head2 $exception->fied_hash()
+=head2 $exception->field_hash()
 
 Returns a hash reference where the keys are any fields defined for the
 exception class and the values are the values associated with the field in the
