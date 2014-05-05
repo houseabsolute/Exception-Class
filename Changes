@@ -4,6 +4,9 @@
   exception class description or the string "[Generic exception]". Patch by
   Ricardo Signes. PR #2.
 
+- Added field_hash() and context_hash() methods. Patch by Ricardo Signes. PR
+  #1.
+
 
 1.37    2013-02-24
 

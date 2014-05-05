@@ -89,6 +89,11 @@ Exception::Class->import('BlahBlah');
     );
 
     is(
+        $e->context_hash->{pid}, $$,
+        "PID is also in context_hash",
+    );
+
+    is(
         $e->uid, $<,
         "UID should be $<"
     );
@@ -309,6 +314,12 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
     is(
         $e->foo, 5,
         "Exception's foo method should return 5"
+    );
+
+    is_deeply(
+      $@->field_hash,
+      { foo => 5, bar => undef },
+      "Exception's fields_hash should contain foo=>5,bar=>undef",
     );
 }
 
