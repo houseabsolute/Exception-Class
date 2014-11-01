@@ -258,6 +258,7 @@ __END__
 
     Classes
     caught
+    NoRefs
 
 =end Pod::Coverage
 
