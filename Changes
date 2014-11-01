@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.39    2014-11-01
+
 - Replaced the Exception::Class::Base->NoRefs method with UnsafeRefCapture to
   match changes in Devel::StackTrace 2.00. The old method is deprecated but
   will continue to work.
