@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Class::Data::Inheritable 0.02;
-use Devel::StackTrace;# 1.20;
+use Devel::StackTrace 2.00;
 use Scalar::Util qw( blessed );
 
 use base qw(Class::Data::Inheritable);
