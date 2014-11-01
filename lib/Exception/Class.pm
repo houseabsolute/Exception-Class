@@ -76,7 +76,7 @@ sub _make_parents {
     no strict 'refs';
 
     # What if someone makes a typo in specifying their 'isa' param?
-    # This should catch it.  Either it's been made because it didn't
+    # This should catch it. Either it's been made because it didn't
     # have missing parents OR it's in our hash as needing a parent.
     # If neither of these is true then the _only_ place it is
     # mentioned is in the 'isa' param for some other class, which is
@@ -274,14 +274,14 @@ Exception::Class allows you to declare exception hierarchies in your
 modules in a "Java-esque" manner.
 
 It features a simple interface allowing programmers to 'declare'
-exception classes at compile time.  It also has a base exception
+exception classes at compile time. It also has a base exception
 class, L<Exception::Class::Base>, that can be easily extended.
 
 It is designed to make structured exception handling simpler and
 better by encouraging people to use hierarchies of exceptions in their
 applications, as opposed to a single catch-all exception class.
 
-This module does not implement any try/catch syntax.  Please see the
+This module does not implement any try/catch syntax. Please see the
 "OTHER EXCEPTION MODULES (try/catch syntax)" section for more
 information on how to get this syntax.
 
@@ -292,7 +292,7 @@ exception objects created by this module.
 =head1 DECLARING EXCEPTION CLASSES
 
 Importing C<Exception::Class> allows you to automagically create
-L<Exception::Class::Base> subclasses.  You can also create subclasses
+L<Exception::Class::Base> subclasses. You can also create subclasses
 via the traditional means of defining your own subclass with C<@ISA>.
 These two methods may be easily combined, so that you could subclass
 an exception class defined via the automagic import, if you desired
@@ -308,7 +308,7 @@ The hashref may contain the following options:
 
 =item * isa
 
-This is the class's parent class.  If this isn't provided then the
+This is the class's parent class. If this isn't provided then the
 class name in C<$Exception::Class::BASE_EXC_CLASS> is assumed to be
 the parent (see below).
 
@@ -318,7 +318,7 @@ declaration I<or> a subclass loaded from a module.
 
 To change the default exception class you will need to change the
 value of C<$Exception::Class::BASE_EXC_CLASS> I<before> calling
-C<import()>.  To do this simply do something like this:
+C<import()>. To do this simply do something like this:
 
   BEGIN { $Exception::Class::BASE_EXC_CLASS = 'SomeExceptionClass'; }
 
@@ -334,8 +334,8 @@ error.
 =item * fields
 
 This allows you to define additional attributes for your exception
-class.  Any field you define can be passed to the C<throw()> or
-C<new()> methods as additional parameters for the constructor.  In
+class. Any field you define can be passed to the C<throw()> or
+C<new()> methods as additional parameters for the constructor. In
 addition, your exception object will have an accessor method for the
 fields you define.
 
@@ -347,14 +347,14 @@ Fields will be inherited by subclasses.
 =item * alias
 
 Specifying an alias causes this class to create a subroutine of the
-specified name in the I<caller's> namespace.  Calling this subroutine
+specified name in the I<caller's> namespace. Calling this subroutine
 is equivalent to calling C<< <class>->throw(@_) >> for the given
 exception class.
 
 Besides convenience, using aliases also allows for additional compile
-time checking.  If the alias is called I<without parentheses>, as in
+time checking. If the alias is called I<without parentheses>, as in
 C<throw_fields "an error occurred">, then Perl checks for the
-existence of the C<throw_fields()> subroutine at compile time.  If
+existence of the C<throw_fields()> subroutine at compile time. If
 instead you do C<< ExceptionWithFields->throw(...) >>, then Perl
 checks the class name at runtime, meaning that typos may sneak
 through.
@@ -362,8 +362,8 @@ through.
 =item * description
 
 Each exception class has a description method that returns a fixed
-string.  This should describe the exception I<class> (as opposed to
-any particular exception object).  This may be useful for debugging if
+string. This should describe the exception I<class> (as opposed to
+any particular exception object). This may be useful for debugging if
 you start catching exceptions you weren't expecting (particularly if
 someone forgot to document them) and you don't understand the error
 messages.
@@ -371,7 +371,7 @@ messages.
 =back
 
 The C<Exception::Class> magic attempts to detect circular class
-hierarchies and will die if it finds one.  It also detects missing
+hierarchies and will die if it finds one. It also detects missing
 links in a chain, for example if you declare Bar to be a subclass of
 Foo and never declare Foo.
 
@@ -415,13 +415,13 @@ exceptions in a safe manner:
 
 The C<caught()> method takes a class name and returns an exception
 object if the last thrown exception is of the given class, or a
-subclass of that class.  If it is not given any arguments, it simply
+subclass of that class. If it is not given any arguments, it simply
 returns C<$@>.
 
 You should B<always> make a copy of the exception object, rather than
-using C<$@> directly.  This is necessary because if your C<cleanup()>
+using C<$@> directly. This is necessary because if your C<cleanup()>
 function uses C<eval>, or calls something which uses it, then C<$@> is
-overwritten.  Copying the exception preserves it for the call to
+overwritten. Copying the exception preserves it for the call to
 C<do_something_with_exception()>.
 
 Exception objects also provide a caught method so you can write:
@@ -434,7 +434,7 @@ Exception objects also provide a caught method so you can write:
 =head2 Uncatchable Exceptions
 
 Internally, the C<caught()> method will call C<isa()> on the exception
-object.  You could make an exception "uncatchable" by overriding
+object. You could make an exception "uncatchable" by overriding
 C<isa()> in that class like this:
 
  package Exception::Uncatchable;
@@ -448,10 +448,10 @@ Of course, this only works if you always call C<< Exception::Class->caught()
 
 If you're creating a complex system that throws lots of different
 types of exceptions, consider putting all the exception declarations
-in one place.  For an app called Foo you might make a
-C<Foo::Exceptions> module and use that in all your code.  This module
+in one place. For an app called Foo you might make a
+C<Foo::Exceptions> module and use that in all your code. This module
 could just contain the code to make C<Exception::Class> do its
-automagic class creation.  Doing this allows you to more easily see
+automagic class creation. Doing this allows you to more easily see
 what exceptions you have, and makes it easier to keep track of them.
 
 This might look something like this:
@@ -485,17 +485,17 @@ exceptions to have more methods.
 
 As part of your usage of C<Exception::Class>, you may want to create
 your own base exception class which subclasses
-L<Exception::Class::Base>.  You should feel free to subclass any of
-the methods documented above.  For example, you may want to subclass
+L<Exception::Class::Base>. You should feel free to subclass any of
+the methods documented above. For example, you may want to subclass
 C<new()> to add additional information to your exception objects.
 
 =head1 Exception::Class FUNCTIONS
 
 The C<Exception::Class> method offers one function, C<Classes()>,
-which is not exported.  This method returns a list of the classes that
+which is not exported. This method returns a list of the classes that
 have been created by calling the C<Exception::Class> import() method.
 Note that this is I<all> the subclasses that have been created, so it
-may include subclasses created by things like CPAN modules, etc.  Also
+may include subclasses created by things like CPAN modules, etc. Also
 note that if you simply define a subclass via the normal Perl method
 of setting C<@ISA> or C<use base>, then your subclass will not be
 included.
