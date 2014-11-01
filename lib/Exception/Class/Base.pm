@@ -4,15 +4,14 @@ use strict;
 use warnings;
 
 use Class::Data::Inheritable 0.02;
-use Devel::StackTrace 1.20;
+use Devel::StackTrace;# 1.20;
 use Scalar::Util qw( blessed );
 
 use base qw(Class::Data::Inheritable);
 
 BEGIN {
     __PACKAGE__->mk_classdata('Trace');
-    __PACKAGE__->mk_classdata('NoRefs');
-    __PACKAGE__->NoRefs(1);
+    __PACKAGE__->mk_classdata('UnsafeRefCapture');
 
     __PACKAGE__->mk_classdata('NoContextInfo');
     __PACKAGE__->NoContextInfo(0);
@@ -22,6 +21,17 @@ BEGIN {
 
     __PACKAGE__->mk_classdata('MaxArgLength');
     __PACKAGE__->MaxArgLength(0);
+
+    sub NoRefs {
+        my $self = shift;
+        if (@_) {
+            my $val = shift;
+            return $self->UnsafeRefCapture(!$val);
+        }
+        else {
+            return $self->UnsafeRefCapture();
+        }
+    }
 
     sub Fields { () }
 }
@@ -124,11 +134,11 @@ sub _initialize {
         }
 
         $self->{trace} = Devel::StackTrace->new(
-            ignore_class     => \@ignore_class,
-            ignore_package   => \@ignore_package,
-            no_refs          => $self->NoRefs,
-            respect_overload => $self->RespectOverload,
-            max_arg_length   => $self->MaxArgLength,
+            ignore_class       => \@ignore_class,
+            ignore_package     => \@ignore_package,
+            unsafe_ref_capture => $self->UnsafeRefCapture,
+            respect_overload   => $self->RespectOverload,
+            max_arg_length     => $self->MaxArgLength,
         );
     }
 
@@ -286,12 +296,12 @@ control.
 
 This is a class method, not an object method.
 
-=head2 MyException->NoRefs($boolean)
+=head2 MyException->UnsafeRefCapture($boolean)
 
 When a C<Devel::StackTrace> object is created, it walks through the
 stack and stores the arguments which were passed to each subroutine on
 the stack.  If any of these arguments are references, then that means
-that the C<Devel::StackTrace> ends up increasing the refcount of these
+that the C<Devel::StackTrace> ends up increasing the ref count of these
 references, delaying their destruction.
 
 Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
@@ -299,9 +309,8 @@ this method provides a way to tell C<Devel::StackTrace> not to store
 these references.  Instead, C<Devel::StackTrace> replaces references
 with their stringified representation.
 
-This method defaults to true.  As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
+This method defaults to false.  As with C<Trace()>, it is inherited by
+subclasses but setting it in a subclass makes it independent thereafter.
 
 Do not call this on the C<Exception::Class::Base> class directly or
 you'll change it for all exception classes that use

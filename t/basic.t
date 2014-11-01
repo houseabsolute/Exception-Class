@@ -39,6 +39,7 @@ use Exception::Class (
 
     'ObjectRefs',
     'ObjectRefs2',
+    'ObjectRefs3',
 );
 
 $Exception::Class::BASE_EXC_CLASS = 'FooException';
@@ -79,8 +80,8 @@ Exception::Class->import('BlahBlah');
     );
 
     is(
-        $e->line, 49,
-        "Line should be 49"
+        $e->line, 50,
+        "Line should be 50"
     );
 
     is(
@@ -380,9 +381,24 @@ sub FieldsException::full_message {
     );
 }
 
-# no refs
+# unsafe ref capture
 {
-    ObjectRefs2->NoRefs(0);
+    ObjectRefs2->UnsafeRefCapture(1);
+
+    eval { Foo->new->bork2 };
+    my $exc = $@;
+
+    my @args = ( $exc->trace->frames )[1]->args;
+
+    ok(
+        ref $args[0],
+        "References should be saved in the stack trace"
+    );
+}
+
+# no refs - deprecated
+{
+    ObjectRefs3->NoRefs(0);
 
     eval { Foo->new->bork2 };
     my $exc = $@;

@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Replaced the Exception::Class::Base->NoRefs method with UnsafeRefCapture to
+  match changes in Devel::StackTrace 2.00. The old method is deprecated but
+  will continue to work.
+
+
 1.38    2014-05-05
 
 - An exception without a message will now default to either the associated
