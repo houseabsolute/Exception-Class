@@ -207,6 +207,8 @@ __END__
 
 =pod
 
+=for test_synopsis BEGIN { die "SKIP: skip this synopsis\n"; }
+
 =head1 SYNOPSIS
 
   use Exception::Class (
@@ -254,7 +256,6 @@ __END__
   };
 
   # without Try::Tiny
-
   eval { ... };
   if ( my $e = Exception::Class->caught() ) { ... }
 
