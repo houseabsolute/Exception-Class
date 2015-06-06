@@ -28,7 +28,7 @@ BEGIN {
         my $self = shift;
         if (@_) {
             my $val = shift;
-            return $self->UnsafeRefCapture(!$val);
+            return $self->UnsafeRefCapture( !$val );
         }
         else {
             return $self->UnsafeRefCapture();
@@ -41,7 +41,7 @@ BEGIN {
 use overload
 
     # an exception is always true
-    bool => sub { 1 }, '""' => 'as_string', fallback => 1;
+    bool => sub {1}, '""' => 'as_string', fallback => 1;
 
 # Create accessor routines
 BEGIN {

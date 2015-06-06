@@ -153,7 +153,7 @@ EOPERL
 
         $code
             .= "sub Fields { return (\$_[0]->SUPER::Fields, "
-            . join( ", ", map { "'$_'" } @fields )
+            . join( ", ", map {"'$_'"} @fields )
             . ") }\n\n";
 
         foreach my $field (@fields) {

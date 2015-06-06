@@ -318,9 +318,9 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
     );
 
     is_deeply(
-      $@->field_hash,
-      { foo => 5, bar => undef },
-      "Exception's fields_hash should contain foo=>5,bar=>undef",
+        $@->field_hash,
+        { foo => 5, bar => undef },
+        "Exception's fields_hash should contain foo=>5,bar=>undef",
     );
 }
 
@@ -470,8 +470,10 @@ sub FieldsException::full_message {
 {
     my %classes = map { $_ => 1 } Exception::Class::Classes();
 
-    ok( $classes{TestException},
-        'TestException should be in the return from Classes()' );
+    ok(
+        $classes{TestException},
+        'TestException should be in the return from Classes()'
+    );
 }
 
 {
@@ -480,8 +482,10 @@ sub FieldsException::full_message {
     eval { throw2('abcdefghijklmnop') };
     my $e = $@;
 
-    like( $e->as_string, qr/'abcdefghijklmnop'/,
-        'arguments are not truncated by default' );
+    like(
+        $e->as_string, qr/'abcdefghijklmnop'/,
+        'arguments are not truncated by default'
+    );
 
     TestException->MaxArgLength(10);
 
