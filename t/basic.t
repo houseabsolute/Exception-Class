@@ -5,7 +5,7 @@ use File::Spec;
 
 use Test::More 0.88;
 
-use_ok('Exception::Class');
+use Exception::Class;
 
 # There's actually a few tests here of the import routine.  I don't
 # really know how to quantify them though.  If we fail to compile and
