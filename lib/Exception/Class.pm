@@ -201,16 +201,14 @@ sub Classes { sort keys %Exception::Class::CLASSES }
 
 __END__
 
+=pod
+
 =begin Pod::Coverage
 
     Classes
     caught
 
 =end Pod::Coverage
-
-=pod
-
-=for test_synopsis BEGIN { die "SKIP: skip this synopsis\n"; }
 
 =head1 SYNOPSIS
 
