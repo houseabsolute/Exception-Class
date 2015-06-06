@@ -4,7 +4,6 @@ use warnings;
 use Test::More;
 
 {
-
     package MyE;
 
     use strict;
