@@ -4,6 +4,8 @@ use 5.008001;
 
 use strict;
 
+our $VERSION = '1.40';
+
 use Exception::Class::Base;
 use Scalar::Util qw(blessed);
 
