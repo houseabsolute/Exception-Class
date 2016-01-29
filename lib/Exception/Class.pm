@@ -57,7 +57,7 @@ MAKE_CLASSES:
 
         $class->_make_subclass(
             subclass => $subclass,
-            def      => $def || {},
+            def => $def || {},
         );
     }
 
