@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.40    2016-01-29
+
 - Fixed broken metadata. Reported by Slaven Rezić. GitHub #3.
 
 
