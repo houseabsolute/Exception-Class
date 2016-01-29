@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+- Fixed broken metadata. Reported by Slaven Rezić. GitHub #3.
+
+
 1.39    2014-11-01
 
 - Replaced the Exception::Class::Base->NoRefs method with UnsafeRefCapture to
