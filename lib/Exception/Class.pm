@@ -78,7 +78,7 @@ sub _make_parents {
     my $seen     = shift;
     my $child    = shift;    # Just for error messages.
 
-    ## no critic (TestingAndDebugging::ProhibitNoStrict)
+    ## no critic (TestingAndDebugging::ProhibitNoStrict, TestingAndDebugging::ProhibitProlongedStrictureOverride)
     no strict 'refs';
 
     # What if someone makes a typo in specifying their 'isa' param?
