@@ -50,6 +50,7 @@ BEGIN {
     foreach my $f (@fields) {
         my $sub = sub { my $s = shift; return $s->{$f}; };
 
+        ## no critic (TestingAndDebugging::ProhibitNoStrict)
         no strict 'refs';
         *{$f} = $sub;
     }
@@ -70,6 +71,8 @@ BEGIN {
 
             return $s->{$f} = $frame ? $frame->$m() : undef;
         };
+
+        ## no critic (TestingAndDebugging::ProhibitNoStrict)
         no strict 'refs';
         *{$f} = $sub;
     }
@@ -106,7 +109,7 @@ sub _initialize {
     my $self = shift;
     my %p = @_ == 1 ? ( error => $_[0] ) : @_;
 
-    $self->{message} = $p{message} || $p{error} || '';
+    $self->{message} = $p{message} || $p{error} || q{};
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
@@ -207,7 +210,7 @@ sub as_string {
     unless ( defined $str && length $str ) {
         my $desc = $self->description;
         $str = defined $desc
-            && length $desc ? "[$desc]" : "[Generic exception]";
+            && length $desc ? "[$desc]" : '[Generic exception]';
     }
 
     $str .= "\n\n" . $self->trace->as_string
@@ -221,6 +224,7 @@ sub full_message { $_[0]->{message} }
 #
 # The %seen bit protects against circular inheritance.
 #
+## no critic (BuiltinFunctions::ProhibitStringyEval, ErrorHandling::RequireCheckingReturnValueOfEval)
 eval <<'EOF' if $] == 5.006;
 sub isa {
     my ( $inheritor, $base ) = @_;

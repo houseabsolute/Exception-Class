@@ -3,33 +3,37 @@ use warnings;
 
 use Test::More;
 
-package Foo;
+## no critic (Modules::ProhibitMultiplePackages)
+{
+    package Foo;
 
-sub foo {
-    my $class = shift;
+    sub foo {
+        my $class = shift;
 
-    TestException->throw(@_) unless $class eq 'Foo';
+        TestException->throw(@_) unless $class eq 'Foo';
 
-    Bar->bar(@_);
+        Bar->bar(@_);
+    }
 }
 
-package Bar;
+{
+    package Bar;
 
-sub bar {
-    shift;
-    Baz->baz(@_);
+    sub bar {
+        shift;
+        Baz->baz(@_);
+    }
 }
 
-package Baz;
+{
+    package Baz;
 
-use vars qw(@ISA);
-@ISA = qw(Foo);
+    use base 'Foo';
 
-sub baz {
-    shift->foo(@_);
+    sub baz {
+        shift->foo(@_);
+    }
 }
-
-package main;
 
 use strict;
 
@@ -40,21 +44,19 @@ sub check_trace {
 
     my ($bad_frame);
     while ( my $frame = $trace->next_frame ) {
-        if (
-            ( grep { $frame->package eq $_ } @$unwanted_pkg )
-            || ( grep { UNIVERSAL::isa( $frame->package, $_ ) }
-                @$unwanted_class )
-            ) {
+        if (   ( grep { $frame->package eq $_ } @$unwanted_pkg )
+            || ( grep { $frame->package->isa($_) } @$unwanted_class ) ) {
             $bad_frame = $frame;
             last;
         }
     }
 
-    ok( !$bad_frame, "Check for unwanted frames" );
+    ok( !$bad_frame, 'Check for unwanted frames' );
     diag("Unwanted frame found: $bad_frame")
         if $bad_frame;
 }
 
+## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
 eval { Foo->foo() };
 my $e = $@;
 

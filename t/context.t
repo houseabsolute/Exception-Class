@@ -10,6 +10,7 @@ use Exception::Class (
 
 Bar->NoContextInfo(1);
 
+## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
 {
     eval { Foo->throw( error => 'foo' ) };
 

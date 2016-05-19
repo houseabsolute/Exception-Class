@@ -8,7 +8,7 @@ use warnings;
 our $VERSION = '1.41';
 
 use Exception::Class::Base;
-use Scalar::Util qw(blessed);
+use Scalar::Util qw( blessed reftype );
 
 our $BASE_EXC_CLASS;
 BEGIN { $BASE_EXC_CLASS ||= 'Exception::Class::Base'; }
@@ -18,6 +18,7 @@ our %CLASSES;
 sub import {
     my $class = shift;
 
+    ## no critic (Variables::ProhibitPackageVars)
     local $Exception::Class::Caller = caller();
 
     my %c;
@@ -43,6 +44,7 @@ MAKE_CLASSES:
         next if $CLASSES{$subclass};
 
         {
+            ## no critic (TestingAndDebugging::ProhibitNoStrict)
             no strict 'refs';
             foreach my $parent ( @{ $def->{isa} } ) {
                 unless ( keys %{"$parent\::"} ) {
@@ -76,6 +78,7 @@ sub _make_parents {
     my $seen     = shift;
     my $child    = shift;    # Just for error messages.
 
+    ## no critic (TestingAndDebugging::ProhibitNoStrict)
     no strict 'refs';
 
     # What if someone makes a typo in specifying their 'isa' param?
@@ -120,7 +123,7 @@ sub _make_subclass {
 
     my $isa;
     if ( $def->{isa} ) {
-        $isa = ref $def->{isa} ? join ' ', @{ $def->{isa} } : $def->{isa};
+        $isa = ref $def->{isa} ? join q{ }, @{ $def->{isa} } : $def->{isa};
     }
     $isa ||= $BASE_EXC_CLASS;
 
@@ -149,11 +152,12 @@ EOPERL
 
     my @fields;
     if ( my $fields = $def->{fields} ) {
-        @fields = UNIVERSAL::isa( $fields, 'ARRAY' ) ? @$fields : $fields;
+        @fields
+            = ref $fields && reftype $fields eq 'ARRAY' ? @$fields : $fields;
 
         $code
-            .= "sub Fields { return (\$_[0]->SUPER::Fields, "
-            . join( ", ", map {"'$_'"} @fields )
+            .= 'sub Fields { return ($_[0]->SUPER::Fields, '
+            . join( ', ', map {"'$_'"} @fields )
             . ") }\n\n";
 
         foreach my $field (@fields) {
@@ -162,9 +166,11 @@ EOPERL
     }
 
     if ( my $alias = $def->{alias} ) {
-        die "Cannot make alias without caller"
+        ## no critic (Variables::ProhibitPackageVars)
+        die 'Cannot make alias without caller'
             unless defined $Exception::Class::Caller;
 
+        ## no critic (TestingAndDebugging::ProhibitNoStrict)
         no strict 'refs';
         *{"$Exception::Class::Caller\::$alias"}
             = sub { $subclass->throw(@_) };
@@ -173,12 +179,13 @@ EOPERL
     if ( my $defaults = $def->{defaults} ) {
         $code
             .= "sub _defaults { return shift->SUPER::_defaults, our \%_DEFAULTS }\n";
+        ## no critic (TestingAndDebugging::ProhibitNoStrict)
         no strict 'refs';
         *{"$subclass\::_DEFAULTS"} = {%$defaults};
     }
 
+    ## no critic (BuiltinFunctions::ProhibitStringyEval, ErrorHandling::RequireCheckingReturnValueOfEval)
     eval $code;
-
     die $@ if $@;
 
     $CLASSES{$subclass} = 1;

@@ -45,6 +45,8 @@ use Exception::Class (
 $Exception::Class::BASE_EXC_CLASS = 'FooException';
 Exception::Class->import('BlahBlah');
 
+## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
+
 # Accessors
 {
     eval { Exception::Class::Base->throw( error => 'err' ); };
@@ -55,22 +57,22 @@ Exception::Class->import('BlahBlah');
 
     is(
         $e->error, 'err',
-        "Exception's error message should be 'err'"
+        q{Exception's error message should be 'err'}
     );
 
     is(
         $e->message, 'err',
-        "Exception's message should be 'err'"
+        q{Exception's message should be 'err'}
     );
 
     is(
         $e->description, 'Generic exception',
-        "Description should be 'Generic exception'"
+        q{Description should be 'Generic exception'}
     );
 
     is(
         $e->package, 'main',
-        "Package should be 'main'"
+        q{Package should be 'main'}
     );
 
     my $expect = File::Spec->catfile( 't', 'basic.t' );
@@ -80,8 +82,8 @@ Exception::Class->import('BlahBlah');
     );
 
     is(
-        $e->line, 50,
-        "Line should be 50"
+        $e->line, 52,
+        'Line should be 52'
     );
 
     is(
@@ -91,7 +93,7 @@ Exception::Class->import('BlahBlah');
 
     is(
         $e->context_hash->{pid}, $$,
-        "PID is also in context_hash",
+        'PID is also in context_hash',
     );
 
     is(
@@ -116,7 +118,7 @@ Exception::Class->import('BlahBlah');
 
     ok(
         defined $e->trace,
-        "Exception object should have a stacktrace"
+        'Exception object should have a stacktrace'
     );
 }
 
@@ -129,7 +131,7 @@ Exception::Class->import('BlahBlah');
 
     is(
         $e->description, 'Generic exception',
-        "Description should be 'Generic exception'"
+        q{Description should be 'Generic exception'}
     );
 
     eval { SubTestException->throw( error => 'err' ); };
@@ -166,7 +168,7 @@ Exception::Class->import('BlahBlah');
 {
     ok(
         !Exception::Class::Base->Trace,
-        "Exception::Class::Base class 'Trace' method should return false"
+        q{Exception::Class::Base class 'Trace' method should return false}
     );
 
     eval {
@@ -180,14 +182,14 @@ Exception::Class->import('BlahBlah');
 
     like(
         $e->as_string, qr/Trace begun/,
-        "Setting show_trace to true should override value of Trace"
+        'Setting show_trace to true should override value of Trace'
     );
 
     Exception::Class::Base->Trace(1);
 
     ok(
         Exception::Class::Base->Trace,
-        "Exception::Class::Base class 'Trace' method should return true"
+        q{Exception::Class::Base class 'Trace' method should return true}
     );
 
     eval { argh(); };
@@ -196,7 +198,7 @@ Exception::Class->import('BlahBlah');
 
     ok(
         $e->trace->as_string,
-        "Exception should have a stack trace"
+        'Exception should have a stack trace'
     );
 
     eval {
@@ -210,7 +212,7 @@ Exception::Class->import('BlahBlah');
 
     unlike(
         $e->as_string, qr/Trace begun/,
-        "Setting show_trace to false should override value of Trace"
+        'Setting show_trace to false should override value of Trace'
     );
 
     my @f;
@@ -218,7 +220,7 @@ Exception::Class->import('BlahBlah');
 
     ok(
         ( !grep { $_->package eq 'Exception::Class::Base' } @f ),
-        "Trace should contain frames from Exception::Class::Base package"
+        'Trace should contain frames from Exception::Class::Base package'
     );
 }
 
@@ -231,7 +233,7 @@ Exception::Class->import('BlahBlah');
 
     is(
         "$e", 'overloaded',
-        "Overloading in string context"
+        'Overloading in string context'
     );
 
     Exception::Class::Base->Trace(1);
@@ -239,14 +241,14 @@ Exception::Class->import('BlahBlah');
 
 SKIP:
     {
-        skip( "Perl 5.6.0 is broken.  See README.", 1 ) if $] == 5.006;
+        skip( 'Perl 5.6.0 is broken.  See README.', 1 ) if $] == 5.006;
 
         my $re = qr/overloaded again.+eval \{...\}/s;
 
         my $x = "$@";
         like(
             $x, $re,
-            "Overloaded stringification should include a stack trace"
+            'Overloaded stringification should include a stack trace'
         );
     }
 }
@@ -259,18 +261,18 @@ SKIP:
 
     is(
         $e->error, 'err',
-        "Exception's error message should be 'err'"
+        q{Exception's error message should be 'err'}
     );
 
     is(
         $e->message, 'err',
-        "Exception's message should be 'err'"
+        q{Exception's message should be 'err'}
     );
 }
 
+## no critic (Modules::ProhibitMultiplePackages)
 {
     {
-
         package X::Y;
 
         use Exception::Class (__PACKAGE__);
@@ -284,7 +286,7 @@ SKIP:
 
     is(
         $e->error, 'dead',
-        "Error message should be 'dead'"
+        q{Error message should be 'dead'}
     );
 }
 
@@ -299,7 +301,7 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 
     is(
         "$e", 'UPPER CASE',
-        "Overriding as_string in subclass"
+        'Overriding as_string in subclass'
     );
 }
 
@@ -314,13 +316,13 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 
     is(
         $e->foo, 5,
-        "Exception's foo method should return 5"
+        q{Exception's foo method should return 5}
     );
 
     is_deeply(
         $@->field_hash,
         { foo => 5, bar => undef },
-        "Exception's fields_hash should contain foo=>5,bar=>undef",
+        q{Exception's fields_hash should contain foo=>5,bar=>undef}
     );
 }
 
@@ -336,19 +338,19 @@ sub Exc::AsString::as_string { return uc $_[0]->error }
 
     is(
         $e->foo, 15,
-        "Exception's foo method should return 15"
+        q{Exception's foo method should return 15}
     );
 
     can_ok( $e, 'yip' );
 
     is(
         $e->yip, 10,
-        "Exception's foo method should return 10"
+        q{Exception's foo method should return 10}
     );
 }
 
 sub FieldsException::full_message {
-    return join ' ', $_[0]->message, "foo = " . $_[0]->foo;
+    return join q{ }, $_[0]->message, 'foo = ' . $_[0]->foo;
 }
 
 # fields + full_message
@@ -360,7 +362,7 @@ sub FieldsException::full_message {
 
     like(
         "$e", qr/error foo = 5/,
-        "FieldsException should stringify to include the value of foo"
+        'FieldsException should stringify to include the value of foo'
     );
 }
 
@@ -372,12 +374,12 @@ sub FieldsException::full_message {
 
     ok(
         $e,
-        "Single arg constructor should work"
+        'Single arg constructor should work'
     );
 
     is(
         $e->error, 'foo',
-        "Single arg constructor should just set error/message"
+        'Single arg constructor should just set error/message'
     );
 }
 
@@ -392,7 +394,7 @@ sub FieldsException::full_message {
 
     ok(
         ref $args[0],
-        "References should be saved in the stack trace"
+        'References should be saved in the stack trace'
     );
 }
 
@@ -407,7 +409,7 @@ sub FieldsException::full_message {
 
     ok(
         ref $args[0],
-        "References should be saved in the stack trace"
+        'References should be saved in the stack trace'
     );
 }
 
@@ -426,13 +428,13 @@ sub FieldsException::full_message {
     eval { throw_saf 'an error' };
     my $e = $@;
 
-    ::ok( $e, "Throw exception via convenience sub (one param)" );
+    ::ok( $e, 'Throw exception via convenience sub (one param)' );
     ::is( $e->error, 'an error', 'check error message' );
 
     eval { throw_saf error => 'another error', thing => 10 };
     $e = $@;
 
-    ::ok( $e, "Throw exception via convenience sub (named params)" );
+    ::ok( $e, 'Throw exception via convenience sub (named params)' );
     ::is( $e->error, 'another error', 'check error message' );
     ::is( $e->thing, 10, 'check "thing" field' );
 

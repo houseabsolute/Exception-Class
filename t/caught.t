@@ -8,6 +8,7 @@ use Exception::Class (
     'Bar' => { isa => 'Foo' },
 );
 
+## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
 {
     eval { Foo->throw( error => 'foo' ) };
 

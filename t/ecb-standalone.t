@@ -12,6 +12,7 @@ use Test::More;
     use base 'Exception::Class::Base';
 }
 
+## no critic (ErrorHandling::RequireCheckingReturnValueOfEval)
 eval { MyE->throw() };
 isa_ok( $@, 'MyE', 'can throw MyE without loading Exception::Class' );
 
