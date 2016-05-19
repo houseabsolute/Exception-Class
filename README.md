@@ -4,7 +4,7 @@ Exception::Class - A module that allows you to declare real exception classes in
 
 # VERSION
 
-version 1.39
+version 1.41
 
 # SYNOPSIS
 
@@ -53,7 +53,6 @@ version 1.39
     };
 
     # without Try::Tiny
-
     eval { ... };
     if ( my $e = Exception::Class->caught() ) { ... }
 
@@ -294,12 +293,6 @@ note that if you simply define a subclass via the normal Perl method
 of setting `@ISA` or `use base`, then your subclass will not be
 included.
 
-# SUPPORT
-
-Please submit bugs to the CPAN RT system at
-http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Exception%3A%3AClass or
-via email at bug-exception-class@rt.cpan.org.
-
 # DONATIONS
 
 If you'd like to thank me for the work I've done on this module,
@@ -321,6 +314,34 @@ To donate, log into PayPal and send money to autarch@urth.org or use
 the button on this page:
 [http://www.urth.org/~autarch/fs-donation.html](http://www.urth.org/~autarch/fs-donation.html)
 
+# SUPPORT
+
+Please submit bugs to the CPAN RT system at
+http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Exception%3A%3AClass or
+via email at bug-exception-class@rt.cpan.org.
+
+Bugs may be submitted through [the RT bug tracker](http://rt.cpan.org/Public/Dist/Display.html?Name=Exception-Class)
+(or [bug-exception-class@rt.cpan.org](mailto:bug-exception-class@rt.cpan.org)).
+
+I am also usually active on IRC as 'drolsky' on `irc://irc.perl.org`.
+
+# DONATIONS
+
+If you'd like to thank me for the work I've done on this module, please
+consider making a "donation" to me via PayPal. I spend a lot of free time
+creating free software, and would appreciate any support you'd care to offer.
+
+Please note that **I am not suggesting that you must do this** in order for me
+to continue working on this particular software. I will continue to do so,
+inasmuch as I have in the past, for as long as it interests me.
+
+Similarly, a donation made in this way will probably not make me work on this
+software much more, unless I get so many donations that I can consider working
+on free software full time (let's all have a chuckle at that together).
+
+To donate, log into PayPal and send money to autarch@urth.org, or use the
+button at [http://www.urth.org/~autarch/fs-donation.html](http://www.urth.org/~autarch/fs-donation.html).
+
 # AUTHOR
 
 Dave Rolsky <autarch@urth.org>
@@ -329,9 +350,9 @@ Dave Rolsky <autarch@urth.org>
 
 Ricardo Signes <rjbs@cpan.org>
 
-# COPYRIGHT AND LICENSE
+# COPYRIGHT AND LICENCE
 
-This software is copyright (c) 2014 by David Rolsky.
+This software is copyright (c) 2016 by Dave Rolsky.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
