@@ -31,7 +31,7 @@ BEGIN {
             return $self->UnsafeRefCapture( !$val );
         }
         else {
-            return $self->UnsafeRefCapture();
+            return $self->UnsafeRefCapture;
         }
     }
 
@@ -69,7 +69,7 @@ BEGIN {
 
             my $frame = $s->trace->frame(0);
 
-            return $s->{$f} = $frame ? $frame->$m() : undef;
+            return $s->{$f} = $frame ? $frame->$m : undef;
         };
 
         ## no critic (TestingAndDebugging::ProhibitNoStrict)
@@ -113,7 +113,7 @@ sub _initialize {
 
     $self->{show_trace} = $p{show_trace} if exists $p{show_trace};
 
-    if ( $self->NoContextInfo() ) {
+    if ( $self->NoContextInfo ) {
         $self->{show_trace} = 0;
         $self->{package} = $self->{file} = $self->{line} = undef;
     }
@@ -274,102 +274,92 @@ __END__
 
   eval { MyException->throw( error => 'I feel funny.' ) };
 
-  print $@->error();
+  print $@->error;
 
 =head1 DESCRIPTION
 
 This class is the base class for all exceptions created by
-L<Exception::Class>. It provides a number of methods for getting
-information about the exception.
+L<Exception::Class>. It provides a number of methods for getting information
+about the exception.
 
 =head1 METHODS
 
 =head2 MyException->Trace($boolean)
 
-Each C<Exception::Class::Base> subclass can be set individually to
-include a stacktrace when the C<as_string> method is called. The
-default is to not include a stacktrace. Calling this method with a
-value changes this behavior. It always returns the current value
-(after any change is applied).
+Each C<Exception::Class::Base> subclass can be set individually to include a
+stacktrace when the C<as_string> method is called. The default is to not
+include a stacktrace. Calling this method with a value changes this
+behavior. It always returns the current value (after any change is applied).
 
-This value is inherited by any subclasses. However, if this value is
-set for a subclass, it will thereafter be independent of the value in
+This value is inherited by any subclasses. However, if this value is set for a
+subclass, it will thereafter be independent of the value in
 C<Exception::Class::Base>.
 
-Do not call this on the C<Exception::Class::Base> class directly or
-you'll change it for all exception classes that use
-L<Exception::Class>, including ones created in modules you don't
-control.
+Do not call this on the C<Exception::Class::Base> class directly or you'll
+change it for all exception classes that use L<Exception::Class>, including
+ones created in modules you don't control.
 
 This is a class method, not an object method.
 
 =head2 MyException->UnsafeRefCapture($boolean)
 
-When a C<Devel::StackTrace> object is created, it walks through the
-stack and stores the arguments which were passed to each subroutine on
-the stack. If any of these arguments are references, then that means
-that the C<Devel::StackTrace> ends up increasing the ref count of these
-references, delaying their destruction.
+When a C<Devel::StackTrace> object is created, it walks through the stack and
+stores the arguments which were passed to each subroutine on the stack. If any
+of these arguments are references, then that means that the
+C<Devel::StackTrace> ends up increasing the ref count of these references,
+delaying their destruction.
 
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> not to store
-these references. Instead, C<Devel::StackTrace> replaces references
-with their stringified representation.
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally, this
+method provides a way to tell C<Devel::StackTrace> not to store these
+references. Instead, C<Devel::StackTrace> replaces references with their
+stringified representation.
 
-This method defaults to false. As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent thereafter.
+This method defaults to false. As with C<Trace>, it is inherited by subclasses
+but setting it in a subclass makes it independent thereafter.
 
-Do not call this on the C<Exception::Class::Base> class directly or
-you'll change it for all exception classes that use
-L<Exception::Class>, including ones created in modules you don't
-control.
+Do not call this on the C<Exception::Class::Base> class directly or you'll
+change it for all exception classes that use L<Exception::Class>, including
+ones created in modules you don't control.
 
 =head2 MyException->RespectOverload($boolean)
 
 When a C<Devel::StackTrace> object stringifies, by default it ignores
 stringification overloading on any objects being dealt with.
 
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> to respect
-overloading.
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally, this
+method provides a way to tell C<Devel::StackTrace> to respect overloading.
 
-This method defaults to false. As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
+This method defaults to false. As with C<Trace>, it is inherited by subclasses
+but setting it in a subclass makes it independent thereafter.
 
-Do not call this on the C<Exception::Class::Base> class directly or
-you'll change it for all exception classes that use
-L<Exception::Class>, including ones created in modules you don't
-control.
+Do not call this on the C<Exception::Class::Base> class directly or you'll
+change it for all exception classes that use L<Exception::Class>, including
+ones created in modules you don't control.
 
 =head2 MyException->MaxArgLength($boolean)
 
-When a C<Devel::StackTrace> object stringifies, by default it displays
-the full argument for each function. This parameter can be used to
-limit the maximum length of each argument.
+When a C<Devel::StackTrace> object stringifies, by default it displays the
+full argument for each function. This parameter can be used to limit the
+maximum length of each argument.
 
-Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally,
-this method provides a way to tell C<Devel::StackTrace> to limit the
-length of arguments.
+Since C<Exception::Class::Base> uses C<Devel::StackTrace> internally, this
+method provides a way to tell C<Devel::StackTrace> to limit the length of
+arguments.
 
-This method defaults to 0. As with C<Trace()>, it is inherited by
-subclasses but setting it in a subclass makes it independent
-thereafter.
+This method defaults to 0. As with C<Trace>, it is inherited by subclasses but
+setting it in a subclass makes it independent thereafter.
 
-Do not call this on the C<Exception::Class::Base> class directly or
-you'll change it for all exception classes that use
-L<Exception::Class>, including ones created in modules you don't
-control.
+Do not call this on the C<Exception::Class::Base> class directly or you'll
+change it for all exception classes that use L<Exception::Class>, including
+ones created in modules you don't control.
 
 =head2 MyException->Fields
 
-This method returns the extra fields defined for the given class, as
-a list.
+This method returns the extra fields defined for the given class, as a list.
 
-Do not call this on the C<Exception::Class::Base> class directly or
-you'll change it for all exception classes that use
-L<Exception::Class>, including ones created in modules you don't
-control.
+Do not call this on the C<Exception::Class::Base> class directly or you'll
+change it for all exception classes that use L<Exception::Class>, including
+ones created in modules you don't control.
 
 =head2 MyException->throw( $message )
 
@@ -377,95 +367,93 @@ control.
 
 =head2 MyException->throw( error => $error )
 
-This method creates a new object with the given error message. If no
-error message is given, this will be an empty string. It then dies
-with this object as its argument.
+This method creates a new object with the given error message. If no error
+message is given, this will be an empty string. It then dies with this object
+as its argument.
 
-This method also takes a C<show_trace> parameter which indicates
-whether or not the particular exception object being created should
-show a stacktrace when its C<as_string()> method is called. This
-overrides the value of C<Trace()> for this class if it is given.
+This method also takes a C<show_trace> parameter which indicates whether or
+not the particular exception object being created should show a stacktrace
+when its C<as_string> method is called. This overrides the value of C<Trace>
+for this class if it is given.
 
-The frames included in the trace can be controlled by the C<ignore_class>
-and C<ignore_package> parameters. These are passed directly to
-Devel::Stacktrace's constructor. See C<Devel::Stacktrace> for more details.
+The frames included in the trace can be controlled by the C<ignore_class> and
+C<ignore_package> parameters. These are passed directly to Devel::Stacktrace's
+constructor. See C<Devel::Stacktrace> for more details.
 
-If only a single value is given to the constructor it is assumed to be
-the message parameter.
+If only a single value is given to the constructor it is assumed to be the
+message parameter.
 
 Additional keys corresponding to the fields defined for the particular
 exception subclass will also be accepted.
 
 =head2 MyException->new(...)
 
-This method takes the same parameters as C<throw()>, but instead of
-dying simply returns a new exception object.
+This method takes the same parameters as C<throw>, but instead of dying simply
+returns a new exception object.
 
-This method is always called when constructing a new exception object
-via the C<throw()> method.
+This method is always called when constructing a new exception object via the
+C<throw> method.
 
-=head2 MyException->description()
+=head2 MyException->description
 
-Returns the description for the given C<Exception::Class::Base>
-subclass. The C<Exception::Class::Base> class's description is
-"Generic exception" (this may change in the future). This is also an
-object method.
+Returns the description for the given C<Exception::Class::Base> subclass. The
+C<Exception::Class::Base> class's description is "Generic exception" (this may
+change in the future). This is also an object method.
 
-=head2 $exception->rethrow()
+=head2 $exception->rethrow
 
 Simply dies with the object as its sole argument. It's just syntactic
-sugar. This does not change any of the object's attribute values.
-However, it will cause C<caller()> to report the die as coming from
-within the C<Exception::Class::Base> class rather than where rethrow
-was called.
+sugar. This does not change any of the object's attribute values.  However, it
+will cause C<caller> to report the die as coming from within the
+C<Exception::Class::Base> class rather than where rethrow was called.
 
-Of course, you always have access to the original stacktrace for the
-exception object.
+Of course, you always have access to the original stacktrace for the exception
+object.
 
-=head2 $exception->message()
+=head2 $exception->message
 
-=head2 $exception->error()
+=head2 $exception->error
 
 Returns the error/message associated with the exception.
 
-=head2 $exception->pid()
+=head2 $exception->pid
 
 Returns the pid at the time the exception was thrown.
 
-=head2 $exception->uid()
+=head2 $exception->uid
 
 Returns the real user id at the time the exception was thrown.
 
-=head2 $exception->gid()
+=head2 $exception->gid
 
 Returns the real group id at the time the exception was thrown.
 
-=head2 $exception->euid()
+=head2 $exception->euid
 
 Returns the effective user id at the time the exception was thrown.
 
-=head2 $exception->egid()
+=head2 $exception->egid
 
 Returns the effective group id at the time the exception was thrown.
 
-=head2 $exception->time()
+=head2 $exception->time
 
-Returns the time in seconds since the epoch at the time the exception
-was thrown.
+Returns the time in seconds since the epoch at the time the exception was
+thrown.
 
-=head2 $exception->package()
+=head2 $exception->package
 
 Returns the package from which the exception was thrown.
 
-=head2 $exception->file()
+=head2 $exception->file
 
 Returns the file within which the exception was thrown.
 
-=head2 $exception->line()
+=head2 $exception->line
 
 Returns the line where the exception was thrown.
 
-=head2 $exception->context_hash()
+=head2 $exception->context_hash
 
 Returns a hash reference with the following keys:
 
@@ -485,40 +473,38 @@ Returns a hash reference with the following keys:
 
 =back
 
-=head2 $exception->field_hash()
+=head2 $exception->field_hash
 
 Returns a hash reference where the keys are any fields defined for the
 exception class and the values are the values associated with the field in the
 given object.
 
-=head2 $exception->trace()
+=head2 $exception->trace
 
 Returns the trace object associated with the object.
 
 =head2 $exception->show_trace($boolean)
 
-This method can be used to set whether or not a stack trace is
-included when the as_string method is called or the object is
-stringified.
+This method can be used to set whether or not a stack trace is included when
+the as_string method is called or the object is stringified.
 
-=head2 $exception->as_string()
+=head2 $exception->as_string
 
-Returns a string form of the error message (something like what you'd
-expect from die). If the class or object is set to show traces then
-then the full trace is also included. The result looks like
-C<Carp::confess()>.
+Returns a string form of the error message (something like what you'd expect
+from die). If the class or object is set to show traces then then the full
+trace is also included. The result looks like C<Carp::confess>.
 
-=head2 $exception->full_message()
+=head2 $exception->full_message
 
-Called by the C<as_string()> method to get the message. By default,
-this is the same as calling the C<message()> method, but may be
-overridden by a subclass. See below for details.
+Called by the C<as_string> method to get the message. By default, this is the
+same as calling the C<message> method, but may be overridden by a
+subclass. See below for details.
 
 =head1 LIGHTWEIGHT EXCEPTIONS
 
 A lightweight exception is one which records no information about its context
-when it is created. This can be achieved by setting C<<
-$class->NoContextInfo() >> to a true value.
+when it is created. This can be achieved by setting C<< $class->NoContextInfo
+>> to a true value.
 
 You can make this the default for a class of exceptions by setting it after
 creating the class:
@@ -535,31 +521,29 @@ time, pid, uid, euid, gid, or egid. It only has a message.
 
 =head1 OVERLOADING
 
-C<Exception::Class::Base> objects are overloaded so that
-stringification produces a normal error message. This just calls the
-C<< $exception->as_string() >> method described above. This means
-that you can just C<print $@> after an C<eval> and not worry about
-whether or not its an actual object. It also means an application or
-module could do this:
+C<Exception::Class::Base> objects are overloaded so that stringification
+produces a normal error message. This just calls the C<< $exception->as_string
+>> method described above. This means that you can just C<print $@> after an
+C<eval> and not worry about whether or not its an actual object. It also means
+an application or module could do this:
 
- $SIG{__DIE__} = sub { Exception::Class::Base->throw( error => join '', @_ ); };
+  $SIG{__DIE__} = sub { Exception::Class::Base->throw( error => join '', @_ ); };
 
-and this would probably not break anything (unless someone was
-expecting a different type of exception object from C<die()>).
+and this would probably not break anything (unless someone was expecting a
+different type of exception object from C<die>).
 
 =head1 OVERRIDING THE as_string METHOD
 
-By default, the C<as_string()> method simply returns the value
-C<message> or C<error> param plus a stack trace, if the class's
-C<Trace()> method returns a true value or C<show_trace> was set when
-creating the exception.
+By default, the C<as_string> method simply returns the value C<message> or
+C<error> param plus a stack trace, if the class's C<Trace> method returns a
+true value or C<show_trace> was set when creating the exception.
 
-However, once you add new fields to a subclass, you may want to
-include those fields in the stringified error.
+However, once you add new fields to a subclass, you may want to include those
+fields in the stringified error.
 
-Inside the C<as_string()> method, the message (non-stack trace)
-portion of the error is generated by calling the C<full_message()>
-method. This can be easily overridden. For example:
+Inside the C<as_string> method, the message (non-stack trace) portion of the
+error is generated by calling the C<full_message> method. This can be easily
+overridden. For example:
 
   sub full_message {
       my $self = shift;
