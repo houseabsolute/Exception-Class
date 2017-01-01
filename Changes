@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+- Generated exception classes are now added to %INC. If you subclass a
+  generated class with "use base" then base.pm will no longer attempt to load
+  the requested class. Patch by Todd Rinaldo. PR #8.
+
+
 1.41    2016-12-07
 
 - Switch to GitHub Issues.
