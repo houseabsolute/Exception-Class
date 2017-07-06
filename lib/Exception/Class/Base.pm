@@ -219,7 +219,7 @@ sub as_string {
     return $str;
 }
 
-sub full_message { $_[0]->{message} }
+sub full_message { $_[0]->message }
 
 #
 # The %seen bit protects against circular inheritance.
