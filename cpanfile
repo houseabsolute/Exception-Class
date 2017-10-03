@@ -3,7 +3,7 @@ requires "Devel::StackTrace" => "2.00";
 requires "Scalar::Util" => "0";
 requires "base" => "0";
 requires "overload" => "0";
-requires "perl" => "5.008001";
+requires "perl" => "5.006";
 requires "strict" => "0";
 requires "warnings" => "0";
 

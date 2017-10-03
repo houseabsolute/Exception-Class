@@ -1,6 +1,6 @@
 package Exception::Class;
 
-use 5.008001;
+use 5.006;
 
 use strict;
 use warnings;
