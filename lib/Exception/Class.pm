@@ -5,7 +5,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = '1.44';
+our $VERSION = '1.45';
 
 use Exception::Class::Base;
 use Scalar::Util qw( blessed reftype );

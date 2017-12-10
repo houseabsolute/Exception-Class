@@ -3,7 +3,7 @@ package Exception::Class::Base;
 use strict;
 use warnings;
 
-our $VERSION = '1.44';
+our $VERSION = '1.45';
 
 use Class::Data::Inheritable 0.02;
 use Devel::StackTrace 2.00;
