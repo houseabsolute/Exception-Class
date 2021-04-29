@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+- The field names for an exception are now checked to ensure that they are
+  valid Perl identifiers. Implemented by brian d foy. PR #13.
+
+
 1.44    2017-12-10
 
 - You can now pass "frame_filter", "filter_frames_early", and "skip_frames" to
