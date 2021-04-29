@@ -354,6 +354,11 @@ an accessor method for the fields you define.
 This parameter can be either a scalar (for a single field) or an array
 reference if you need to define multiple fields.
 
+Each field name must be a legal Perl identifier: it starts with a ASCII letter
+or underscore, and is followed by zero or more ASCII letters, ASCII digits, or
+underscores. If a field name does not match this, the creation of that exception
+class croaks.
+
 Fields will be inherited by subclasses.
 
 =item * alias
