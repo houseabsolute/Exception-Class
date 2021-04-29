@@ -17,6 +17,7 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.008001",
   "NAME" => "Exception::Class",
   "PREREQ_PM" => {
+    "Carp" => "0",
     "Class::Data::Inheritable" => "0.02",
     "Devel::StackTrace" => "2.00",
     "Scalar::Util" => 0,

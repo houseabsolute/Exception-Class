@@ -8,6 +8,7 @@ use warnings;
 our $VERSION = '1.45';
 
 use Exception::Class::Base;
+use Carp qw(croak);
 use Scalar::Util qw( blessed reftype );
 
 our $BASE_EXC_CLASS;
@@ -161,6 +162,9 @@ EOPERL
             . ") }\n\n";
 
         foreach my $field (@fields) {
+            croak
+                "Invalid field name <$field>. A field name must be a legal Perl identifier."
+                unless $field =~ /\A[a-z_][a-z0-9_]*\z/i;
             $code .= sprintf( "sub %s { \$_[0]->{%s} }\n", $field, $field );
         }
     }
