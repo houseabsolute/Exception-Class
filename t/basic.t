@@ -76,9 +76,10 @@ Exception::Class->import('BlahBlah');
     );
 
     my $expect = File::Spec->catfile( 't', 'basic.t' );
-    is(
-        $e->file, $expect,
-        "File should be '$expect'"
+    like(
+        $e->file,
+        qr/\Q$expect\E\z/,
+        "File should end with '$expect'"
     );
 
     is(
