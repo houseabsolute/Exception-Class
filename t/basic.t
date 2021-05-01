@@ -30,7 +30,7 @@ use Exception::Class (
 
     'FooBarException' => { isa => 'FooException' },
 
-    'FieldsException' => { isa => 'YAE', fields => [qw( foo bar )] },
+    'FieldsException'     => { isa => 'YAE', fields => [qw( foo bar )] },
     'MoreFieldsException' => { isa => 'FieldsException', fields => ['yip'] },
 
     'Exc::AsString',
@@ -436,7 +436,7 @@ sub FieldsException::full_message {
 
     ::ok( $e, 'Throw exception via convenience sub (named params)' );
     ::is( $e->error, 'another error', 'check error message' );
-    ::is( $e->thing, 10, 'check "thing" field' );
+    ::is( $e->thing, 10,              'check "thing" field' );
 
     ::is( $e->package, __PACKAGE__, 'package matches current package' );
 }
