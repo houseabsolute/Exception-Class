@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+1.45    2021-05-02
+
 - The field names for an exception are now checked to ensure that they are
   valid Perl identifiers. Implemented by brian d foy. PR #13.
 
