@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+- If you use Exception::Class to create a class whose module file is already loaded, it no longer
+  overwrites the %INC entry for that module with the path to Exception/Class.pm. Typically, this
+  happens when you have a package that implements an exception with the same name as the package
+  itself. Implemented by Graham Knop. PR #17.
+
+
 1.45    2021-05-02
 
 - The field names for an exception are now checked to ensure that they are

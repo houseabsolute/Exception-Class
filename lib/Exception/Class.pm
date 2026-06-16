@@ -193,7 +193,7 @@ EOPERL
     die $@ if $@;
 
     ( my $filename = "$subclass.pm" ) =~ s{::}{/}g;
-    $INC{$filename} = __FILE__;
+    $INC{$filename} ||= __FILE__;
 
     $CLASSES{$subclass} = 1;
 }
