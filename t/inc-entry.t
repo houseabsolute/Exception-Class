@@ -35,4 +35,10 @@ is(
     'class defined in a real module file works',
 );
 
+is(
+    Test::PreloadedException->VERSION,
+    42,
+    'version defined in module is preserved',
+);
+
 done_testing();

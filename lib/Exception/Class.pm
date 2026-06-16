@@ -135,7 +135,7 @@ package $subclass;
 
 use base qw($isa);
 
-our \$$version_name = '1.1';
+our \$$version_name ||= '1.1';
 
 1;
 
