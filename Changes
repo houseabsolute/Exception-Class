@@ -429,7 +429,7 @@
 
 0.8     2000-09-03
 
-- changed object from psuedo-hash to regular hash
+- changed object from pseudo-hash to regular hash
 
 - added package, file, & line methods to exception object.
 
