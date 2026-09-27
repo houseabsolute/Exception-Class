@@ -1,6 +1,8 @@
 exclude = [
     ".build/**/*",
     "Exception-Class-*/**/*",
+    "META.yml",
+    "MYMETA.yml",
     "blib/**/*",
     "t/00-*",
     "t/author-*",
