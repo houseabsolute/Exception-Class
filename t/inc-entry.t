@@ -12,13 +12,13 @@ use Test::PreloadedException;
 is(
     $INC{'Test/Generated/Exception.pm'},
     $INC{'Exception/Class.pm'},
-    '%INC entry for a generated class points at Exception/Class.pm'
+    '%INC entry for a generated class points at Exception/Class.pm',
 );
 
 isnt(
     $INC{q{Test/PreloadedException.pm}},
     $INC{q{Exception/Class.pm}},
-    '%INC entry for a class defined in a real module file is not overwritten'
+    '%INC entry for a class defined in a real module file is not overwritten',
 );
 
 # require always joins the module part of the path with "/", but the lib dir from FindBin may use
@@ -26,13 +26,13 @@ isnt(
 like(
     $INC{q{Test/PreloadedException.pm}},
     qr{/Test/PreloadedException\.pm\z},
-    q{%INC entry for a class defined in a real module file points at that file}
+    q{%INC entry for a class defined in a real module file points at that file},
 );
 
 is(
     Test::PreloadedException->description,
     'preloaded',
-    'class defined in a real module file works'
+    'class defined in a real module file works',
 );
 
 done_testing();
